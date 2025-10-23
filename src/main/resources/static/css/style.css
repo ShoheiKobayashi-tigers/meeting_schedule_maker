@@ -1,0 +1,16 @@
+/* カスタムボタンの基本スタイル */
+.btn-primary {
+    padding: 5px 10px;
+    border: 1px solid #0d6efd;
+    background-color: #0d6efd; /* 青色 */
+    color: white;
+    cursor: pointer;
+    border-radius: 4px; /* 角丸 */
+    font-size: 0.8rem; /* 小さめのフォント */
+    min-width: 80px; /* 1frの領域に収まるように幅を固定 */
+}
+
+/* ホバー時のスタイル */
+.btn-primary:hover {
+    background-color: #0b5ed7; /* 少し濃い青 */
+}

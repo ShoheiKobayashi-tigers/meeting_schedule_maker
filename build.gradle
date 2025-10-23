@@ -1,0 +1,58 @@
+plugins {
+    id 'java'
+    id 'war'
+    id 'org.springframework.boot' version '3.4.4'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'shohei'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //springbootの初期設定
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    //apache.commons　便利機能
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
+
+    //lombokの設定
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+
+    //PostgreSQLの設定
+    implementation 'org.postgresql:postgresql:42.7.7'
+
+
+    //MyBatisの設定
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+
+    //バリデーション
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //csvファイルの取り込み用
+    implementation 'com.opencsv:opencsv:5.9'
+
+    //java.util.ListをPostgreSQLに変換するためのハンドラ
+    implementation 'org.mybatis:mybatis-typehandlers-jsr310:1.0.2'
+
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
