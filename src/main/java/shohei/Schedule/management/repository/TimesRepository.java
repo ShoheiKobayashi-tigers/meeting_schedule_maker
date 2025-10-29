@@ -14,6 +14,9 @@ public interface TimesRepository {
   @Select("SELECT * FROM times")
   List<Times> setTimes();
 
+  @Delete("SELECT * FROM times WHERE start_time = #{startTime}")
+  List<Times> findTimes(LocalDateTime startTime);
+
   @Insert("INSERT INTO times VALUES(#{startTime}, #{endTime})")
   void addTime(Times times);
 

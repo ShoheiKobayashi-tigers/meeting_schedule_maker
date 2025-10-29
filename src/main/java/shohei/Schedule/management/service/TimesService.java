@@ -69,7 +69,13 @@ public class TimesService {
     return times;
   }
 
-  public void deleteTimes(LocalDateTime startTime) {
-    timesRepository.deleteTimes(startTime);
+  public boolean deleteTimes(LocalDateTime startTime) {
+    List<Times> times = timesRepository.findTimes(startTime);
+    if (times.size() == 1) {
+      timesRepository.deleteTimes(startTime);
+      return true;
+    } else {
+      return false;
+    }
   }
 }
