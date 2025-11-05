@@ -1,0 +1,36 @@
+/* src/custom_scheduler.css */
+
+/* 1. 最小描画単位の高さはそのまま維持 (30分 = 50px) */
+.dhx_scale_time_slot {
+    height: 50px !important;
+    position: relative;
+}
+.dhx_cal_scale_unit {
+    height: 50px !important;
+}
+
+/* 2. 【罫線：30分ごとの線】スロットの境界線（30分線）に点線を適用 */
+/* dhx_scale_time_slot の下線が30分ごとの線となります */
+.dhx_cal_data .dhx_scale_time_slot {
+    /* 30分と90分の線は点線にする */
+    border-bottom: 1px solid #999 !important;
+}
+
+/* 3. 【罫線：1時間ごとの線】1時間始まりの30分スロットの下線に実線を上書き */
+/* dhx_scale_time_slot_hour_start は 00分始まりのスロットに付与されています */
+.dhx_cal_data .dhx_scale_time_slot.dhx_scale_time_slot_hour_start {
+    /* 1時間ごとの線を実線で上書き */
+    border-bottom: 1px dashed #E0E0E0 !important;
+}
+
+/* 4. 【15分線】30分スロット（50px）の真ん中（25pxの位置）に点線を描画 */
+/* これで15分線と45分線が点線で追加されます */
+.dhx_scale_time_slot::before {
+    content: "";
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    /* 点線スタイルを適用 */
+    border-top: 1px dashed #E0E0E0;
+}
