@@ -64,7 +64,7 @@ const sortDateCols = (cols) => {
 // --- II. 共通UIコンポーネント (プレゼンテーション層) ---
 
 const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = '実行する', cancelText = 'キャンセル' }) => {
-    // スタイル定義は元のまま
+    // スタイル定義は元のまま (モーダルは画面サイズに依存しないため)
     if (!isOpen) return null;
 
     const contentStyle = {
@@ -140,7 +140,7 @@ const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confir
     );
 };
 
-// トグルスイッチコンポーネント
+// トグルスイッチコンポーネント (スタイルは元のまま)
 const ToggleSwitch = ({ isChecked, onChange }) => {
     const styles = {
         toggleContainer: { display: 'inline-block', verticalAlign: 'middle', },
@@ -162,7 +162,6 @@ const ToggleSwitch = ({ isChecked, onChange }) => {
 // --- III. ロジック層 (カスタムフック) ---
 
 const useScheduleManager = (initialApplicants) => {
-    // 児童（生徒）リストを状態として管理し、更新可能にする
     const [applicants, setApplicants] = useState(initialApplicants);
     const [interviewDuration, setInterviewDuration] = useState(15);
     const DURATION_OPTIONS = [1, 5, 10, 15, 20, 30, 45, 60];
@@ -174,14 +173,12 @@ const useScheduleManager = (initialApplicants) => {
     const [isAddButtonActive, setIsAddButtonActive] = useState(false);
     const [hoveredCellId, setHoveredCellId] = useState(null);
 
-    // クリック割り当て用の状態
     const [selectedSlot, setSelectedSlot] = useState(null);
 
     const [modalState, setModalState] = useState({
         isOpen: false, title: '', message: '', onConfirm: () => {},
     });
 
-    // 児童（生徒）情報設定画面用
     const [newStudentName, setNewStudentName] = useState('');
 
     const TIME_OPTIONS = useMemo(() => {
@@ -679,14 +676,91 @@ const useScheduleManager = (initialApplicants) => {
 
     // スタイル (動的な部分をuseMemoに含める)
     const styles = useMemo(() => ({
-        container: { display: 'flex', justifyContent: 'space-between', padding: '1.5rem', height: '100vh', backgroundColor: '#f8f8f8', fontFamily: 'Inter, sans-serif', },
-        panel: { padding: '1.5rem', borderRadius: '0.75rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', backgroundColor: 'white', height: '100%', overflowY: 'auto', },
-        leftPanel: { flex: 1, marginRight: '1.5rem', minWidth: '400px', },
-        rightPanel: { width: '300px', },
-        baseItem: { padding: '0.75rem 1rem', margin: '0.75rem 0', borderRadius: '0.5rem', textAlign: 'center', fontWeight: '600', transition: 'all 0.2s ease-in-out', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)', cursor: 'grab', },
-        scheduledApplicant: { padding: '0.5rem', width: '90%', backgroundColor: '#4299e1', color: 'white', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', cursor: 'move', margin: '0.25rem 0', },
-        button: { padding: '0.5rem 1rem', borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.1s ease-in-out', border: 'none', },
-        navButton: { backgroundColor: '#718096', color: 'white', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', marginRight: '1rem', },
+        // 🚨 修正点 1: PC向けレイアウト調整
+        container: {
+                    display: 'flex',
+                    // 画面上部からナビゲーション分を下にずらす
+                    paddingTop: '6rem',
+                    // -----------------------------------------------------
+                    // 修正: 1920pxの画面幅を最大限利用するため、幅の制限と中央寄せを解除
+                    // maxWidth: '1920px',
+                    // width: '95%', // 削除
+                    // margin: '0 auto', // 削除
+                    width: '100%', // 画面全体の幅を使用する
+                    // -----------------------------------------------------
+                    height: '100vh',
+                    backgroundColor: '#f8f8f8',
+                    fontFamily: 'Inter, sans-serif',
+                    position: 'relative',
+                    boxSizing: 'border-box',
+                    // パネルの外側に余白を作るため、左右と下部にパディングを追加
+                    paddingLeft: '1.5rem',
+                    paddingRight: '1.5rem',
+                    paddingBottom: '1.5rem',
+                },
+                // 🚨 修正点 A: パネルのスタイル調整 (固定幅の右パネル 300px)
+                panel: {
+                    padding: '1.5rem',
+                    borderRadius: '0.75rem',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    backgroundColor: 'white',
+                    // 全体高の計算は既存ロジックを維持
+                    height: 'calc(100vh - 7.5rem)',
+                    overflowY: 'auto',
+                    boxSizing: 'border-box',
+                    flexShrink: 0,
+                    // 左右の余白をcontainerに移したため、パネル間にマージンを追加
+                    marginTop: '1.5rem',
+                },
+                leftPanel: {
+                    // 修正: 残りのスペースを全て使用（1920pxから右パネル分を引いた幅を確保）
+                    flex: '1',
+                    marginRight: '1.5rem',
+                    minWidth: '700px',
+                },
+                rightPanel: {
+                    // 修正: 固定幅 300px に設定し、flex-shrinkで幅を維持
+                    width: '300px',
+                    minWidth: '300px',
+                    flexShrink: 0,
+                    // flex: '1', // 削除
+                },
+        // 🚨 修正点 3: アイテムとボタンのサイズ調整
+        baseItem: {
+            padding: '0.6rem 1rem',
+            margin: '0.6rem 0',
+            borderRadius: '0.4rem',
+            textAlign: 'center',
+            fontWeight: '600',
+            transition: 'all 0.2s ease-in-out',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+            cursor: 'grab',
+            fontSize: '0.95rem' // 少し大きく
+        },
+        scheduledApplicant: {
+            padding: '0.4rem',
+            width: '90%',
+            backgroundColor: '#4299e1',
+            color: 'white',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            cursor: 'move',
+            margin: '0.3rem 0',
+        },
+        button: {
+            padding: '0.6rem 1.2rem', // ボタンのパディング調整
+            borderRadius: '0.5rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.1s ease-in-out',
+            border: 'none',
+            fontSize: '1rem', // 標準的なサイズ
+        },
+        navButton: {
+            backgroundColor: '#718096',
+            color: 'white',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            marginRight: '1rem',
+        },
         activeNavButton: { backgroundColor: '#2d3748', },
         addButton: {
             backgroundColor: isAddButtonActive ? '#38a169' : '#48bb78',
@@ -695,13 +769,30 @@ const useScheduleManager = (initialApplicants) => {
             boxShadow: isAddButtonActive ? '0 2px 4px rgba(0, 0, 0, 0.1)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             marginRight: '0.5rem',
         },
-        deleteButton: { backgroundColor: 'transparent', color: '#e53e3e', fontSize: '1rem', fontWeight: '700', padding: '0 0.5rem', cursor: 'pointer', marginLeft: 'auto', transition: 'color 0.1s', },
-        inputStyle: { border: '1px solid #ccc', borderRadius: '0.3rem', padding: '0.5rem 0.75rem', marginRight: '1rem', minWidth: '100px', backgroundColor: '#fff', },
+        deleteButton: {
+            backgroundColor: 'transparent',
+            color: '#e53e3e',
+            fontSize: '1rem',
+            fontWeight: '700',
+            padding: '0 0.5rem',
+            cursor: 'pointer',
+            marginLeft: 'auto',
+            transition: 'color 0.1s',
+        },
+        inputStyle: {
+            border: '1px solid #ccc',
+            borderRadius: '0.3rem',
+            padding: '0.6rem 0.75rem', // 入力フィールドのパディング調整
+            marginRight: '1rem',
+            minWidth: '100px',
+            backgroundColor: '#fff',
+        },
     }), [isAddButtonActive]);
 
     const getSlotStyle = useCallback((cellId, isAvailable, isSelected) => ({
-        minWidth: '150px',
-        minHeight: '80px',
+        // 🚨 修正点 B: スロットのサイズ調整
+        minWidth: '140px', // 180pxの約3/4
+        minHeight: '70px', // 80pxより少し小さく
         // 境界線: 利用可能（isAvailable: true）で、選択/ホバーされていないときの境界線色を #718096 に変更
         border: `2px ${hoveredCellId === cellId || isSelected ? 'solid' : 'dashed'} ${isAvailable ? (isSelected ? '#38a169' : '#718096') : '#cbd5e0'}`,
         borderRadius: '0.5rem',
@@ -744,7 +835,7 @@ const useScheduleManager = (initialApplicants) => {
         handleSlotClick,
         handleApplicantClick,
         handleAddStudent, confirmDeleteStudent,
-        getAssignmentDetails, // <-- 新しい関数を追加
+        getAssignmentDetails,
 
         // スタイル/レンダリングヘルパー
         styles, getSlotStyle,
@@ -780,10 +871,19 @@ const ScheduleBoard = ({ manager }) => {
                 </p>
             ) : (
                 <div style={{ overflowX: 'auto' }}>
-                    <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '600px' }}>
+                    <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '900px' }}>
                         <thead>
                             <tr>
-                                <th style={{ border: '1px solid #e2e8f0', backgroundColor: '#f7fafc', padding: '0.5rem', minWidth: '150px' }}>時間帯</th>
+                                {/* 🚨 修正点 C: 時間帯列の幅をコンテンツに合わせる */}
+                                <th style={{
+                                    border: '1px solid #e2e8f0',
+                                    backgroundColor: '#f7fafc',
+                                    padding: '0.75rem',
+                                    whiteSpace: 'nowrap', // 文字列の幅に合わせる
+                                    width: '1%', // コンテンツ幅に合わせるヒント
+                                    fontWeight: '700',
+                                    color: '#2d3748',
+                                }}>時間帯</th>
                                 {sortedCols.map((colHeader, sortedColIndex) => (
                                     <th key={sortedColIndex} style={{ border: '1px solid #e2e8f0', backgroundColor: '#e2e8f0', padding: '0.75rem', fontWeight: '700', color: '#2d3748' }}>
                                         {colHeader}
@@ -794,7 +894,16 @@ const ScheduleBoard = ({ manager }) => {
                         <tbody>
                             {sortedRows.map((rowHeader, rowIndex) => (
                                 <tr key={rowIndex}>
-                                    <td style={{ border: '1px solid #e2e8f0', backgroundColor: '#f7fafc', padding: '0.75rem', fontWeight: '700', color: '#2d3748' }}>
+                                    {/* 🚨 修正点 C: 時間帯列の幅をコンテンツに合わせる */}
+                                    <td style={{
+                                        border: '1px solid #e2e8f0',
+                                        backgroundColor: '#f7fafc',
+                                        padding: '0.75rem',
+                                        fontWeight: '700',
+                                        color: '#2d3748',
+                                        whiteSpace: 'nowrap', // 文字列の幅に合わせる
+                                        width: '1%', // コンテンツ幅に合わせるヒント
+                                    }}>
                                         {rowHeader}
                                     </td>
                                     {sortedCols.map((_, colIndex) => {
@@ -860,6 +969,7 @@ const ScheduleBoard = ({ manager }) => {
 };
 
 const SettingsScreen = ({ manager }) => {
+// ... (SettingsScreen component code remains largely the same, using the new leftPanel and rightPanel widths)
     const {
         scheduleData, interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate, selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
@@ -922,7 +1032,7 @@ const SettingsScreen = ({ manager }) => {
                   + 時間帯 ({interviewDuration}分間) を追加
                 </button>
             </div>
-            <div style={{ maxWidth: '600px', maxHeight: '200px', overflowY: 'auto', border: '1px solid #edf2f7', borderRadius: '0.5rem', padding: '0.5rem' }}>
+            <div style={{ maxWidth: '600px', maxHeight: '250px', overflowY: 'auto', border: '1px solid #edf2f7', borderRadius: '0.5rem', padding: '0.5rem' }}>
                 {sortedRows.map((rowHeader, index) => (
                     <div key={index} style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0.5rem', borderBottom: '1px solid #edf2f7' }}>
                         <span style={{ fontWeight: '700', color: '#718096', minWidth: '30px' }}>
@@ -972,7 +1082,7 @@ const SettingsScreen = ({ manager }) => {
                   + 選択した日付を追加
                 </button>
             </div>
-            <div style={{ maxWidth: '600px', maxHeight: '200px', overflowY: 'auto', border: '1px solid #edf2f7', borderRadius: '0.5rem', padding: '0.5rem' }}>
+            <div style={{ maxWidth: '600px', maxHeight: '250px', overflowY: 'auto', border: '1px solid #edf2f7', borderRadius: '0.5rem', padding: '0.5rem' }}>
                 {sortedCols.map((colHeader, index) => (
                     <div key={index} style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 0.5rem', borderBottom: '1px solid #edf2f7' }}>
                         <span style={{ fontWeight: '700', color: '#718096', minWidth: '30px' }}>
@@ -1006,6 +1116,7 @@ const SettingsScreen = ({ manager }) => {
 };
 
 const SlotSettingsPanel = ({ manager }) => {
+// ... (SlotSettingsPanel component code remains largely the same, using the new rightPanel width)
     const { scheduleData, getApplicantName, toggleSlotAvailability, styles } = manager;
 
     return (
@@ -1076,6 +1187,7 @@ const SlotSettingsPanel = ({ manager }) => {
 };
 
 const ApplicantList = ({ manager }) => {
+// ... (ApplicantList component code remains largely the same, using the new rightPanel width)
     const {
         applicants, scheduleData, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
@@ -1136,10 +1248,11 @@ const ApplicantList = ({ manager }) => {
 
 // --- V. 児童（生徒）情報設定画面コンポーネント ---
 const StudentSettingsScreen = ({ manager }) => {
+// ... (StudentSettingsScreen component code remains largely the same, using the new leftPanel width)
     const {
         applicants, styles,
         newStudentName, setNewStudentName, handleAddStudent,
-        confirmDeleteStudent, getAssignmentDetails // <-- 変更点: getAssignmentDetailsを追加
+        confirmDeleteStudent, getAssignmentDetails
     } = manager;
 
     // スケジュールに割り当てられている児童（生徒）のIDリスト
@@ -1208,7 +1321,7 @@ const StudentSettingsScreen = ({ manager }) => {
             <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto', border: '1px solid #edf2f7', borderRadius: '0.5rem', marginTop: '1rem' }}>
                 {applicants.map((student) => {
                     const isAssigned = assignedIds.includes(student.id);
-                    // 変更点: 割り当て日程を取得
+                    // 割り当て日程を取得
                     const assignment = isAssigned ? getAssignmentDetails(student.id) : null;
 
                     return (
@@ -1222,7 +1335,7 @@ const StudentSettingsScreen = ({ manager }) => {
                             <span style={{ fontWeight: '600', color: '#2d3748', flexGrow: 1 }}>
                                 {student.name}
                             </span>
-                            {/* 変更点: 割り当て日程を表示 */}
+                            {/* 割り当て日程を表示 */}
                             {isAssigned && assignment ? (
                                 <div style={{
                                     fontSize: '0.875rem',
@@ -1282,7 +1395,7 @@ const App = () => {
     const manager = useScheduleManager(initialApplicants);
 
     // 2. UI表示の状態とナビゲーションを管理
-    const [view, setView] = useState('schedule'); // new view: 'students'
+    const [view, setView] = useState('schedule');
 
     // 3. プレゼンテーションコンポーネントに委譲
     const renderMainPanel = () => {
@@ -1308,11 +1421,29 @@ const App = () => {
         return null;
     };
 
+    const navContainerStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        // 🚨 修正点 4: ナビゲーションバーのスタイル調整
+        width: '100%',
+        backgroundColor: '#fff',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+        padding: '1.25rem 2rem',
+        display: 'flex',
+        alignItems: 'center',
+        zIndex: 100,
+        borderBottom: '1px solid #e2e8f0',
+    };
+
     return (
         <div style={manager.styles.container}>
 
             {/* 画面切り替えナビゲーション */}
-            <div style={{ position: 'absolute', top: '1.5rem', left: '1.5rem', zIndex: 10 }}>
+            <div style={navContainerStyle}>
+                <h1 style={{fontSize: '1.25rem', fontWeight: '800', color: '#2d3748', marginRight: '2rem', flexShrink: 0}}>
+                    面談スケジュール管理
+                </h1>
                 <button
                     style={{
                         ...manager.styles.button,
