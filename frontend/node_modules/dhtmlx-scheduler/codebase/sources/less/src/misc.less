@@ -1,0 +1,90 @@
+/* key nav */
+.dhx_focus_slot {
+	background: var(--dhx-scheduler-base-colors-select);
+	position: absolute;
+	pointer-events: none;
+	opacity: 0.5;
+}
+
+.dhx_cal_container *:focus {
+	outline-style: solid;
+	/*not visible focus outline in ie11*/
+	outline-style: auto;
+	outline-color: var(--dhx-scheduler-base-colors-select);
+}
+
+/* key nav end*/
+
+.dhx_no_select {
+	user-select: none;
+}
+
+.dhx_drag_placeholder {
+	z-index: 10;
+	opacity: 0.8;
+}
+
+.dhx_drag_placeholder .dhx_cal_select_menu {
+	display: none;
+}
+
+/* readonly */
+
+.dhx_cal_light_readonly {
+	.dhx_section_time {
+		display: block;
+
+		.dhx_section_time_spacer {
+			visibility: visible;
+		}
+	}
+
+	.dhx_cal_lsection+div {
+		padding-top: 4px;
+		padding-bottom: 4px;
+	}
+}
+
+ 
+/* undo delete */
+
+.scheduler-info.scheduler-popup_after_delete{
+	cursor: default ;
+	border-radius: var(--dhx-scheduler-border-radius);
+	padding: 0;
+	width: 225px;
+    --dhx-scheduler-info-background: var(--dhx-scheduler-undo-delete-background);
+    --dhx-scheduler-info-color: var(--dhx-scheduler-undo-delete-color);
+}
+
+.dhx_info_message{
+	display: flex;
+	justify-content: space-between;
+	align-items: center; 
+	padding: 8px 12px;
+}
+
+.undo_popup_text{
+	text-align: center; 
+}
+
+.undo_button{
+    .button;
+    .button-link;
+}
+
+/* drag_highlight */
+ 
+.dhx_scheduler_month .dhx_marked_timespan.dhx_scheduler_dnd_marker {
+	display:block;
+	margin-top: -4px;
+}
+
+.dhx_marked_timespan.dhx_scheduler_dnd_marker {
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+
+.dhx_scheduler_dnd_marker{
+	opacity: 0.5;
+}
