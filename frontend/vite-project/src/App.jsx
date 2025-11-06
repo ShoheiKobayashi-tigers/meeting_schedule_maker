@@ -49,16 +49,13 @@ const sortTimeRows = (rows) => {
 };
 
 /**
- * 日付ヘッダー ("MM/DD (曜日)") を MM/DD でソートする (致命的なバグを修正)
+ * 日付ヘッダー ("MM/DD (曜日)") を MM/DD でソートする
  */
 const sortDateCols = (cols) => {
     return [...cols].sort((a, b) => {
         // MM/DD (曜日) から MM/DD の部分のみを抽出
         const datePartA = a.substring(0, a.indexOf(' '));
-        // ★修正点: b の日付部分を抽出するために b を使用
         const datePartB = b.substring(0, b.indexOf(' '));
-
-        // 文字列比較で昇順ソートを実行
         return datePartA.localeCompare(datePartB);
     });
 };
@@ -70,7 +67,6 @@ const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confir
     // スタイル定義は元のまま
     if (!isOpen) return null;
 
-    const modalStyle = { /* ... */ };
     const contentStyle = {
         backgroundColor: 'white',
         padding: '2rem',
@@ -177,6 +173,10 @@ const useScheduleManager = (initialApplicants) => {
     const [isAddButtonActive, setIsAddButtonActive] = useState(false);
     const [hoveredCellId, setHoveredCellId] = useState(null);
 
+    // ★NEW: クリック割り当て用の状態
+    // { rowIndex: number, colIndex: number } または null
+    const [selectedSlot, setSelectedSlot] = useState(null);
+
     const [modalState, setModalState] = useState({
         isOpen: false, title: '', message: '', onConfirm: () => {},
     });
@@ -194,7 +194,6 @@ const useScheduleManager = (initialApplicants) => {
 
     const [scheduleData, setScheduleData] = useState(() => {
         const initialRows = sortTimeRows([calculateTimeRange('09:00', 15), calculateTimeRange('09:15', 15)]);
-        // 初期データもソートを適用
         const initialCols = sortDateCols(['12/01 (月)', '11/30 (日)']);
 
         const initialAssignments = Array(initialRows.length).fill(null).map(() => Array(initialCols.length).fill(null));
@@ -213,6 +212,8 @@ const useScheduleManager = (initialApplicants) => {
     const getApplicantName = useCallback((applicantId) => {
         return applicants.find(app => app.id === applicantId)?.name || 'Unknown Applicant';
     }, [applicants]);
+
+    // ... (reconstructAssignments, reconstructCols, 行・列の削除/追加処理は変更なし) ...
 
     // マトリックス再構築ヘルパー (行追加/削除時)
     const reconstructAssignments = (oldRows, newRows, oldAssignments, oldAvailability, oldCols) => {
@@ -261,7 +262,6 @@ const useScheduleManager = (initialApplicants) => {
             const rowToDelete = prevData.rows[rowIndex];
             const newOriginalRows = prevData.rows.filter((_, i) => i !== rowIndex);
 
-            // 行のフィルタリングはソート前の状態で実行
             const newAssignments = prevData.assignments.filter((_, i) => prevData.rows[i] !== rowToDelete);
             const newAvailability = prevData.availability.filter((_, i) => prevData.rows[i] !== rowToDelete);
 
@@ -285,8 +285,6 @@ const useScheduleManager = (initialApplicants) => {
             const colToDelete = prevData.cols[colIndex];
             const newOriginalCols = prevData.cols.filter((_, i) => i !== colIndex);
 
-            // 行列の再構築は元の配列順序で実行される
-            // フィルタリング後の行列を新しいヘッダーに基づいて再構築 (reconstructColsは再構築時にソートは行わない)
             const newAssignments = prevData.assignments.map(row =>
                 row.filter((_, i) => prevData.cols[i] !== colToDelete)
             );
@@ -294,7 +292,7 @@ const useScheduleManager = (initialApplicants) => {
                 row.filter((_, i) => prevData.cols[i] !== colToDelete)
             );
 
-            const sortedNewCols = sortDateCols(newOriginalCols); // ★削除後にソート適用
+            const sortedNewCols = sortDateCols(newOriginalCols);
 
             return {
                 ...prevData,
@@ -370,7 +368,6 @@ const useScheduleManager = (initialApplicants) => {
         if (!selectedDate) return;
 
         const dateObj = new Date(selectedDate);
-        // JavaScriptのgetDay()は0(日)から6(土)
         const weekday = ['日', '月', '火', '水', '木', '金', '土'][dateObj.getDay()];
 
         const [year, month, day] = selectedDate.split('-');
@@ -381,9 +378,8 @@ const useScheduleManager = (initialApplicants) => {
         setScheduleData(prevData => {
             const originalCols = prevData.cols;
             const newOriginalCols = [...originalCols, newHeader];
-            const sortedNewCols = sortDateCols(newOriginalCols); // ★追加後にソート適用
+            const sortedNewCols = sortDateCols(newOriginalCols);
 
-            // 行列をソート後の新しい列ヘッダーに合うように再構築
             const { newAssignments, newAvailability } = reconstructCols(
                 originalCols, sortedNewCols, prevData.rows, prevData.assignments, prevData.availability
             );
@@ -444,12 +440,61 @@ const useScheduleManager = (initialApplicants) => {
         });
     }, [scheduleData, getApplicantName, performUnassignAndToggle]);
 
-    // --- D&D ロジック ---
+    // ★NEW: クリック割り当て処理 ---
+    const handleSlotClick = useCallback((rowIndex, colIndex, isAvailable) => {
+        if (!isAvailable) {
+            setSelectedSlot(null);
+            return;
+        }
+
+        setSelectedSlot(prev =>
+            (prev && prev.rowIndex === rowIndex && prev.colIndex === colIndex)
+                ? null
+                : { rowIndex, colIndex }
+        );
+    }, []);
+
+    const handleApplicantClick = useCallback((applicantId) => {
+        if (!selectedSlot) return;
+
+        const { rowIndex, colIndex } = selectedSlot;
+
+        // 既に割り当て済み、またはスロットに誰かいる場合は、今回はシンプルに処理しない
+        if (scheduleData.assignments[rowIndex][colIndex] !== null) return;
+
+        setScheduleData(prevData => {
+            const newAssignments = prevData.assignments.map(row => [...row]);
+
+            // 1. スロットから同じ応募者を解除する（他のスロットから移動させるため）
+            let foundSource = false;
+            for (let r = 0; r < newAssignments.length; r++) {
+                for (let c = 0; c < newAssignments[r].length; c++) {
+                    if (newAssignments[r][c] === applicantId) {
+                        newAssignments[r][c] = null;
+                        foundSource = true;
+                        break;
+                    }
+                }
+                if (foundSource) break;
+            }
+
+            // 2. 選択されたスロットに割り当てる
+            newAssignments[rowIndex][colIndex] = applicantId;
+
+            return { ...prevData, assignments: newAssignments };
+        });
+
+        setSelectedSlot(null); // 割り当て完了後、選択解除
+    }, [selectedSlot, scheduleData.assignments]);
+
+
+    // --- D&D ロジック (変更なし) ---
     const handleDragStart = useCallback((e, applicantId, sourceCellId = null) => {
         e.dataTransfer.setData('applicantId', applicantId);
         e.dataTransfer.setData('sourceCellId', sourceCellId || 'applicant-list');
         setDraggingApplicantId(applicantId);
         e.dataTransfer.effectAllowed = "move";
+        setSelectedSlot(null); // D&D開始時、クリック選択を解除
     }, []);
 
     const handleDragEnd = useCallback(() => {
@@ -473,6 +518,7 @@ const useScheduleManager = (initialApplicants) => {
     const handleDrop = useCallback((e, targetId) => {
         e.preventDefault();
         setHoveredCellId(null);
+        setSelectedSlot(null); // D&D完了時、クリック選択を解除
 
         const applicantId = e.dataTransfer.getData('applicantId');
         const sourceCellId = e.dataTransfer.getData('sourceCellId');
@@ -557,10 +603,10 @@ const useScheduleManager = (initialApplicants) => {
         inputStyle: { border: '1px solid #ccc', borderRadius: '0.3rem', padding: '0.5rem 0.75rem', marginRight: '1rem', minWidth: '100px', backgroundColor: '#fff', },
     }), [isAddButtonActive]);
 
-    const getSlotStyle = useCallback((cellId, isAvailable) => ({
+    const getSlotStyle = useCallback((cellId, isAvailable, isSelected) => ({ // ★ isSelected を追加
         minWidth: '150px',
         minHeight: '80px',
-        border: `2px ${hoveredCellId === cellId ? 'solid' : 'dashed'} ${isAvailable ? '#a0aec0' : '#f56565'}`,
+        border: `2px ${hoveredCellId === cellId || isSelected ? 'solid' : 'dashed'} ${isAvailable ? (isSelected ? '#38a169' : '#718096') : '#cbd5e0'}`, // ★ 選択状態の色を追加
         borderRadius: '0.5rem',
         margin: '0.25rem',
         padding: '0.5rem',
@@ -569,11 +615,12 @@ const useScheduleManager = (initialApplicants) => {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: isAvailable
-            ? (hoveredCellId === cellId ? '#e2e8f0' : '#edf2f7')
-            : (hoveredCellId === cellId ? '#feb2b2' : '#fed7d7'),
-        color: isAvailable ? '#4a5568' : '#c53030',
+             ? (hoveredCellId === cellId ? '#e2e8f0' : (isSelected ? '#e6fffa' : '#edf2f7'))
+             : (hoveredCellId === cellId ? '#e2e8f0' : '#f7fafc'), // ★ 修正: 利用不可時の背景色を極めて薄いグレーに
+        color: isAvailable ? '#4a5568' : '#a0aec0',
         fontWeight: '500',
         transition: 'all 0.2s ease-in-out',
+        cursor: isAvailable ? 'pointer' : 'default', // ★ クリック可能であることを示す
         pointerEvents: isAvailable ? 'auto' : 'none',
     }), [hoveredCellId]);
 
@@ -586,6 +633,7 @@ const useScheduleManager = (initialApplicants) => {
         selectedDate, setSelectedDate,
         selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
         draggingApplicantId, isAddButtonActive, setIsAddButtonActive,
+        selectedSlot, // ★ NEW: 公開
 
         // 関数
         getApplicantName,
@@ -593,6 +641,8 @@ const useScheduleManager = (initialApplicants) => {
         handleAddColFromPicker, handleDeleteCol,
         toggleSlotAvailability,
         handleDragStart, handleDragEnd, handleDragOver, handleDrop, handleDragEnter, handleDragLeave,
+        handleSlotClick, // ★ NEW: 公開
+        handleApplicantClick, // ★ NEW: 公開
 
         // スタイル/レンダリングヘルパー
         styles, getSlotStyle,
@@ -606,7 +656,9 @@ const ScheduleBoard = ({ manager }) => {
     const {
         scheduleData, getApplicantName, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, handleDragEnter, handleDragLeave,
-        draggingApplicantId, styles, getSlotStyle
+        draggingApplicantId, styles, getSlotStyle,
+        selectedSlot, // ★ NEW
+        handleSlotClick // ★ NEW
     } = manager;
 
     const { rows: sortedRows, cols: sortedCols } = scheduleData;
@@ -617,7 +669,7 @@ const ScheduleBoard = ({ manager }) => {
               📅 面接スケジュールボード (2次元)
             </h1>
             <p style={{ color: '#718096', marginBottom: '1.5rem' }}>
-                スロット設定で「利用不可」に設定されたセルには応募者はドロップできません。
+                スロット選択後、右側の応募者をクリックして割り当てることも可能です。
             </p>
 
             {sortedRows.length === 0 || sortedCols.length === 0 ? (
@@ -646,11 +698,11 @@ const ScheduleBoard = ({ manager }) => {
                                     {sortedCols.map((_, colIndex) => {
                                         const cellId = `slot-${rowIndex}-${colIndex}`;
 
-                                        // 描画には sortedCols のインデックス (colIndex) を使用するが、
-                                        // assignment/availability のデータアクセスには元の scheduleData.assignments/availability を使用する必要がある
-                                        // しかし、`scheduleData.cols` は常にソート済みなので、この colIndex はデータとUIの両方で有効。
                                         const applicantId = scheduleData.assignments[rowIndex][colIndex];
                                         const isAvailable = scheduleData.availability[rowIndex][colIndex];
+
+                                        // ★ NEW: 選択状態の判定
+                                        const isSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
 
                                         const hasAssignmentOnUnavailableSlot = applicantId && !isAvailable;
 
@@ -662,8 +714,10 @@ const ScheduleBoard = ({ manager }) => {
                                                 onDragEnter={(e) => handleDragEnter(e, cellId)}
                                                 onDragLeave={handleDragLeave}
                                                 onDrop={isAvailable ? (e) => handleDrop(e, cellId) : null}
+                                                // ★ NEW: スロットクリックイベント
+                                                onClick={() => handleSlotClick(rowIndex, colIndex, isAvailable)}
                                             >
-                                                <div style={getSlotStyle(cellId, isAvailable)}>
+                                                <div style={getSlotStyle(cellId, isAvailable, isSelected)}> {/* ★ isSelected を渡す */}
                                                     {applicantId ? (
                                                         <div
                                                             style={{
@@ -682,8 +736,8 @@ const ScheduleBoard = ({ manager }) => {
                                                             {getApplicantName(applicantId)}
                                                         </div>
                                                     ) : (
-                                                        <span style={{ color: isAvailable ? '#a0aec0' : '#c53030', fontWeight: '700' }}>
-                                                            {isAvailable ? 'ここにドロップ' : '利用不可 ❌'}
+                                                        <span style={{ color: isAvailable ? (isSelected ? '#38a169' : '#a0aec0') : '#a0aec0', fontWeight: '700' }}>
+                                                            {isSelected ? '✓ 選択中' : (isAvailable ? 'ここにドロップ/選択' : '利用不可')}
                                                         </span>
                                                     )}
                                                     {hasAssignmentOnUnavailableSlot && (
@@ -704,6 +758,8 @@ const ScheduleBoard = ({ manager }) => {
         </div>
     );
 };
+
+// ... (SettingsScreenとSlotSettingsPanel は変更なし) ...
 
 const SettingsScreen = ({ manager }) => {
     const {
@@ -923,7 +979,9 @@ const SlotSettingsPanel = ({ manager }) => {
 const ApplicantList = ({ manager }) => {
     const {
         applicants, scheduleData, handleDragOver, handleDrop,
-        handleDragStart, handleDragEnd, draggingApplicantId, styles
+        handleDragStart, handleDragEnd, draggingApplicantId, styles,
+        selectedSlot, // ★ NEW
+        handleApplicantClick // ★ NEW
     } = manager;
 
     const assignedIds = useMemo(() => scheduleData.assignments.flat().filter(id => id !== null), [scheduleData.assignments]);
@@ -938,7 +996,10 @@ const ApplicantList = ({ manager }) => {
               🧑‍💻 応募者リスト
             </h2>
             <p style={{ color: '#718096', marginBottom: '1rem', fontSize: '0.875rem' }}>
-                ※スロットからここにドロップすると割り当て解除されます
+                {selectedSlot
+                    ? '↑ スロットが選択されています。応募者をクリックして割り当ててください。'
+                    : '※スロットからここにドロップすると割り当て解除されます'
+                }
             </p>
             <div className="applicant-list" style={{ overflowY: 'auto', flex: 1 }}>
                 {applicants.map(applicant => (
@@ -948,14 +1009,17 @@ const ApplicantList = ({ manager }) => {
                             draggable="true"
                             onDragStart={(e) => handleDragStart(e, applicant.id)}
                             onDragEnd={handleDragEnd}
+                            // ★ NEW: クリックイベントを追加
+                            onClick={() => handleApplicantClick(applicant.id)}
                             style={{
                                 ...styles.baseItem,
-                                backgroundColor: '#ebf8ff',
-                                border: '1px solid #90cdf4',
+                                backgroundColor: selectedSlot ? '#d1f1da' : '#ebf8ff', // ★ 選択スロットがある場合は背景色を変更
+                                border: `1px solid ${selectedSlot ? '#48bb78' : '#90cdf4'}`, // ★ 選択スロットがある場合は枠線色を変更
+                                cursor: selectedSlot ? 'pointer' : 'grab', // ★ 選択スロットがある場合はカーソルを変更
                                 ...(draggingApplicantId === applicant.id ? {opacity: 0.4, boxShadow: 'none'} : {}),
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c4e0f5'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ebf8ff'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = selectedSlot ? '#c4e0f5' : '#c4e0f5'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = selectedSlot ? '#d1f1da' : '#ebf8ff'}
                         >
                             {applicant.name}
                         </div>
