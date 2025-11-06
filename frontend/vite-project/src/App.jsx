@@ -420,7 +420,7 @@ const useScheduleManager = (initialApplicants) => {
             setModalState({
                 isOpen: true,
                 title: '割り当ての強制解除確認',
-                message: `このスロット（${targetDate} ${targetTime}）には「${applicantName}」さんが割り当てられています。利用不可に設定すると、この割り当ては強制的に解除され、応募者リストに戻ります。実行しますか？`,
+                message: `このスロット（${targetDate} ${targetTime}）には「${applicantName}」さんが割り当てられています。利用不可に設定すると、この割り当ては強制的に解除され、児童（生徒）リストに戻ります。実行しますか？`,
                 onConfirm: () => performUnassignAndToggle(rowIndex, colIndex),
                 confirmText: '強制解除して不可にする',
                 cancelText: 'キャンセル (可のまま)',
@@ -460,10 +460,10 @@ const useScheduleManager = (initialApplicants) => {
                 const applicantA = newAssignments[fromRowIndex][fromColIndex];
                 const applicantB = newAssignments[rowIndex][colIndex];
 
-                // 1. スロット A に スロット B の応募者 (Applicant B) を割り当てる (nullも許容)
+                // 1. スロット A に スロット B の児童（生徒） (Applicant B) を割り当てる (nullも許容)
                 newAssignments[fromRowIndex][fromColIndex] = applicantB;
 
-                // 2. スロット B に スロット A の応募者 (Applicant A) を割り当てる (nullも許容)
+                // 2. スロット B に スロット A の児童（生徒） (Applicant A) を割り当てる (nullも許容)
                 newAssignments[rowIndex][colIndex] = applicantA;
 
                 return { ...prevData, assignments: newAssignments };
@@ -493,7 +493,7 @@ const useScheduleManager = (initialApplicants) => {
         setScheduleData(prevData => {
             const newAssignments = prevData.assignments.map(row => [...row]);
 
-            // 1. スロットから同じ応募者を解除する（他のスロットから移動させるため）
+            // 1. スロットから同じ児童（生徒）を解除する（他のスロットから移動させるため）
             let foundSource = false;
             for (let r = 0; r < newAssignments.length; r++) {
                 for (let c = 0; c < newAssignments[r].length; c++) {
@@ -603,7 +603,7 @@ const useScheduleManager = (initialApplicants) => {
                 newAssignments[sourceRowIndex][sourceColIndex] = targetApplicantId;
             } else if (!sourceIsGrid) {
                  // リストからのドロップで、ターゲットスロットが埋まっている場合 (リストとのスワップ)
-                 // リストの応募者(applicantId)をターゲットに割り当て、ターゲットの応募者(targetApplicantId)はリストに戻る
+                 // リストの児童（生徒）(applicantId)をターゲットに割り当て、ターゲットの児童（生徒）(targetApplicantId)はリストに戻る
                  newAssignments[targetRowIndex][targetColIndex] = applicantId;
             }
 
@@ -701,10 +701,10 @@ const ScheduleBoard = ({ manager }) => {
     return (
         <div style={{ ...styles.panel, ...styles.leftPanel }}>
             <h1 style={{ fontSize: '1.875rem', fontWeight: '800', marginBottom: '1rem', color: '#2d3748' }}>
-              📅 面接スケジュールボード (2次元)
+              面接スケジュールボード (2次元)
             </h1>
             <p style={{ color: '#718096', marginBottom: '1.5rem' }}>
-                スロット選択後、右側の応募者をクリックして割り当てることも可能です。
+                スロット選択後、右側の児童（生徒）をクリックして割り当てることも可能です。
             </p>
 
             {sortedRows.length === 0 || sortedCols.length === 0 ? (
@@ -770,12 +770,12 @@ const ScheduleBoard = ({ manager }) => {
                                                         </div>
                                                     ) : (
                                                         <span style={{ color: isAvailable ? (isSelected ? '#38a169' : '#a0aec0') : '#a0aec0', fontWeight: '700' }}>
-                                                            {isSelected ? '✓ 選択中' : (isAvailable ? 'ここにドロップ/選択' : '利用不可 🚫')}
+                                                            {isSelected ? '選択中' : (isAvailable ? 'ここにドロップ/選択' : '利用不可')}
                                                         </span>
                                                     )}
                                                     {hasAssignmentOnUnavailableSlot && (
                                                         <span style={{ fontSize: '0.75rem', color: '#fff', backgroundColor: '#c53030', padding: '2px 4px', borderRadius: '4px', marginTop: '4px' }}>
-                                                            ⚠️要解除
+                                                            要解除
                                                         </span>
                                                     )}
                                                 </div>
@@ -807,13 +807,13 @@ const SettingsScreen = ({ manager }) => {
     return (
         <div style={{ ...styles.panel, ...styles.leftPanel }}>
             <h1 style={{ fontSize: '1.875rem', fontWeight: '800', marginBottom: '1rem', color: '#2d3748' }}>
-              ⚙️ スロット設定
+              スロット設定
             </h1>
             <p style={{ color: '#718096', marginBottom: '1.5rem' }}>面談時間、時間帯（縦軸）、日付（横軸）を設定します。</p>
 
             {/* --- 面談時間設定 --- */}
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2d3748', borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem', marginTop: '1.5rem' }}>
-                ⏱️ 面談時間 (スロットの長さ)
+                面談時間 (スロットの長さ)
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem', marginBottom: '2rem' }}>
                 <span style={{ marginRight: '1rem', fontWeight: '500', color: '#4a5568' }}>面談時間:</span>
@@ -833,7 +833,7 @@ const SettingsScreen = ({ manager }) => {
 
             {/* --- 時間帯（行）設定 --- */}
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2d3748', borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem', marginTop: '3rem' }}>
-                ⏰ 時間帯 (縦軸) の追加と管理 - 昇順
+                時間帯 (縦軸) の追加と管理 - 昇順
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem', marginBottom: '1.5rem' }}>
                  <span style={{ marginRight: '1rem', fontWeight: '500', color: '#4a5568' }}>開始時刻:</span>
@@ -889,7 +889,7 @@ const SettingsScreen = ({ manager }) => {
 
             {/* --- 日付（列）設定 --- */}
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2d3748', borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem', marginTop: '3rem' }}>
-                🗓️ 日付 (横軸) の追加と管理 - 昇順
+                日付 (横軸) の追加と管理 - 昇順
             </h2>
             <div style={{ display: 'flex', alignItems: 'center', marginTop: '1rem', marginBottom: '1.5rem' }}>
                  <span style={{ marginRight: '1rem', fontWeight: '500', color: '#4a5568' }}>日付選択:</span>
@@ -946,10 +946,10 @@ const SlotSettingsPanel = ({ manager }) => {
     return (
         <div style={{ ...styles.panel, ...styles.rightPanel, display: 'flex', flexDirection: 'column' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem', color: '#2d3748' }}>
-              ✅ スロット利用可否設定
+              スロット利用可否設定
             </h2>
             <p style={{ color: '#718096', marginBottom: '1rem', fontSize: '0.875rem' }}>
-                 「可」に設定されたスロットのみ、応募者をドロップできます。
+                 「可」に設定されたスロットのみ、児童（生徒）をドロップできます。
                  割り当て済みのスロットを「不可」にすると、割り当てが強制的に解除されます。
             </p>
 
@@ -1027,12 +1027,12 @@ const ApplicantList = ({ manager }) => {
             onDrop={(e) => handleDrop(e, 'applicant-list')}
         >
             <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem', color: '#2d3748' }}>
-              🧑‍💻 応募者リスト
+              未割り当ての児童（生徒）リスト
             </h2>
             <p style={{ color: '#718096', marginBottom: '1rem', fontSize: '0.875rem' }}>
                 {selectedSlot
-                    ? '↑ スロットが選択されています。応募者をクリックして割り当ててください。'
-                    : '※スロットからここにドロップすると割り当て解除されます'
+                    ? 'スロットが選択されています。児童（生徒）をクリックして割り当ててください。'
+                    : 'スロットからここにドロップすると割り当て解除され、リストに戻ります'
                 }
             </p>
             <div className="applicant-list" style={{ overflowY: 'auto', flex: 1 }}>
@@ -1061,7 +1061,7 @@ const ApplicantList = ({ manager }) => {
                 ))}
               {assignedIds.length === applicants.length && (
                 <p style={{textAlign: 'center', marginTop: '2rem', color: '#48bb78', fontWeight: '700'}}>
-                    ✅ 全ての応募者が割り当てられました！
+                    全ての児童（生徒）が割り当てられました！
                 </p>
               )}
             </div>
@@ -1073,7 +1073,7 @@ const ApplicantList = ({ manager }) => {
 // --- V. メインコンポーネント (統合層) ---
 
 const App = () => {
-    // 初期応募者データはここで保持し、フックに渡す
+    // 初期児童（生徒）データはここで保持し、フックに渡す
     const initialApplicants = [
         { id: 'app-1', name: '佐藤 太郎' },
         { id: 'app-2', name: '山田 花子' },
