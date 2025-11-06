@@ -162,7 +162,8 @@ const ToggleSwitch = ({ isChecked, onChange }) => {
 // --- III. ロジック層 (カスタムフック) ---
 
 const useScheduleManager = (initialApplicants) => {
-    const [applicants] = useState(initialApplicants);
+    // 児童（生徒）リストを状態として管理し、更新可能にする
+    const [applicants, setApplicants] = useState(initialApplicants);
     const [interviewDuration, setInterviewDuration] = useState(15);
     const DURATION_OPTIONS = [1, 5, 10, 15, 20, 30, 45, 60];
 
@@ -179,6 +180,9 @@ const useScheduleManager = (initialApplicants) => {
     const [modalState, setModalState] = useState({
         isOpen: false, title: '', message: '', onConfirm: () => {},
     });
+
+    // 児童（生徒）情報設定画面用
+    const [newStudentName, setNewStudentName] = useState('');
 
     const TIME_OPTIONS = useMemo(() => {
         const times = [];
@@ -211,6 +215,69 @@ const useScheduleManager = (initialApplicants) => {
     const getApplicantName = useCallback((applicantId) => {
         return applicants.find(app => app.id === applicantId)?.name || 'Unknown Applicant';
     }, [applicants]);
+
+
+    /**
+     * 指定された児童（生徒）IDが割り当てられているスロットの日程（日付と時間帯）を返す
+     * @param {string} applicantId
+     * @returns {{date: string, time: string} | null}
+     */
+    const getAssignmentDetails = useCallback((applicantId) => {
+        const { rows, cols, assignments } = scheduleData;
+
+        for (let r = 0; r < rows.length; r++) {
+            for (let c = 0; c < cols.length; c++) {
+                if (assignments[r][c] === applicantId) {
+                    const date = cols[c];
+                    const time = rows[r];
+                    return { date, time };
+                }
+            }
+        }
+        return null;
+    }, [scheduleData]);
+
+
+    // --- 児童（生徒）情報の追加・削除処理 ---
+    const handleAddStudent = useCallback(() => {
+        if (!newStudentName.trim()) return;
+
+        // シンプルなID生成
+        const newId = `app-${Date.now()}`;
+        const newStudent = { id: newId, name: newStudentName.trim() };
+
+        setApplicants(prev => [...prev, newStudent]);
+        setNewStudentName('');
+    }, [newStudentName]);
+
+    const handleDeleteStudent = useCallback((studentId) => {
+        // 児童（生徒）リストから削除
+        setApplicants(prev => prev.filter(s => s.id !== studentId));
+
+        // スケジュールからも削除（割り当て解除）
+        setScheduleData(prevData => {
+            const newAssignments = prevData.assignments.map(row =>
+                row.map(id => id === studentId ? null : id)
+            );
+            return { ...prevData, assignments: newAssignments };
+        });
+        setModalState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+    }, []);
+
+    const confirmDeleteStudent = useCallback((student) => {
+        const isAssigned = scheduleData.assignments.flat().includes(student.id);
+
+        setModalState({
+            isOpen: true,
+            title: '児童（生徒）の削除確認',
+            message: isAssigned
+                ? `「${student.name}」さんは現在スケジュールに割り当てられています。削除を実行すると、割り当ては強制的に解除され、データから削除されます。続行しますか？`
+                : `「${student.name}」さんをデータから削除しますか？`,
+            onConfirm: () => handleDeleteStudent(student.id),
+            confirmText: isAssigned ? '強制削除' : '削除',
+            cancelText: 'キャンセル',
+        });
+    }, [scheduleData.assignments, handleDeleteStudent]);
 
 
     // マトリックス再構築ヘルパー (行追加/削除時)
@@ -487,9 +554,6 @@ const useScheduleManager = (initialApplicants) => {
 
         const { rowIndex, colIndex } = selectedSlot;
 
-        // 修正点: 既に割り当て済みでも処理を続行し、上書き（リストとのスワップ）を許可する
-        // if (scheduleData.assignments[rowIndex][colIndex] !== null) return; // 削除
-
         setScheduleData(prevData => {
             const newAssignments = prevData.assignments.map(row => [...row]);
 
@@ -669,6 +733,7 @@ const useScheduleManager = (initialApplicants) => {
         selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
         draggingApplicantId, isAddButtonActive, setIsAddButtonActive,
         selectedSlot,
+        newStudentName, setNewStudentName, // 新規追加
 
         // 関数
         getApplicantName,
@@ -678,6 +743,8 @@ const useScheduleManager = (initialApplicants) => {
         handleDragStart, handleDragEnd, handleDragOver, handleDrop, handleDragEnter, handleDragLeave,
         handleSlotClick,
         handleApplicantClick,
+        handleAddStudent, confirmDeleteStudent,
+        getAssignmentDetails, // <-- 新しい関数を追加
 
         // スタイル/レンダリングヘルパー
         styles, getSlotStyle,
@@ -791,8 +858,6 @@ const ScheduleBoard = ({ manager }) => {
         </div>
     );
 };
-
-// ... (SettingsScreen は変更なし) ...
 
 const SettingsScreen = ({ manager }) => {
     const {
@@ -1069,8 +1134,140 @@ const ApplicantList = ({ manager }) => {
     );
 };
 
+// --- V. 児童（生徒）情報設定画面コンポーネント ---
+const StudentSettingsScreen = ({ manager }) => {
+    const {
+        applicants, styles,
+        newStudentName, setNewStudentName, handleAddStudent,
+        confirmDeleteStudent, getAssignmentDetails // <-- 変更点: getAssignmentDetailsを追加
+    } = manager;
 
-// --- V. メインコンポーネント (統合層) ---
+    // スケジュールに割り当てられている児童（生徒）のIDリスト
+    const assignedIds = useMemo(() => manager.scheduleData.assignments.flat().filter(id => id !== null), [manager.scheduleData.assignments]);
+
+    const inputAndButtonContainer = {
+        display: 'flex',
+        alignItems: 'center',
+        marginTop: '1rem',
+        marginBottom: '2rem',
+        paddingBottom: '1rem',
+        borderBottom: '2px dashed #edf2f7'
+    };
+
+    const addButton = {
+        ...styles.button,
+        backgroundColor: '#48bb78',
+        color: 'white',
+    };
+
+    const deleteButton = {
+        ...styles.deleteButton,
+        backgroundColor: '#fef2f2',
+        border: '1px solid #f56565',
+        borderRadius: '0.3rem',
+        padding: '0.3rem 0.6rem',
+        fontSize: '0.875rem',
+        fontWeight: '600',
+        marginLeft: '1rem',
+    };
+
+    return (
+        <div style={{ ...styles.panel, ...styles.leftPanel }}>
+            <h1 style={{ fontSize: '1.875rem', fontWeight: '800', marginBottom: '1rem', color: '#2d3748' }}>
+              児童（生徒）情報設定
+            </h1>
+            <p style={{ color: '#718096', marginBottom: '1.5rem' }}>
+                スケジュールボードに配置する児童（生徒）のリストを管理します。
+            </p>
+
+            {/* 児童（生徒）追加フォーム */}
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2d3748', borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem', marginTop: '1.5rem' }}>
+                新規児童（生徒）の追加
+            </h2>
+            <div style={inputAndButtonContainer}>
+                 <input
+                    type="text"
+                    value={newStudentName}
+                    onChange={(e) => setNewStudentName(e.target.value)}
+                    placeholder="児童（生徒）の名前を入力"
+                    style={{...styles.inputStyle, flexGrow: 1}}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddStudent()}
+                 />
+                 <button
+                    style={addButton}
+                    onClick={handleAddStudent}
+                >
+                  + 追加
+                </button>
+            </div>
+
+            {/* 児童（生徒）リスト */}
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2d3748', borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem', marginTop: '1.5rem' }}>
+                登録済み児童（生徒） ({applicants.length}名)
+            </h2>
+            <div style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto', border: '1px solid #edf2f7', borderRadius: '0.5rem', marginTop: '1rem' }}>
+                {applicants.map((student) => {
+                    const isAssigned = assignedIds.includes(student.id);
+                    // 変更点: 割り当て日程を取得
+                    const assignment = isAssigned ? getAssignmentDetails(student.id) : null;
+
+                    return (
+                        <div key={student.id} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '0.75rem 1rem',
+                            borderBottom: '1px solid #edf2f7',
+                            backgroundColor: isAssigned ? '#f7fff8' : 'white',
+                        }}>
+                            <span style={{ fontWeight: '600', color: '#2d3748', flexGrow: 1 }}>
+                                {student.name}
+                            </span>
+                            {/* 変更点: 割り当て日程を表示 */}
+                            {isAssigned && assignment ? (
+                                <div style={{
+                                    fontSize: '0.875rem',
+                                    fontWeight: '700',
+                                    color: '#38a169',
+                                    marginRight: '1rem',
+                                    textAlign: 'right'
+                                }}>
+                                    <div>{assignment.date}</div>
+                                    <div style={{fontWeight: '500', fontSize: '0.8rem', color: '#718096'}}>{assignment.time}</div>
+                                </div>
+                            ) : (
+                                <span style={{
+                                    fontSize: '0.875rem',
+                                    fontWeight: '700',
+                                    color: '#718096',
+                                    marginRight: '1rem'
+                                }}>
+                                    未割当
+                                </span>
+                            )}
+                            <button
+                                style={deleteButton}
+                                onClick={() => confirmDeleteStudent(student)}
+                                title="この児童（生徒）をリストから削除"
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fca5a5'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                            >
+                                削除
+                            </button>
+                        </div>
+                    );
+                })}
+                {applicants.length === 0 && (
+                    <p style={{textAlign: 'center', color: '#718096', padding: '1rem'}}>
+                        児童（生徒）が登録されていません。
+                    </p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+
+// --- VI. メインコンポーネント (統合層) ---
 
 const App = () => {
     // 初期児童（生徒）データはここで保持し、フックに渡す
@@ -1085,19 +1282,30 @@ const App = () => {
     const manager = useScheduleManager(initialApplicants);
 
     // 2. UI表示の状態とナビゲーションを管理
-    const [view, setView] = useState('schedule');
+    const [view, setView] = useState('schedule'); // new view: 'students'
 
     // 3. プレゼンテーションコンポーネントに委譲
     const renderMainPanel = () => {
-        return view === 'schedule'
-            ? <ScheduleBoard manager={manager} />
-            : <SettingsScreen manager={manager} />;
+        if (view === 'schedule') return <ScheduleBoard manager={manager} />;
+        if (view === 'settings') return <SettingsScreen manager={manager} />;
+        if (view === 'students') return <StudentSettingsScreen manager={manager} />;
+        return null;
     };
 
     const renderRightPanel = () => {
-        return view === 'schedule'
-            ? <ApplicantList manager={manager} />
-            : <SlotSettingsPanel manager={manager} />;
+        if (view === 'schedule') return <ApplicantList manager={manager} />;
+        if (view === 'settings') return <SlotSettingsPanel manager={manager} />;
+        if (view === 'students') {
+            // 児童（生徒）情報設定画面の右側は非表示または空のパネルにする
+            return (
+                <div style={{ ...manager.styles.rightPanel, backgroundColor: 'transparent', boxShadow: 'none' }}>
+                    <p style={{color: '#718096', textAlign: 'center', padding: '1rem', marginTop: '10vh', border: '1px dashed #ccc', borderRadius: '0.5rem'}}>
+                        児童（生徒）の追加・削除は<br/>左側のパネルで行います。
+                    </p>
+                </div>
+            );
+        }
+        return null;
     };
 
     return (
@@ -1124,6 +1332,17 @@ const App = () => {
                     onClick={() => setView('settings')}
                 >
                     スロット設定
+                </button>
+                {/* 新規追加ボタン */}
+                <button
+                    style={{
+                        ...manager.styles.button,
+                        ...manager.styles.navButton,
+                        ...(view === 'students' ? manager.styles.activeNavButton : {}),
+                    }}
+                    onClick={() => setView('students')}
+                >
+                    児童（生徒）情報設定
                 </button>
             </div>
 
