@@ -61,7 +61,6 @@ const sortDateCols = (cols) => {
     });
 };
 
-
 // --- II. 共通UIコンポーネント (プレゼンテーション層) ---
 
 const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = '実行する', cancelText = 'キャンセル' }) => {
@@ -141,7 +140,26 @@ const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confir
     );
 };
 
-// --- 児童（生徒）詳細モーダルコンポーネント ---
+// トグルスイッチコンポーネント
+const ToggleSwitch = ({ isChecked, onChange }) => {
+    const styles = {
+        toggleContainer: { display: 'inline-block', verticalAlign: 'middle', },
+        toggleLabel: { display: 'block', width: '40px', height: '24px', backgroundColor: '#ccc', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: 'background-color 0.3s', },
+        toggleLabelActive: { backgroundColor: '#48bb78', },
+        toggleCircle: { position: 'absolute', top: '2px', left: '2px', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'white', transition: 'transform 0.3s', },
+        toggleCircleActive: { transform: 'translateX(16px)', },
+    };
+    return (
+        <div style={styles.toggleContainer} onClick={onChange}>
+            <div style={{ ...styles.toggleLabel, ...(isChecked && styles.toggleLabelActive) }}>
+                <div style={{ ...styles.toggleCircle, ...(isChecked && styles.toggleCircleActive) }}></div>
+            </div>
+        </div>
+    );
+};
+
+
+// 児童（生徒）詳細モーダルコンポーネント (前回の実装から変更なし)
 const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, siblingDetails }) => {
     if (!isOpen || !student) return null;
 
@@ -384,27 +402,288 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
         </div>
     );
 };
+
 // ---------------------------------------------
+// --- 🌟 新規: 児童（生徒）追加/編集モーダルコンポーネント ---
+// ---------------------------------------------
+const UpsertStudentModal = ({ isOpen, student, allApplicants, onSave, onClose }) => {
+    if (!isOpen || !student) return null;
+
+    const [formData, setFormData] = useState(student);
+    const [newPreferredDate, setNewPreferredDate] = useState('');
+
+    // モード判定
+    const isEditMode = !!student.id;
+
+    // 兄弟候補リスト (自分自身を除く)
+    const siblingCandidates = useMemo(() => {
+        return allApplicants.filter(app => app.id !== student.id);
+    }, [allApplicants, student.id]);
 
 
-// トグルスイッチコンポーネント (スタイルは元のまま)
-const ToggleSwitch = ({ isChecked, onChange }) => {
-    const styles = {
-        toggleContainer: { display: 'inline-block', verticalAlign: 'middle', },
-        toggleLabel: { display: 'block', width: '40px', height: '24px', backgroundColor: '#ccc', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: 'background-color 0.3s', },
-        toggleLabelActive: { backgroundColor: '#48bb78', },
-        toggleCircle: { position: 'absolute', top: '2px', left: '2px', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'white', transition: 'transform 0.3s', },
-        toggleCircleActive: { transform: 'translateX(16px)', },
+    // スタイル
+    const overlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1002,
+        fontFamily: 'Inter, sans-serif',
     };
+
+    const contentStyle = {
+        backgroundColor: 'white',
+        padding: '2.5rem',
+        borderRadius: '1rem',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        maxWidth: '650px',
+        width: '90%',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        position: 'relative',
+        animation: 'fadeInUp 0.3s ease-out',
+    };
+
+    const inputStyle = {
+        border: '1px solid #cbd5e0',
+        borderRadius: '0.5rem',
+        padding: '0.6rem 0.75rem',
+        width: '100%',
+        boxSizing: 'border-box',
+        fontSize: '1rem',
+        marginBottom: '0.5rem',
+    };
+
+    const labelStyle = {
+        display: 'block',
+        fontWeight: '700',
+        color: '#4a5568',
+        marginBottom: '0.25rem',
+        marginTop: '1rem',
+    };
+
+    const h4Style = {
+        fontSize: '1.3rem',
+        fontWeight: '800',
+        color: '#2d3748',
+        borderBottom: '2px solid #edf2f7',
+        paddingBottom: '0.5rem',
+        marginTop: '2rem',
+        marginBottom: '1rem',
+    };
+
+    const buttonBaseStyle = {
+        padding: '0.75rem 1.5rem',
+        borderRadius: '0.5rem',
+        fontWeight: '700',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        border: 'none',
+        fontSize: '1rem',
+    };
+
+    // ハンドラ
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleDateChange = () => {
+        if (newPreferredDate.trim() && !formData.preferred_dates.includes(newPreferredDate.trim())) {
+            setFormData(prev => ({
+                ...prev,
+                preferred_dates: [...prev.preferred_dates, newPreferredDate.trim()].sort()
+            }));
+            setNewPreferredDate('');
+        }
+    };
+
+    const handleDateRemove = (dateToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            preferred_dates: prev.preferred_dates.filter(date => date !== dateToRemove)
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!formData.name.trim()) {
+            alert('氏名は必須です。');
+            return;
+        }
+
+        // 兄弟のIDが設定されていても、クラスが空の場合はクラスをnullにする
+        const finalData = {
+            ...formData,
+            sibling_id: formData.sibling_id || null,
+            sibling_class: (formData.sibling_id && formData.sibling_class.trim()) ? formData.sibling_class.trim() : null,
+            name: formData.name.trim(),
+            student_id: formData.student_id.trim()
+        };
+
+        onSave(finalData);
+    };
+
+
     return (
-        <div style={styles.toggleContainer} onClick={onChange}>
-            <div style={{ ...styles.toggleLabel, ...(isChecked && styles.toggleLabelActive) }}>
-                <div style={{ ...styles.toggleCircle, ...(isChecked && styles.toggleCircleActive) }}></div>
+        <div style={overlayStyle} onClick={onClose}>
+            <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+                <h3 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#2d3748', borderBottom: '2px solid #e2e8f0', paddingBottom: '1rem' }}>
+                    {isEditMode ? '児童（生徒）情報の編集' : '新規児童（生徒）の追加'}
+                </h3>
+                <form onSubmit={handleSubmit}>
+
+                    {/* 1. 基本情報 */}
+                    <h4 style={h4Style}>基本情報</h4>
+                    <div>
+                        <label style={labelStyle} htmlFor="name">氏名 <span style={{color: '#e53e3e'}}>*</span></label>
+                        <input
+                            id="name"
+                            name="name"
+                            type="text"
+                            value={formData.name}
+                            onChange={handleChange}
+                            style={inputStyle}
+                            placeholder="例: 佐藤 太郎"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label style={labelStyle} htmlFor="student_id">出席番号</label>
+                        <input
+                            id="student_id"
+                            name="student_id"
+                            type="text"
+                            value={formData.student_id}
+                            onChange={handleChange}
+                            style={inputStyle}
+                            placeholder="例: 1201"
+                        />
+                    </div>
+
+                    {/* 2. 兄弟情報 */}
+                    <h4 style={h4Style}>兄弟の情報</h4>
+                    <div>
+                        <label style={labelStyle} htmlFor="sibling_id">兄弟の氏名 (面談対象者)</label>
+                        <select
+                            id="sibling_id"
+                            name="sibling_id"
+                            value={formData.sibling_id || ''}
+                            onChange={handleChange}
+                            style={inputStyle}
+                        >
+                            <option value="">-- 兄弟を選択 --</option>
+                            {siblingCandidates.map(app => (
+                                <option key={app.id} value={app.id}>
+                                    {app.name} (出席番号: {app.student_id || '未登録'})
+                                </option>
+                            ))}
+                        </select>
+                        <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
+                            兄弟も面談対象者リストに登録されている必要があります。
+                        </p>
+                    </div>
+
+                    {formData.sibling_id && (
+                        <div>
+                            <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
+                            <input
+                                id="sibling_class"
+                                name="sibling_class"
+                                type="text"
+                                value={formData.sibling_class || ''}
+                                onChange={handleChange}
+                                style={inputStyle}
+                                placeholder="例: 小学5年A組"
+                            />
+                        </div>
+                    )}
+
+
+                    {/* 3. 希望日程 */}
+                    <h4 style={h4Style}>希望日程（日時のリスト）</h4>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
+                        <div style={{ flexGrow: 1 }}>
+                            <label style={labelStyle} htmlFor="new_preferred_date">日程の追加</label>
+                            <input
+                                id="new_preferred_date"
+                                type="text"
+                                value={newPreferredDate}
+                                onChange={(e) => setNewPreferredDate(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleDateChange())}
+                                style={inputStyle}
+                                placeholder="例: 12/05 (火) 10:00 - 11:00"
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleDateChange}
+                            style={{
+                                ...buttonBaseStyle,
+                                backgroundColor: '#4299e1',
+                                color: 'white',
+                                whiteSpace: 'nowrap',
+                                marginBottom: '0.5rem',
+                            }}
+                        >
+                            追加
+                        </button>
+                    </div>
+                    <div style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.5rem', marginTop: '0.5rem' }}>
+                        {formData.preferred_dates.length > 0 ? (
+                            formData.preferred_dates.map((date, index) => (
+                                <div key={index} style={{ display: 'flex', alignItems: 'center', padding: '0.4rem 0.5rem', borderBottom: '1px dotted #e2e8f0' }}>
+                                    <span style={{ fontSize: '0.9rem', color: '#2d3748', flexGrow: 1 }}>{date}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDateRemove(date)}
+                                        style={{ color: '#e53e3e', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem' }}
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <p style={{ textAlign: 'center', color: '#718096', padding: '1rem' }}>希望日程はありません</p>
+                        )}
+                    </div>
+
+
+                    {/* フォームアクション */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2.5rem' }}>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            style={{
+                                ...buttonBaseStyle,
+                                backgroundColor: '#edf2f7',
+                                color: '#4a5568',
+                                marginRight: '1rem',
+                            }}
+                        >
+                            キャンセル
+                        </button>
+                        <button
+                            type="submit"
+                            style={{
+                                ...buttonBaseStyle,
+                                backgroundColor: isEditMode ? '#dd6b20' : '#38a169',
+                                color: 'white',
+                            }}
+                        >
+                            {isEditMode ? '情報を更新' : '児童（生徒）を登録'}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );
 };
-
 
 // --- III. ロジック層 (カスタムフック) ---
 
@@ -426,14 +705,21 @@ const useScheduleManager = (initialApplicants) => {
         isOpen: false, title: '', message: '', onConfirm: () => {},
     });
 
-    // --- 児童（生徒）詳細モーダルの状態 ---
+    // 児童（生徒）詳細モーダルの状態
     const [studentDetailsModalState, setStudentDetailsModalState] = useState({
         isOpen: false,
         student: null, // 表示対象の児童（生徒）オブジェクト
     });
+
+    // 🌟 新規: 児童（生徒）追加/編集モーダルの状態
+    const [upsertStudentModalState, setUpsertStudentModalState] = useState({
+        isOpen: false,
+        student: null,
+        mode: 'add',
+    });
     // ------------------------------------------
 
-    const [newStudentName, setNewStudentName] = useState('');
+    // 削除: const [newStudentName, setNewStudentName] = useState('');
 
     const TIME_OPTIONS = useMemo(() => {
         const times = [];
@@ -470,8 +756,6 @@ const useScheduleManager = (initialApplicants) => {
 
     /**
      * 指定された児童（生徒）IDが割り当てられているスロットの日程（日付と時間帯）を返す
-     * @param {string} applicantId
-     * @returns {{date: string, time: string} | null}
      */
     const getAssignmentDetails = useCallback((applicantId) => {
         const { rows, cols, assignments } = scheduleData;
@@ -490,8 +774,6 @@ const useScheduleManager = (initialApplicants) => {
 
     /**
      * 兄弟の氏名と面談日程を返す
-     * @param {object} student - 現在の児童（生徒）オブジェクト
-     * @returns {{name: string, assignment: {date: string, time: string} | null, class: string} | null}
      */
     const getSiblingAssignmentDetails = useCallback((student) => {
         if (!student || !student.sibling_id) return null;
@@ -526,27 +808,51 @@ const useScheduleManager = (initialApplicants) => {
     }, []);
     // ------------------------------------------
 
+    // 🌟 新規: 児童（生徒）追加/編集モーダル関連関数
+    const openAddStudentModal = useCallback(() => {
+        // 新規登録用の初期データを設定
+        setUpsertStudentModalState({
+            isOpen: true,
+            student: {
+                name: '',
+                student_id: '',
+                sibling_id: '',
+                sibling_class: '',
+                preferred_dates: []
+            },
+            mode: 'add',
+        });
+    }, []);
 
-    // --- 児童（生徒）情報の追加・削除処理 ---
-    const handleAddStudent = useCallback(() => {
-        if (!newStudentName.trim()) return;
+    const closeUpsertStudentModal = useCallback(() => {
+        setUpsertStudentModalState({
+            isOpen: false,
+            student: null,
+            mode: 'add',
+        });
+    }, []);
 
-        // シンプルなID生成
-        const newId = `app-${Date.now()}`;
-        // 新規追加時には、他の詳細情報は空/nullで初期化
-        const newStudent = {
-            id: newId,
-            name: newStudentName.trim(),
-            student_id: `NEW-${applicants.length + 1}`, // ダミーの出席番号
-            sibling_id: null,
-            sibling_class: null,
-            preferred_dates: [],
-        };
+    const handleSaveStudent = useCallback((studentData) => {
+        if (studentData.id) {
+            // 編集ロジック (現状は詳細モーダルから編集は直接行えないが、ロジックとして用意)
+            setApplicants(prev => prev.map(s => s.id === studentData.id ? studentData : s));
+        } else {
+            // 新規追加ロジック
+            const newId = `app-${Date.now()}`;
+            const newStudent = {
+                ...studentData,
+                id: newId,
+                // 出席番号が空の場合は仮の値を割り当てる
+                student_id: studentData.student_id || `NEW-${applicants.length + 1}`,
+            };
+            setApplicants(prev => [...prev, newStudent]);
+        }
+        closeUpsertStudentModal();
+    }, [applicants.length, closeUpsertStudentModal]);
+    // ------------------------------------------
 
-        setApplicants(prev => [...prev, newStudent]);
-        setNewStudentName('');
-    }, [newStudentName, applicants.length]);
 
+    // --- 児童（生徒）情報の削除処理 ---
     const handleDeleteStudent = useCallback((studentId) => {
         // 児童（生徒）リストから削除
         setApplicants(prev => prev.filter(s => s.id !== studentId));
@@ -995,9 +1301,7 @@ const useScheduleManager = (initialApplicants) => {
                 newAssignments[sourceRowIndex][sourceColIndex] = targetApplicantId; // 移動元にターゲットの児童（生徒）を配置
             // ターゲットスロットが埋まっており、ソースがリストの場合 (上書き & ターゲットをリストに戻す)
             } else if (!sourceIsGrid) {
-                 // 🚨 修正点 4: リストからのドロップで、ターゲットスロットが埋まっている場合 (上書き)
-                 // newAssignments[targetRowIndex][targetColIndex] = applicantId;
-                 // targetApplicantIdはリストに戻るため、ここでは何もしなくて良い (assignedIdsから外れる)
+                 // ターゲットスロットが埋まっており、ソースがリストの場合 (上書き)
                  newAssignments[targetRowIndex][targetColIndex] = applicantId;
             }
 
@@ -1009,53 +1313,40 @@ const useScheduleManager = (initialApplicants) => {
 
     // スタイル (動的な部分をuseMemoに含める)
     const styles = useMemo(() => ({
-        // 🚨 修正点 1: PC向けレイアウト調整
         container: {
                     display: 'flex',
-                    // 画面上部からナビゲーション分を下にずらす
                     paddingTop: '6rem',
-                    // -----------------------------------------------------
-                    // 修正: 1920pxの画面幅を最大限利用するため、幅の制限と中央寄せを解除
-                    width: '100%', // 画面全体の幅を使用する
-                    // -----------------------------------------------------
+                    width: '100%',
                     height: '100vh',
                     backgroundColor: '#f8f8f8',
                     fontFamily: 'Inter, sans-serif',
                     position: 'relative',
                     boxSizing: 'border-box',
-                    // パネルの外側に余白を作るため、左右と下部にパディングを追加
                     paddingLeft: '1.5rem',
                     paddingRight: '1.5rem',
                     paddingBottom: '1.5rem',
                 },
-                // 🚨 修正点 A: パネルのスタイル調整 (固定幅の右パネル 300px)
                 panel: {
                     padding: '1.5rem',
                     borderRadius: '0.75rem',
                     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                     backgroundColor: 'white',
-                    // 全体高の計算は既存ロジックを維持
                     height: 'calc(100vh - 7.5rem)',
                     overflowY: 'auto',
                     boxSizing: 'border-box',
                     flexShrink: 0,
-                    // 左右の余白をcontainerに移したため、パネル間にマージンを追加
                     marginTop: '1.5rem',
                 },
                 leftPanel: {
-                    // 修正: 残りのスペースを全て使用（1920pxから右パネル分を引いた幅を確保）
                     flex: '1',
                     marginRight: '1.5rem',
                     minWidth: '700px',
                 },
                 rightPanel: {
-                    // 修正: 固定幅 300px に設定し、flex-shrinkで幅を維持
                     width: '300px',
                     minWidth: '300px',
                     flexShrink: 0,
-                    // flex: '1', // 削除
                 },
-        // 🚨 修正点 3: アイテムとボタンのサイズ調整
         baseItem: {
             padding: '0.6rem 1rem',
             margin: '0.6rem 0',
@@ -1065,7 +1356,7 @@ const useScheduleManager = (initialApplicants) => {
             transition: 'all 0.2s ease-in-out',
             boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
             cursor: 'grab',
-            fontSize: '0.95rem' // 少し大きく
+            fontSize: '0.95rem'
         },
         scheduledApplicant: {
             padding: '0.4rem',
@@ -1077,13 +1368,13 @@ const useScheduleManager = (initialApplicants) => {
             margin: '0.3rem 0',
         },
         button: {
-            padding: '0.6rem 1.2rem', // ボタンのパディング調整
+            padding: '0.6rem 1.2rem',
             borderRadius: '0.5rem',
             fontWeight: '600',
             cursor: 'pointer',
             transition: 'all 0.1s ease-in-out',
             border: 'none',
-            fontSize: '1rem', // 標準的なサイズ
+            fontSize: '1rem',
         },
         navButton: {
             backgroundColor: '#718096',
@@ -1112,7 +1403,7 @@ const useScheduleManager = (initialApplicants) => {
         inputStyle: {
             border: '1px solid #ccc',
             borderRadius: '0.3rem',
-            padding: '0.6rem 0.75rem', // 入力フィールドのパディング調整
+            padding: '0.6rem 0.75rem',
             marginRight: '1rem',
             minWidth: '100px',
             backgroundColor: '#fff',
@@ -1120,10 +1411,8 @@ const useScheduleManager = (initialApplicants) => {
     }), [isAddButtonActive]);
 
     const getSlotStyle = useCallback((cellId, isAvailable, isSelected) => ({
-        // 🚨 修正点 B: スロットのサイズ調整
-        minWidth: '140px', // 180pxの約3/4
-        minHeight: '70px', // 80pxより少し小さく
-        // 境界線: 利用可能（isAvailable: true）で、選択/ホバーされていないときの境界線色を #718096 に変更
+        minWidth: '140px',
+        minHeight: '70px',
         border: `2px ${hoveredCellId === cellId || isSelected ? 'solid' : 'dashed'} ${isAvailable ? (isSelected ? '#38a169' : '#718096') : '#cbd5e0'}`,
         borderRadius: '0.5rem',
         margin: '0.25rem',
@@ -1132,15 +1421,12 @@ const useScheduleManager = (initialApplicants) => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        // 背景色: 利用不可時の色を極めて薄いグレーに
         backgroundColor: isAvailable
             ? (hoveredCellId === cellId ? '#e2e8f0' : (isSelected ? '#e6fffa' : '#edf2f7'))
             : (hoveredCellId === cellId ? '#e2e8f0' : '#f7fafc'),
-        // テキスト色: 利用不可時の色を濃いグレーに
         color: isAvailable ? '#4a5568' : '#a0aec0',
         fontWeight: '500',
         transition: 'all 0.2s ease-in-out',
-        // 🚨 修正点 5: 利用不可スロットでもクリック（選択解除）は可能にするため、pointerEventsはautoに戻す
         cursor: 'pointer',
         pointerEvents: 'auto',
     }), [hoveredCellId]);
@@ -1150,17 +1436,21 @@ const useScheduleManager = (initialApplicants) => {
         // データ
         scheduleData, applicants,
         modalState, setModalState,
-        // --- 児童（生徒）詳細モーダル関連 ---
         studentDetailsModalState,
         openStudentDetailsModal,
         closeStudentDetailsModal,
-        // ------------------------------------
+        // 🌟 新規/変更
+        upsertStudentModalState,
+        openAddStudentModal,
+        closeUpsertStudentModal,
+        handleSaveStudent, // 🌟 変更: 新規追加/編集の保存ロジック
+        // -----------------
         interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate,
         selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
         draggingApplicantId, isAddButtonActive, setIsAddButtonActive,
         selectedSlot,
-        newStudentName, setNewStudentName, // 新規追加
+        // 削除: newStudentName, setNewStudentName,
 
         // 関数
         getApplicantName,
@@ -1170,19 +1460,17 @@ const useScheduleManager = (initialApplicants) => {
         handleDragStart, handleDragEnd, handleDragOver, handleDrop, handleDragEnter, handleDragLeave,
         handleSlotClick,
         handleApplicantClick,
-        handleAddStudent, confirmDeleteStudent,
+        // 削除: handleAddStudent,
+        confirmDeleteStudent,
         getAssignmentDetails,
-        getSiblingAssignmentDetails, // --- 新規: 兄弟の割り当て情報取得 ---
+        getSiblingAssignmentDetails,
 
         // スタイル/レンダリングヘルパー
         styles, getSlotStyle,
     };
 };
 
-
 // --- IV. プレゼンテーションコンポーネント (UI層) ---
-// ... (ScheduleBoard, SettingsScreen, SlotSettingsPanel, ApplicantListはコード量削減のため省略)
-
 
 const ScheduleBoard = ({ manager }) => {
     const {
@@ -1213,13 +1501,12 @@ const ScheduleBoard = ({ manager }) => {
                     <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '900px' }}>
                         <thead>
                             <tr>
-                                {/* 🚨 修正点 C: 時間帯列の幅をコンテンツに合わせる */}
                                 <th style={{
                                     border: '1px solid #e2e8f0',
                                     backgroundColor: '#f7fafc',
                                     padding: '0.75rem',
-                                    whiteSpace: 'nowrap', // 文字列の幅に合わせる
-                                    width: '1%', // コンテンツ幅に合わせるヒント
+                                    whiteSpace: 'nowrap',
+                                    width: '1%',
                                     fontWeight: '700',
                                     color: '#2d3748',
                                 }}>時間帯</th>
@@ -1233,15 +1520,14 @@ const ScheduleBoard = ({ manager }) => {
                         <tbody>
                             {sortedRows.map((rowHeader, rowIndex) => (
                                 <tr key={rowIndex}>
-                                    {/* 🚨 修正点 C: 時間帯列の幅をコンテンツに合わせる */}
                                     <td style={{
                                         border: '1px solid #e2e8f0',
                                         backgroundColor: '#f7fafc',
                                         padding: '0.75rem',
                                         fontWeight: '700',
                                         color: '#2d3748',
-                                        whiteSpace: 'nowrap', // 文字列の幅に合わせる
-                                        width: '1%', // コンテンツ幅に合わせるヒント
+                                        whiteSpace: 'nowrap',
+                                        width: '1%',
                                     }}>
                                         {rowHeader}
                                     </td>
@@ -1262,9 +1548,7 @@ const ScheduleBoard = ({ manager }) => {
                                                 onDragOver={handleDragOver}
                                                 onDragEnter={(e) => handleDragEnter(e, cellId)}
                                                 onDragLeave={handleDragLeave}
-                                                // 🚨 修正点 6: 利用不可スロットでもドロップは受け付けない
                                                 onDrop={isAvailable ? (e) => handleDrop(e, cellId) : null}
-                                                // 🚨 修正点 7: 利用可否にかかわらずクリックイベントを許可（選択解除のため）
                                                 onClick={() => handleSlotClick(rowIndex, colIndex, isAvailable)}
                                             >
                                                 <div style={getSlotStyle(cellId, isAvailable, isSelected)}>
@@ -1310,7 +1594,6 @@ const ScheduleBoard = ({ manager }) => {
 };
 
 const SettingsScreen = ({ manager }) => {
-// ... (SettingsScreen component code remains largely the same, using the new leftPanel and rightPanel widths)
     const {
         scheduleData, interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate, selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
@@ -1457,7 +1740,6 @@ const SettingsScreen = ({ manager }) => {
 };
 
 const SlotSettingsPanel = ({ manager }) => {
-// ... (SlotSettingsPanel component code remains largely the same, using the new rightPanel width)
     const { scheduleData, getApplicantName, toggleSlotAvailability, styles } = manager;
 
     return (
@@ -1507,7 +1789,6 @@ const SlotSettingsPanel = ({ manager }) => {
                                     <span style={{
                                         marginRight: '0.75rem',
                                         fontWeight: '700',
-                                        // 設定パネル内の利用不可テキストは赤のままにし、危険な状態であることを示します
                                         color: isAvailable ? '#48bb78' : '#f56565',
                                     }}>
                                         {isAvailable ? '可' : '不可'}
@@ -1528,7 +1809,6 @@ const SlotSettingsPanel = ({ manager }) => {
 };
 
 const ApplicantList = ({ manager }) => {
-// ... (ApplicantList component code remains largely the same, using the new rightPanel width)
     const {
         applicants, scheduleData, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
@@ -1587,13 +1867,13 @@ const ApplicantList = ({ manager }) => {
     );
 };
 
-// --- V. 児童（生徒）情報設定画面コンポーネント ---
+// --- 児童（生徒）情報設定画面コンポーネント (追加ボタンをモーダル起動に変更) ---
 const StudentSettingsScreen = ({ manager }) => {
     const {
         applicants, styles,
-        newStudentName, setNewStudentName, handleAddStudent,
         confirmDeleteStudent, getAssignmentDetails,
-        openStudentDetailsModal // --- 新規: モーダルを開く関数 ---
+        openStudentDetailsModal,
+        openAddStudentModal // 🌟 変更: モーダル起動関数を使用
     } = manager;
 
     // スケジュールに割り当てられている児童（生徒）のIDリスト
@@ -1625,9 +1905,8 @@ const StudentSettingsScreen = ({ manager }) => {
         marginLeft: '1rem',
     };
 
-    // --- 修正: 詳細リンクのスタイルとハンドラ ---
     const detailsLinkStyle = {
-        color: '#4299e1', // Blue color for link
+        color: '#4299e1',
         backgroundColor: 'transparent',
         border: 'none',
         padding: '0.3rem 0.6rem',
@@ -1636,17 +1915,21 @@ const StudentSettingsScreen = ({ manager }) => {
         cursor: 'pointer',
         transition: 'color 0.1s',
         textDecoration: 'underline',
-        marginRight: '0.5rem', // 削除ボタンとの間にスペース
-        marginLeft: '1rem', // 割り当て日程との間にスペース
+        marginRight: '0.5rem',
+        marginLeft: '1rem',
         flexShrink: 0,
         whiteSpace: 'nowrap',
     };
 
     const handleViewDetails = useCallback((student) => {
-        // alert() をモーダル表示に置き換え
         openStudentDetailsModal(student);
     }, [openStudentDetailsModal]);
-    // --------------------------------------------------
+
+    // 🌟 変更: 新規追加ボタンのハンドラ
+    const handleAddStudentClick = useCallback(() => {
+        openAddStudentModal();
+    }, [openAddStudentModal]);
+
 
     return (
         <div style={{ ...styles.panel, ...styles.leftPanel }}>
@@ -1657,24 +1940,16 @@ const StudentSettingsScreen = ({ manager }) => {
                 スケジュールボードに配置する児童（生徒）のリストを管理します。
             </p>
 
-            {/* 児童（生徒）追加フォーム */}
+            {/* 児童（生徒）追加フォーム -> モーダル起動ボタンに変更 */}
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2d3748', borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem', marginTop: '1.5rem' }}>
                 新規児童（生徒）の追加
             </h2>
-            <div style={inputAndButtonContainer}>
-                 <input
-                    type="text"
-                    value={newStudentName}
-                    onChange={(e) => setNewStudentName(e.target.value)}
-                    placeholder="児童（生徒）の名前を入力"
-                    style={{...styles.inputStyle, flexGrow: 1}}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddStudent()}
-                 />
+            <div style={{...inputAndButtonContainer, justifyContent: 'flex-end'}}>
                  <button
-                    style={addButton}
-                    onClick={handleAddStudent}
+                    style={{...addButton, padding: '0.75rem 2rem'}}
+                    onClick={handleAddStudentClick} // モーダルを起動
                 >
-                  + 追加
+                  + 新規児童（生徒）を追加（詳細設定）
                 </button>
             </div>
 
@@ -1723,17 +1998,17 @@ const StudentSettingsScreen = ({ manager }) => {
                                     未割当
                                 </span>
                             )}
-                            {/* --- 詳細リンクの追加 --- */}
+                            {/* 詳細リンク */}
                             <button
                                 style={detailsLinkStyle}
-                                onClick={() => handleViewDetails(student)} // モーダル表示関数を呼び出し
+                                onClick={() => handleViewDetails(student)}
                                 title="この児童（生徒）の詳細を表示"
                                 onMouseEnter={(e) => e.currentTarget.style.color = '#3182ce'}
                                 onMouseLeave={(e) => e.currentTarget.style.color = '#4299e1'}
                             >
                                 詳細
                             </button>
-                            {/* ---------------------- */}
+                            {/* 削除ボタン */}
                             <button
                                 style={deleteButton}
                                 onClick={() => confirmDeleteStudent(student)}
@@ -1756,8 +2031,7 @@ const StudentSettingsScreen = ({ manager }) => {
     );
 };
 
-
-// --- VI. メインコンポーネント (統合層) ---
+// --- V. メインコンポーネント (統合層) ---
 
 const App = () => {
     // 🚨 修正: 児童（生徒）データ構造を更新し、新しい詳細情報（出席番号、兄弟情報、希望日程）を含める
@@ -1806,7 +2080,6 @@ const App = () => {
         position: 'fixed',
         top: 0,
         left: 0,
-        // 🚨 修正点 4: ナビゲーションバーのスタイル調整
         width: '100%',
         backgroundColor: '#fff',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
@@ -1873,16 +2146,23 @@ const App = () => {
                 onCancel={() => manager.setModalState({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
             />
 
-            {/* --- 児童（生徒）詳細モーダル --- */}
+            {/* 児童（生徒）詳細モーダル */}
             <StudentDetailsModal
                 isOpen={manager.studentDetailsModalState.isOpen}
                 student={manager.studentDetailsModalState.student}
                 onClose={manager.closeStudentDetailsModal}
                 assignmentDetails={manager.getAssignmentDetails(manager.studentDetailsModalState.student?.id)}
-                // 兄弟の割り当て情報を取得してモーダルに渡す
                 siblingDetails={manager.getSiblingAssignmentDetails(manager.studentDetailsModalState.student)}
             />
-            {/* ------------------------------------- */}
+
+            {/* 🌟 新規: 児童（生徒）追加/編集モーダル */}
+            <UpsertStudentModal
+                isOpen={manager.upsertStudentModalState.isOpen}
+                student={manager.upsertStudentModalState.student}
+                allApplicants={manager.applicants}
+                onSave={manager.handleSaveStudent}
+                onClose={manager.closeUpsertStudentModal}
+            />
         </div>
     );
 };
