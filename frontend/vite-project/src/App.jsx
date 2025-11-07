@@ -29,9 +29,10 @@ const getNextStartTime = (rows, defaultStart = '09:00') => {
         return defaultStart;
     }
     const latestRow = rows[rows.length - 1];
+    // endTimeString は "HH:mm - HH:mm" の2つ目の時刻
     const endTimeString = latestRow.split(' - ')[1];
 
-    if (!endTimeString || isNaN(endTimeString.split(':')[0])) return defaultStart;
+    if (!endTimeString || endTimeString.split(':').some(isNaN)) return defaultStart;
 
     return endTimeString;
 };
@@ -64,7 +65,7 @@ const sortDateCols = (cols) => {
 // --- II. 共通UIコンポーネント (プレゼンテーション層) ---
 
 const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = '実行する', cancelText = 'キャンセル' }) => {
-    // スタイル定義は元のまま (モーダルは画面サイズに依存しないため)
+    // スタイル定義は元のまま
     if (!isOpen) return null;
 
     const contentStyle = {
@@ -140,6 +141,252 @@ const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confir
     );
 };
 
+// --- 児童（生徒）詳細モーダルコンポーネント ---
+const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, siblingDetails }) => {
+    if (!isOpen || !student) return null;
+
+    const overlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1001,
+        fontFamily: 'Inter, sans-serif',
+    };
+
+    const contentStyle = {
+        backgroundColor: 'white',
+        padding: '2.5rem',
+        borderRadius: '1rem',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        maxWidth: '700px', // より大きな幅
+        width: '90%',
+        minHeight: '400px',
+        position: 'relative',
+        animation: 'fadeInUp 0.3s ease-out',
+        display: 'flex',
+        flexDirection: 'column',
+    };
+
+    const headerStyle = {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottom: '2px solid #edf2f7',
+        paddingBottom: '1rem',
+        marginBottom: '1.5rem',
+    };
+
+    const closeButtonStyle = {
+        backgroundColor: 'transparent',
+        border: 'none',
+        fontSize: '1.5rem',
+        fontWeight: '300',
+        cursor: 'pointer',
+        color: '#a0aec0',
+        transition: 'color 0.2s',
+        padding: '0.25rem',
+    };
+
+    // --- 新規/更新スタイル ---
+    const h4Style = {
+        fontSize: '1.25rem',
+        fontWeight: '700',
+        color: '#2d3748',
+        borderBottom: '2px solid #edf2f7',
+        paddingBottom: '0.5rem',
+        marginTop: '1.5rem',
+        marginBottom: '1rem',
+    };
+
+    const infoGroupStyle = {
+        marginBottom: '1.5rem',
+        padding: '0 0.5rem',
+    };
+
+    const infoItemStyle = {
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0.75rem 0',
+        borderBottom: '1px dotted #ebf4ff', // ドット線に変更
+    };
+
+    const labelStyle = {
+        fontWeight: '700',
+        color: '#4a5568',
+        width: '180px', // 幅を少し広げて項目名を揃える
+        flexShrink: 0,
+        fontSize: '1rem',
+    };
+
+    const valueStyle = {
+        color: '#2d3748',
+        fontSize: '1rem',
+        fontWeight: '500',
+        flexGrow: 1,
+    };
+
+    const assignmentBadgeStyle = {
+        backgroundColor: '#e6fffa', // Greenish-blue for current assignment
+        padding: '0.3rem 0.6rem',
+        borderRadius: '0.4rem',
+        marginRight: '0.5rem',
+        color: '#38a169',
+        fontWeight: '600',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+    };
+
+    const siblingAssignmentBadgeStyle = {
+        backgroundColor: '#fffff0', // Light yellow for sibling
+        padding: '0.3rem 0.6rem',
+        borderRadius: '0.4rem',
+        marginRight: '0.5rem',
+        color: '#b7791f', // Brownish-yellow
+        fontWeight: '600',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        border: '1px solid #f6e05e',
+    };
+
+    const unassignedStyle = {
+        color: '#718096',
+        fontSize: '1rem',
+        fontWeight: '500',
+        padding: '0.5rem 0',
+    };
+    // ------------------------------------
+
+    return (
+        <div style={overlayStyle} onClick={onClose}>
+            <style>
+                {`
+                    @keyframes fadeInUp {
+                        from { opacity: 0; transform: translateY(20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                `}
+            </style>
+            <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+                <div style={headerStyle}>
+                    <h3 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#2d3748' }}>
+                        児童（生徒）詳細
+                    </h3>
+                    <button
+                        style={closeButtonStyle}
+                        onClick={onClose}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#e53e3e'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = '#a0aec0'}
+                    >
+                        &times;
+                    </button>
+                </div>
+
+                <div style={{ flexGrow: 1, overflowY: 'auto', paddingRight: '1rem' }}>
+
+                    {/* 1. 基本情報 (氏名と出席番号) */}
+                    <h4 style={h4Style}>基本情報</h4>
+                    <div style={infoGroupStyle}>
+                        <div style={infoItemStyle}>
+                            <span style={labelStyle}>氏名</span>
+                            <span style={valueStyle}>{student.name}</span>
+                        </div>
+                        <div style={{...infoItemStyle, borderBottom: 'none'}}>
+                            <span style={labelStyle}>出席番号</span>
+                            <span style={valueStyle}>{student.student_id || '未登録'}</span>
+                        </div>
+                    </div>
+
+                    {/* 2. 現在の面談割り当て */}
+                    <h4 style={h4Style}>現在の面談割り当て</h4>
+                    <div style={infoGroupStyle}>
+                        {assignmentDetails ? (
+                            <p style={{ color: '#2b6cb0', fontWeight: '600', fontSize: '1.1rem', padding: '0.5rem 0' }}>
+                                <span style={assignmentBadgeStyle}>{assignmentDetails.date}</span>
+                                <span style={assignmentBadgeStyle}>{assignmentDetails.time}</span>
+                            </p>
+                        ) : (
+                            <p style={unassignedStyle}>現在、面談は割り当てられていません。</p>
+                        )}
+                    </div>
+
+                    {/* 3. 兄弟情報 */}
+                    <h4 style={h4Style}>兄弟の情報</h4>
+                    <div style={infoGroupStyle}>
+                        {student.sibling_id && siblingDetails ? (
+                            <>
+                                <div style={infoItemStyle}>
+                                    <span style={labelStyle}>兄弟氏名 / クラス</span>
+                                    <span style={valueStyle}>
+                                        {siblingDetails.name || '不明'} / {siblingDetails.class || '不明'}
+                                    </span>
+                                </div>
+                                <div style={{...infoItemStyle, borderBottom: 'none'}}>
+                                    <span style={labelStyle}>兄弟の面談日程</span>
+                                    {siblingDetails.assignment ? (
+                                        <span style={valueStyle}>
+                                            <span style={siblingAssignmentBadgeStyle}>{siblingDetails.assignment.date}</span>
+                                            <span style={siblingAssignmentBadgeStyle}>{siblingDetails.assignment.time}</span>
+                                        </span>
+                                    ) : (
+                                        <span style={unassignedStyle}>未割り当て</span>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <p style={unassignedStyle}>兄弟の登録はありません。</p>
+                        )}
+                    </div>
+
+                    {/* 4. 希望日程 */}
+                    <h4 style={h4Style}>希望日程（日時のリスト）</h4>
+                    <div style={infoGroupStyle}>
+                        {student.preferred_dates && student.preferred_dates.length > 0 ? (
+                            <ul style={{ listStyleType: 'none', paddingLeft: '0', margin: '0.5rem 0' }}>
+                                {student.preferred_dates.map((date, index) => (
+                                    <li key={index} style={{ color: '#2d3748', marginBottom: '0.3rem', fontSize: '1rem', padding: '0.3rem 0.5rem', backgroundColor: '#f7faff', borderRadius: '0.3rem', borderLeft: '3px solid #4299e1' }}>
+                                        <span style={{fontWeight: '700', marginRight: '0.5rem', color: '#4299e1'}}>{index + 1}.</span>
+                                        {date}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p style={unassignedStyle}>希望日程は登録されていません。</p>
+                        )}
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem', flexShrink: 0 }}>
+                    <button
+                        style={{
+                            padding: '0.75rem 2rem',
+                            borderRadius: '0.5rem',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            backgroundColor: '#4299e1',
+                            color: 'white',
+                            border: 'none',
+                            transition: 'background-color 0.2s',
+                        }}
+                        onClick={onClose}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3182ce'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4299e1'}
+                    >
+                        閉じる
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+// ---------------------------------------------
+
+
 // トグルスイッチコンポーネント (スタイルは元のまま)
 const ToggleSwitch = ({ isChecked, onChange }) => {
     const styles = {
@@ -178,6 +425,13 @@ const useScheduleManager = (initialApplicants) => {
     const [modalState, setModalState] = useState({
         isOpen: false, title: '', message: '', onConfirm: () => {},
     });
+
+    // --- 児童（生徒）詳細モーダルの状態 ---
+    const [studentDetailsModalState, setStudentDetailsModalState] = useState({
+        isOpen: false,
+        student: null, // 表示対象の児童（生徒）オブジェクト
+    });
+    // ------------------------------------------
 
     const [newStudentName, setNewStudentName] = useState('');
 
@@ -234,6 +488,44 @@ const useScheduleManager = (initialApplicants) => {
         return null;
     }, [scheduleData]);
 
+    /**
+     * 兄弟の氏名と面談日程を返す
+     * @param {object} student - 現在の児童（生徒）オブジェクト
+     * @returns {{name: string, assignment: {date: string, time: string} | null, class: string} | null}
+     */
+    const getSiblingAssignmentDetails = useCallback((student) => {
+        if (!student || !student.sibling_id) return null;
+
+        const sibling = applicants.find(app => app.id === student.sibling_id);
+        if (!sibling) return null;
+
+        const assignment = getAssignmentDetails(sibling.id);
+
+        return {
+            name: sibling.name,
+            assignment: assignment, // {date: "MM/DD (曜)", time: "HH:mm - HH:mm"} or null
+            class: student.sibling_class || '不明'
+        };
+
+    }, [applicants, getAssignmentDetails]);
+
+
+    // --- 児童（生徒）詳細モーダル関連関数 ---
+    const openStudentDetailsModal = useCallback((student) => {
+        setStudentDetailsModalState({
+            isOpen: true,
+            student: student,
+        });
+    }, []);
+
+    const closeStudentDetailsModal = useCallback(() => {
+        setStudentDetailsModalState({
+            isOpen: false,
+            student: null,
+        });
+    }, []);
+    // ------------------------------------------
+
 
     // --- 児童（生徒）情報の追加・削除処理 ---
     const handleAddStudent = useCallback(() => {
@@ -241,11 +533,19 @@ const useScheduleManager = (initialApplicants) => {
 
         // シンプルなID生成
         const newId = `app-${Date.now()}`;
-        const newStudent = { id: newId, name: newStudentName.trim() };
+        // 新規追加時には、他の詳細情報は空/nullで初期化
+        const newStudent = {
+            id: newId,
+            name: newStudentName.trim(),
+            student_id: `NEW-${applicants.length + 1}`, // ダミーの出席番号
+            sibling_id: null,
+            sibling_class: null,
+            preferred_dates: [],
+        };
 
         setApplicants(prev => [...prev, newStudent]);
         setNewStudentName('');
-    }, [newStudentName]);
+    }, [newStudentName, applicants.length]);
 
     const handleDeleteStudent = useCallback((studentId) => {
         // 児童（生徒）リストから削除
@@ -283,7 +583,9 @@ const useScheduleManager = (initialApplicants) => {
         const newAvailability = Array(newRows.length).fill(null).map(() => Array(oldCols.length).fill(true));
 
         newRows.forEach((rowHeader, newRowIndex) => {
-            const oldIndex = oldRows.findIndex(r => r === rowHeader);
+            // 🚨 修正点 1: rowHeader全体ではなく、開始時刻部分で一致を検索
+            const rowStartTime = rowHeader.split(' - ')[0];
+            const oldIndex = oldRows.findIndex(r => r.startsWith(rowStartTime + ' -'));
 
             oldCols.forEach((_, newColIndex) => {
                 if (oldIndex !== -1) {
@@ -403,7 +705,12 @@ const useScheduleManager = (initialApplicants) => {
     // --- 行・列の追加処理 ---
     const handleAddRow = useCallback(() => {
         const newRowHeader = calculateTimeRange(selectedStartTime, interviewDuration);
-        if (scheduleData.rows.includes(newRowHeader)) return;
+        // 🚨 修正点 2: 開始時刻が同じ時間帯があるかチェック
+        const newRowStartTime = newRowHeader.split(' - ')[0];
+        if (scheduleData.rows.some(row => row.startsWith(newRowStartTime + ' -'))) {
+             // すでに同じ開始時刻が存在する場合は何もしない (durationが異なっても不可とする)
+             return;
+        }
 
         setScheduleData(prevData => {
             const originalRows = prevData.rows;
@@ -430,9 +737,14 @@ const useScheduleManager = (initialApplicants) => {
         if (!selectedDate) return;
 
         const dateObj = new Date(selectedDate);
+        // dateObjがInvalid Dateでないかチェック
+        if (isNaN(dateObj.getTime())) return;
+
         const weekday = ['日', '月', '火', '水', '木', '金', '土'][dateObj.getDay()];
 
-        const [year, month, day] = selectedDate.split('-');
+        // MM/DD 形式にフォーマット (ISO形式は YYYY-MM-DD なのでそのまま split/slice)
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
         const newHeader = `${month}/${day} (${weekday})`;
 
         if (scheduleData.cols.includes(newHeader)) return;
@@ -504,15 +816,16 @@ const useScheduleManager = (initialApplicants) => {
 
     // クリック割り当て処理
     const handleSlotClick = useCallback((rowIndex, colIndex, isAvailable) => {
-        if (!isAvailable) {
+        const currentSlot = { rowIndex, colIndex };
+        const isCurrentSlotSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
+
+        // 🚨 修正点 3: 利用不可スロットでも選択解除は可能にする
+        if (!isAvailable && !isCurrentSlotSelected) {
             setSelectedSlot(null);
             return;
         }
 
-        const currentSlot = { rowIndex, colIndex };
-        const isCurrentSlotSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
-
-        // --- 修正点: スロット間のスワップ処理 (Slot A が選択されている状態で Slot B がクリックされた場合) ---
+        // --- スロット間のスワップ処理 (Slot A が選択されている状態で Slot B がクリックされた場合) ---
         if (selectedSlot && !isCurrentSlotSelected) {
             const fromRowIndex = selectedSlot.rowIndex;
             const fromColIndex = selectedSlot.colIndex;
@@ -553,8 +866,16 @@ const useScheduleManager = (initialApplicants) => {
 
         setScheduleData(prevData => {
             const newAssignments = prevData.assignments.map(row => [...row]);
+            const targetApplicantId = newAssignments[rowIndex][colIndex];
 
-            // 1. スロットから同じ児童（生徒）を解除する（他のスロットから移動させるため）
+            // 1. 既存の割り当て (targetApplicantId) があれば、それを解除 (nullにする)
+            //    これにより、リストに戻る (assignedIdsから外れる)
+            if (targetApplicantId) {
+                newAssignments[rowIndex][colIndex] = null; // リストに戻すために一時的に解除
+            }
+
+            // 2. スロットから同じ児童（生徒）を解除する（他のスロットから移動させるため）
+            //    (targetApplicantIdとは別の、applicantIdが既に割り当てられているスロットを探す)
             let foundSource = false;
             for (let r = 0; r < newAssignments.length; r++) {
                 for (let c = 0; c < newAssignments[r].length; c++) {
@@ -567,17 +888,17 @@ const useScheduleManager = (initialApplicants) => {
                 if (foundSource) break;
             }
 
-            // 2. 選択されたスロットに割り当てる (既存の割り当てがあれば上書きされる)
+            // 3. 選択されたスロットに割り当てる
             newAssignments[rowIndex][colIndex] = applicantId;
 
             return { ...prevData, assignments: newAssignments };
         });
 
         setSelectedSlot(null); // 割り当て完了後、選択解除
-    }, [selectedSlot, scheduleData.assignments]);
+    }, [selectedSlot]);
 
 
-    // --- D&D ロジック (変更なし) ---
+    // --- D&D ロジック ---
     const handleDragStart = useCallback((e, applicantId, sourceCellId = null) => {
         e.dataTransfer.setData('applicantId', applicantId);
         e.dataTransfer.setData('sourceCellId', sourceCellId || 'applicant-list');
@@ -623,10 +944,15 @@ const useScheduleManager = (initialApplicants) => {
         const sourceColIndex = sourceIsGrid ? parseInt(sourceParts[2], 10) : -1;
 
         if (targetIsGrid) {
-            if (!scheduleData.availability[targetRowIndex][targetColIndex]) return;
+            // 利用不可スロットへのドロップは拒否
+            if (!scheduleData.availability[targetRowIndex][targetColIndex]) {
+                setDraggingApplicantId(null);
+                return;
+            }
         }
 
         if (targetId === 'applicant-list') {
+            // リストに戻す処理（ソースがグリッドの場合のみ）
             if (sourceIsGrid) {
                 setScheduleData(prevData => {
                     const newAssignments = prevData.assignments.map(row => [...row]);
@@ -647,24 +973,31 @@ const useScheduleManager = (initialApplicants) => {
             const newAssignments = prevData.assignments.map(row => [...row]);
             const targetApplicantId = newAssignments[targetRowIndex][targetColIndex];
 
+            // 1. 同じスロットへのドロップや、同じ児童（生徒）のリストから埋まったスロットへのドロップは無視
             if ((sourceIsGrid && sourceRowIndex === targetRowIndex && sourceColIndex === targetColIndex) ||
                 (!sourceIsGrid && targetApplicantId !== null && applicantId === targetApplicantId)) {
                 return prevData;
             }
 
+            // 2. 割り当て解除 (移動元のスロットをクリア)
+            if (sourceIsGrid && sourceRowIndex !== -1 && sourceColIndex !== -1) {
+                newAssignments[sourceRowIndex][sourceColIndex] = null;
+            }
+
+            // 3. 割り当て処理
+            // ターゲットスロットが空の場合
             if (targetApplicantId === null) {
                 newAssignments[targetRowIndex][targetColIndex] = applicantId;
 
-                if (sourceIsGrid && sourceRowIndex !== -1 && sourceColIndex !== -1) {
-                    newAssignments[sourceRowIndex][sourceColIndex] = null;
-                }
-
-            } else if (sourceIsGrid && sourceRowIndex !== undefined && sourceColIndex !== undefined) {
+            // ターゲットスロットが埋まっており、ソースがグリッドの場合 (スワップ)
+            } else if (sourceIsGrid) {
                 newAssignments[targetRowIndex][targetColIndex] = applicantId;
-                newAssignments[sourceRowIndex][sourceColIndex] = targetApplicantId;
+                newAssignments[sourceRowIndex][sourceColIndex] = targetApplicantId; // 移動元にターゲットの児童（生徒）を配置
+            // ターゲットスロットが埋まっており、ソースがリストの場合 (上書き & ターゲットをリストに戻す)
             } else if (!sourceIsGrid) {
-                 // リストからのドロップで、ターゲットスロットが埋まっている場合 (リストとのスワップ)
-                 // リストの児童（生徒）(applicantId)をターゲットに割り当て、ターゲットの児童（生徒）(targetApplicantId)はリストに戻る
+                 // 🚨 修正点 4: リストからのドロップで、ターゲットスロットが埋まっている場合 (上書き)
+                 // newAssignments[targetRowIndex][targetColIndex] = applicantId;
+                 // targetApplicantIdはリストに戻るため、ここでは何もしなくて良い (assignedIdsから外れる)
                  newAssignments[targetRowIndex][targetColIndex] = applicantId;
             }
 
@@ -683,9 +1016,6 @@ const useScheduleManager = (initialApplicants) => {
                     paddingTop: '6rem',
                     // -----------------------------------------------------
                     // 修正: 1920pxの画面幅を最大限利用するため、幅の制限と中央寄せを解除
-                    // maxWidth: '1920px',
-                    // width: '95%', // 削除
-                    // margin: '0 auto', // 削除
                     width: '100%', // 画面全体の幅を使用する
                     // -----------------------------------------------------
                     height: '100vh',
@@ -810,8 +1140,9 @@ const useScheduleManager = (initialApplicants) => {
         color: isAvailable ? '#4a5568' : '#a0aec0',
         fontWeight: '500',
         transition: 'all 0.2s ease-in-out',
-        cursor: isAvailable ? 'pointer' : 'default',
-        pointerEvents: isAvailable ? 'auto' : 'none',
+        // 🚨 修正点 5: 利用不可スロットでもクリック（選択解除）は可能にするため、pointerEventsはautoに戻す
+        cursor: 'pointer',
+        pointerEvents: 'auto',
     }), [hoveredCellId]);
 
     // UIに公開するロジックと状態
@@ -819,6 +1150,11 @@ const useScheduleManager = (initialApplicants) => {
         // データ
         scheduleData, applicants,
         modalState, setModalState,
+        // --- 児童（生徒）詳細モーダル関連 ---
+        studentDetailsModalState,
+        openStudentDetailsModal,
+        closeStudentDetailsModal,
+        // ------------------------------------
         interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate,
         selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
@@ -836,6 +1172,7 @@ const useScheduleManager = (initialApplicants) => {
         handleApplicantClick,
         handleAddStudent, confirmDeleteStudent,
         getAssignmentDetails,
+        getSiblingAssignmentDetails, // --- 新規: 兄弟の割り当て情報取得 ---
 
         // スタイル/レンダリングヘルパー
         styles, getSlotStyle,
@@ -844,6 +1181,8 @@ const useScheduleManager = (initialApplicants) => {
 
 
 // --- IV. プレゼンテーションコンポーネント (UI層) ---
+// ... (ScheduleBoard, SettingsScreen, SlotSettingsPanel, ApplicantListはコード量削減のため省略)
+
 
 const ScheduleBoard = ({ manager }) => {
     const {
@@ -923,7 +1262,9 @@ const ScheduleBoard = ({ manager }) => {
                                                 onDragOver={handleDragOver}
                                                 onDragEnter={(e) => handleDragEnter(e, cellId)}
                                                 onDragLeave={handleDragLeave}
+                                                // 🚨 修正点 6: 利用不可スロットでもドロップは受け付けない
                                                 onDrop={isAvailable ? (e) => handleDrop(e, cellId) : null}
+                                                // 🚨 修正点 7: 利用可否にかかわらずクリックイベントを許可（選択解除のため）
                                                 onClick={() => handleSlotClick(rowIndex, colIndex, isAvailable)}
                                             >
                                                 <div style={getSlotStyle(cellId, isAvailable, isSelected)}>
@@ -1248,11 +1589,11 @@ const ApplicantList = ({ manager }) => {
 
 // --- V. 児童（生徒）情報設定画面コンポーネント ---
 const StudentSettingsScreen = ({ manager }) => {
-// ... (StudentSettingsScreen component code remains largely the same, using the new leftPanel width)
     const {
         applicants, styles,
         newStudentName, setNewStudentName, handleAddStudent,
-        confirmDeleteStudent, getAssignmentDetails
+        confirmDeleteStudent, getAssignmentDetails,
+        openStudentDetailsModal // --- 新規: モーダルを開く関数 ---
     } = manager;
 
     // スケジュールに割り当てられている児童（生徒）のIDリスト
@@ -1283,6 +1624,29 @@ const StudentSettingsScreen = ({ manager }) => {
         fontWeight: '600',
         marginLeft: '1rem',
     };
+
+    // --- 修正: 詳細リンクのスタイルとハンドラ ---
+    const detailsLinkStyle = {
+        color: '#4299e1', // Blue color for link
+        backgroundColor: 'transparent',
+        border: 'none',
+        padding: '0.3rem 0.6rem',
+        fontSize: '0.875rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'color 0.1s',
+        textDecoration: 'underline',
+        marginRight: '0.5rem', // 削除ボタンとの間にスペース
+        marginLeft: '1rem', // 割り当て日程との間にスペース
+        flexShrink: 0,
+        whiteSpace: 'nowrap',
+    };
+
+    const handleViewDetails = useCallback((student) => {
+        // alert() をモーダル表示に置き換え
+        openStudentDetailsModal(student);
+    }, [openStudentDetailsModal]);
+    // --------------------------------------------------
 
     return (
         <div style={{ ...styles.panel, ...styles.leftPanel }}>
@@ -1342,7 +1706,8 @@ const StudentSettingsScreen = ({ manager }) => {
                                     fontWeight: '700',
                                     color: '#38a169',
                                     marginRight: '1rem',
-                                    textAlign: 'right'
+                                    textAlign: 'right',
+                                    flexShrink: 0,
                                 }}>
                                     <div>{assignment.date}</div>
                                     <div style={{fontWeight: '500', fontSize: '0.8rem', color: '#718096'}}>{assignment.time}</div>
@@ -1352,11 +1717,23 @@ const StudentSettingsScreen = ({ manager }) => {
                                     fontSize: '0.875rem',
                                     fontWeight: '700',
                                     color: '#718096',
-                                    marginRight: '1rem'
+                                    marginRight: '1rem',
+                                    flexShrink: 0,
                                 }}>
                                     未割当
                                 </span>
                             )}
+                            {/* --- 詳細リンクの追加 --- */}
+                            <button
+                                style={detailsLinkStyle}
+                                onClick={() => handleViewDetails(student)} // モーダル表示関数を呼び出し
+                                title="この児童（生徒）の詳細を表示"
+                                onMouseEnter={(e) => e.currentTarget.style.color = '#3182ce'}
+                                onMouseLeave={(e) => e.currentTarget.style.color = '#4299e1'}
+                            >
+                                詳細
+                            </button>
+                            {/* ---------------------- */}
                             <button
                                 style={deleteButton}
                                 onClick={() => confirmDeleteStudent(student)}
@@ -1383,19 +1760,23 @@ const StudentSettingsScreen = ({ manager }) => {
 // --- VI. メインコンポーネント (統合層) ---
 
 const App = () => {
-    // 初期児童（生徒）データはここで保持し、フックに渡す
+    // 🚨 修正: 児童（生徒）データ構造を更新し、新しい詳細情報（出席番号、兄弟情報、希望日程）を含める
     const initialApplicants = [
-        { id: 'app-1', name: '佐藤 太郎' },
-        { id: 'app-2', name: '山田 花子' },
-        { id: 'app-3', name: '田中 一郎' },
-        { id: 'app-4', name: '鈴木 美咲' },
+        // 割り当て済みの佐藤太郎さんは、田中一郎さんを兄弟として設定
+        { id: 'app-1', name: '佐藤 太郎', student_id: '1201', sibling_id: 'app-3', sibling_class: '小学3年B組', preferred_dates: ['12/05 (火) 10:00 - 11:00', '12/07 (木) 14:00 - 15:00'] },
+        // 山田花子さんは兄弟なし
+        { id: 'app-2', name: '山田 花子', student_id: '1202', sibling_id: null, sibling_class: null, preferred_dates: ['12/04 (月) 13:00 - 14:00', '12/06 (水) 11:00 - 12:00'] },
+        // 田中一郎さんは、佐藤太郎さんを兄弟として設定 (IDを相互参照)
+        { id: 'app-3', name: '田中 一郎', student_id: '1203', sibling_id: 'app-1', sibling_class: '小学5年A組', preferred_dates: ['12/05 (火) 10:00 - 11:00', '12/08 (金) 09:00 - 10:00'] },
+        // 鈴木美咲さんは希望日程なし
+        { id: 'app-4', name: '鈴木 美咲', student_id: '1204', sibling_id: null, sibling_class: null, preferred_dates: [] },
     ];
 
     // 1. ロジック層からすべての機能を取得
     const manager = useScheduleManager(initialApplicants);
 
     // 2. UI表示の状態とナビゲーションを管理
-    const [view, setView] = useState('schedule');
+    const [view, setView] = useState('students'); // 児童（生徒）設定画面を初期表示
 
     // 3. プレゼンテーションコンポーネントに委譲
     const renderMainPanel = () => {
@@ -1491,6 +1872,17 @@ const App = () => {
                 onConfirm={manager.modalState.onConfirm}
                 onCancel={() => manager.setModalState({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
             />
+
+            {/* --- 児童（生徒）詳細モーダル --- */}
+            <StudentDetailsModal
+                isOpen={manager.studentDetailsModalState.isOpen}
+                student={manager.studentDetailsModalState.student}
+                onClose={manager.closeStudentDetailsModal}
+                assignmentDetails={manager.getAssignmentDetails(manager.studentDetailsModalState.student?.id)}
+                // 兄弟の割り当て情報を取得してモーダルに渡す
+                siblingDetails={manager.getSiblingAssignmentDetails(manager.studentDetailsModalState.student)}
+            />
+            {/* ------------------------------------- */}
         </div>
     );
 };
