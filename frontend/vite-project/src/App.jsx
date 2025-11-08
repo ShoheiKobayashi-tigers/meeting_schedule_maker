@@ -435,27 +435,27 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
 const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, onSave, onClose }) => {
     if (!isOpen || !student) return null;
 
-    // 🌟 変更: 初期値として null や空の配列が確実に設定されていることを確認
     const initialFormData = {
         name: student.name || '',
         student_id: student.student_id || '',
         sibling_id: student.sibling_id || '',
         sibling_class: student.sibling_class || '',
-        sibling_coordination_slot: student.sibling_coordination_slot || '', // 新規フィールド
+        sibling_coordination_slot: student.sibling_coordination_slot || '',
         preferred_dates: student.preferred_dates || [],
         id: student.id,
+        sibling_name_manual: student.sibling_name_manual || '',
     };
 
     const [formData, setFormData] = useState(initialFormData);
 
+    // 兄弟の有無を管理
+    const [hasSibling, setHasSibling] = useState(!!initialFormData.sibling_id);
+
+    // 🚨 新規状態: 兄弟の氏名を手動入力するための状態
+    const [siblingNameManual, setSiblingNameManual] = useState(initialFormData.sibling_name_manual || '');
+
     // モード判定
     const isEditMode = !!student.id;
-
-    // 兄弟候補リスト (自分自身を除く)
-    const siblingCandidates = useMemo(() => {
-        return allApplicants.filter(app => app.id !== student.id);
-    }, [allApplicants, student.id]);
-
 
     // スタイル
     const overlayStyle = {
@@ -523,20 +523,40 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
         fontSize: '1rem',
     };
 
-    // ハンドラ
-    const handleChange = (e) => {
-        const { name, value, options } = e.target;
+   // ハンドラ
+   const handleChange = (e) => {
+       const { name, value, type, checked, options } = e.target;
 
-        if (name === 'preferred_dates') {
-            // 🌟 変更: Multiple Selectの処理
-            const selectedDates = Array.from(options)
-                .filter(option => option.selected)
-                .map(option => option.value);
-            setFormData(prev => ({ ...prev, preferred_dates: selectedDates }));
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
-        }
-    };
+       if (name === 'preferred_dates') {
+           // ... (複数選択のロジックは変更なし) ...
+           const selectedDates = Array.from(options)
+               .filter(option => option.selected)
+               .map(option => option.value);
+           setFormData(prev => ({ ...prev, preferred_dates: selectedDates }));
+       } else if (name === 'hasSibling') { // 🌟 変更点 2-1: ラジオボタンのロジック
+           const isSiblingPresent = checked && value === 'yes';
+           setHasSibling(isSiblingPresent);
+
+           // 「いない」に変更した場合、関連フィールドをクリア
+           if (!isSiblingPresent) {
+               setFormData(prev => ({
+                   ...prev,
+                   sibling_id: null, // 兄弟IDをクリア
+                   sibling_class: '',
+                   sibling_coordination_slot: null,
+               }));
+               setSiblingNameManual(''); // 手動入力の氏名もクリア
+           } else {
+               // 「いる」に変更した場合、フォームの内部状態としてプレースホルダーIDを設定
+               // 兄弟が「いる」状態であることを示すために使用します
+               setFormData(prev => ({ ...prev, sibling_id: 'manual_entry' }));
+           }
+       } else if (name === 'sibling_name_manual') { // 🌟 変更点 2-2: 手動氏名入力のロジック
+           setSiblingNameManual(value);
+       } else {
+           setFormData(prev => ({ ...prev, [name]: value }));
+       }
+   };
 
     // 🌟 削除: handleDateChange, handleDateRemove
 
@@ -546,16 +566,27 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
             alert('氏名は必須です。');
             return;
         }
-
-        // 兄弟のIDが設定されていても、クラスが空の場合はクラスをnullにする
-        const finalData = {
+　　　　　// 最終的な保存データの整形ロジックを更新
+        const baseData = {
             ...formData,
-            sibling_id: formData.sibling_id || null,
-            sibling_class: (formData.sibling_id && formData.sibling_class.trim()) ? formData.sibling_class.trim() : null,
-            sibling_coordination_slot: formData.sibling_coordination_slot || null, // 🌟 新規: 兄弟の調整希望日程を保存
             name: formData.name.trim(),
-            student_id: formData.student_id.trim()
+            student_id: formData.student_id.trim(),
         };
+
+        // 兄弟がいない場合、全ての兄弟関連フィールドを null/空に設定して保存
+        if (!hasSibling) {
+            baseData.sibling_id = null;
+            baseData.sibling_class = null;
+            baseData.sibling_coordination_slot = null;
+            baseData.sibling_name_manual = null; // 手動入力フィールドもクリア
+        } else {
+            // 兄弟がいる場合
+            // sibling_idは「いる」ことを示すダミー値 (manual_entry) または以前のIDを保持
+            baseData.sibling_id = formData.sibling_id || 'manual_entry';
+            baseData.sibling_class = (formData.sibling_class && formData.sibling_class.trim()) ? formData.sibling_class.trim() : null;
+            baseData.sibling_coordination_slot = formData.sibling_coordination_slot || null;
+            baseData.sibling_name_manual = siblingNameManual.trim(); // 手動入力された氏名を保存
+        }
 
         onSave(finalData);
     };
@@ -600,28 +631,49 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                     {/* 2. 兄弟情報 */}
                     <h4 style={h4Style}>兄弟の情報</h4>
                     <div>
-                        <label style={labelStyle} htmlFor="sibling_id">兄弟の氏名 (面談対象者)</label>
-                        <select
-                            id="sibling_id"
-                            name="sibling_id"
-                            value={formData.sibling_id || ''}
-                            onChange={handleChange}
-                            style={inputStyle}
-                        >
-                            <option value="">-- 兄弟を選択 --</option>
-                            {siblingCandidates.map(app => (
-                                <option key={app.id} value={app.id}>
-                                    {app.name} (出席番号: {app.student_id || '未登録'})
-                                </option>
-                            ))}
-                        </select>
-                        <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
-                            兄弟も面談対象者リストに登録されている必要があります。
-                        </p>
+                        <label style={labelStyle}>兄弟はいますか？</label>
+                        <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '0.5rem' }}>
+                            <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
+                                <input
+                                    type="radio"
+                                    name="hasSibling"
+                                    value="yes"
+                                    checked={hasSibling}
+                                    onChange={handleChange}
+                                    style={{ marginRight: '0.5rem' }}
+                                />
+                                いる
+                            </label>
+                            <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
+                                <input
+                                    type="radio"
+                                    name="hasSibling"
+                                    value="no"
+                                    checked={!hasSibling}
+                                    onChange={handleChange}
+                                    style={{ marginRight: '0.5rem' }}
+                                />
+                                いない
+                            </label>
+                        </div>
                     </div>
+                    {hasSibling && (
+                        <div style={{ borderLeft: '3px solid #63b3ed', paddingLeft: '1rem', marginTop: '1rem', paddingBottom: '0.5rem' }}>
+                            {/* 🚨 兄弟の氏名入力フィールド（手動入力） */}
+                            <div>
+                                <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
+                                <input
+                                    id="sibling_name_manual"
+                                    name="sibling_name_manual"
+                                    type="text"
+                                    value={siblingNameManual}
+                                    onChange={handleChange}
+                                    style={inputStyle}
+                                    placeholder="例: 佐藤 次郎"
+                                    required // 氏名を入力必須とする
+                                />
+                            </div>
 
-                    {formData.sibling_id && (
-                        <>
                             <div>
                                 <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
                                 <input
@@ -634,7 +686,8 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                     placeholder="例: 小学5年A組"
                                 />
                             </div>
-                            {/* 🌟 新規: 兄弟の調整希望日程プルダウン */}
+
+                            {/* 🌟 既存の兄弟の調整希望日程プルダウン（再利用） */}
                             <div>
                                 <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の調整希望日程</label>
                                 <select
@@ -653,9 +706,8 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                     面談枠が未設定の場合はスロットが表示されません。
                                 </p>
                             </div>
-                        </>
+                        </div>
                     )}
-
 
                     {/* 3. 希望日程 */}
                     <h4 style={h4Style}>希望日程（日時のリスト）</h4>
