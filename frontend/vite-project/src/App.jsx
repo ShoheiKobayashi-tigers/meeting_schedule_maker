@@ -160,6 +160,7 @@ const ToggleSwitch = ({ isChecked, onChange }) => {
 
 
 // 児童（生徒）詳細モーダルコンポーネント (前回の実装から変更なし)
+// 児童（生徒）詳細モーダルコンポーネント
 const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, siblingDetails }) => {
     if (!isOpen || !student) return null;
 
@@ -272,6 +273,17 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
         border: '1px solid #f6e05e',
     };
 
+    const coordinationSlotStyle = {
+        backgroundColor: '#e9d8fd', // Purpleish-blue for coordination slot
+        padding: '0.3rem 0.6rem',
+        borderRadius: '0.4rem',
+        marginRight: '0.5rem',
+        color: '#6b46c1',
+        fontWeight: '600',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+    };
+
     const unassignedStyle = {
         color: '#718096',
         fontSize: '1rem',
@@ -341,11 +353,22 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
                                 <div style={infoItemStyle}>
                                     <span style={labelStyle}>兄弟氏名 / クラス</span>
                                     <span style={valueStyle}>
-                                        {siblingDetails.name || '不明'} / {siblingDetails.class || '不明'}
+                                        {siblingDetails.name || '不明'} / {student.sibling_class || '不明'}
+                                    </span>
+                                </div>
+                                {/* 🌟 修正: 兄弟の調整希望日程を表示 */}
+                                <div style={infoItemStyle}>
+                                    <span style={labelStyle}>兄弟の調整希望日程</span>
+                                    <span style={valueStyle}>
+                                        {student.sibling_coordination_slot ? (
+                                            <span style={coordinationSlotStyle}>{student.sibling_coordination_slot}</span>
+                                        ) : (
+                                            '未登録'
+                                        )}
                                     </span>
                                 </div>
                                 <div style={{...infoItemStyle, borderBottom: 'none'}}>
-                                    <span style={labelStyle}>兄弟の面談日程</span>
+                                    <span style={labelStyle}>兄弟の現在の割り当て</span>
                                     {siblingDetails.assignment ? (
                                         <span style={valueStyle}>
                                             <span style={siblingAssignmentBadgeStyle}>{siblingDetails.assignment.date}</span>
@@ -406,11 +429,24 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
 // ---------------------------------------------
 // --- 🌟 新規: 児童（生徒）追加/編集モーダルコンポーネント ---
 // ---------------------------------------------
-const UpsertStudentModal = ({ isOpen, student, allApplicants, onSave, onClose }) => {
+// ---------------------------------------------
+// --- 🌟 修正: 児童（生徒）追加/編集モーダルコンポーネント ---
+// ---------------------------------------------
+const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, onSave, onClose }) => {
     if (!isOpen || !student) return null;
 
-    const [formData, setFormData] = useState(student);
-    const [newPreferredDate, setNewPreferredDate] = useState('');
+    // 🌟 変更: 初期値として null や空の配列が確実に設定されていることを確認
+    const initialFormData = {
+        name: student.name || '',
+        student_id: student.student_id || '',
+        sibling_id: student.sibling_id || '',
+        sibling_class: student.sibling_class || '',
+        sibling_coordination_slot: student.sibling_coordination_slot || '', // 新規フィールド
+        preferred_dates: student.preferred_dates || [],
+        id: student.id,
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
 
     // モード判定
     const isEditMode = !!student.id;
@@ -489,26 +525,20 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, onSave, onClose })
 
     // ハンドラ
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+        const { name, value, options } = e.target;
 
-    const handleDateChange = () => {
-        if (newPreferredDate.trim() && !formData.preferred_dates.includes(newPreferredDate.trim())) {
-            setFormData(prev => ({
-                ...prev,
-                preferred_dates: [...prev.preferred_dates, newPreferredDate.trim()].sort()
-            }));
-            setNewPreferredDate('');
+        if (name === 'preferred_dates') {
+            // 🌟 変更: Multiple Selectの処理
+            const selectedDates = Array.from(options)
+                .filter(option => option.selected)
+                .map(option => option.value);
+            setFormData(prev => ({ ...prev, preferred_dates: selectedDates }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
 
-    const handleDateRemove = (dateToRemove) => {
-        setFormData(prev => ({
-            ...prev,
-            preferred_dates: prev.preferred_dates.filter(date => date !== dateToRemove)
-        }));
-    };
+    // 🌟 削除: handleDateChange, handleDateRemove
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -522,6 +552,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, onSave, onClose })
             ...formData,
             sibling_id: formData.sibling_id || null,
             sibling_class: (formData.sibling_id && formData.sibling_class.trim()) ? formData.sibling_class.trim() : null,
+            sibling_coordination_slot: formData.sibling_coordination_slot || null, // 🌟 新規: 兄弟の調整希望日程を保存
             name: formData.name.trim(),
             student_id: formData.student_id.trim()
         };
@@ -590,66 +621,76 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, onSave, onClose })
                     </div>
 
                     {formData.sibling_id && (
-                        <div>
-                            <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
-                            <input
-                                id="sibling_class"
-                                name="sibling_class"
-                                type="text"
-                                value={formData.sibling_class || ''}
-                                onChange={handleChange}
-                                style={inputStyle}
-                                placeholder="例: 小学5年A組"
-                            />
-                        </div>
+                        <>
+                            <div>
+                                <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
+                                <input
+                                    id="sibling_class"
+                                    name="sibling_class"
+                                    type="text"
+                                    value={formData.sibling_class || ''}
+                                    onChange={handleChange}
+                                    style={inputStyle}
+                                    placeholder="例: 小学5年A組"
+                                />
+                            </div>
+                            {/* 🌟 新規: 兄弟の調整希望日程プルダウン */}
+                            <div>
+                                <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の調整希望日程</label>
+                                <select
+                                    id="sibling_coordination_slot"
+                                    name="sibling_coordination_slot"
+                                    value={formData.sibling_coordination_slot || ''}
+                                    onChange={handleChange}
+                                    style={inputStyle}
+                                >
+                                    <option value="">-- スロットを選択 --</option>
+                                    {allScheduleSlots.map(slot => (
+                                        <option key={slot} value={slot}>{slot}</option>
+                                    ))}
+                                </select>
+                                <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
+                                    面談枠が未設定の場合はスロットが表示されません。
+                                </p>
+                            </div>
+                        </>
                     )}
 
 
                     {/* 3. 希望日程 */}
                     <h4 style={h4Style}>希望日程（日時のリスト）</h4>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
-                        <div style={{ flexGrow: 1 }}>
-                            <label style={labelStyle} htmlFor="new_preferred_date">日程の追加</label>
-                            <input
-                                id="new_preferred_date"
-                                type="text"
-                                value={newPreferredDate}
-                                onChange={(e) => setNewPreferredDate(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleDateChange())}
-                                style={inputStyle}
-                                placeholder="例: 12/05 (火) 10:00 - 11:00"
-                            />
-                        </div>
-                        <button
-                            type="button"
-                            onClick={handleDateChange}
+                    <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
+                        **Ctrl/Cmdを押しながらクリック**で複数選択できます。
+                    </p>
+                    <div style={{ maxHeight: '200px', border: '1px solid #e2e8f0', borderRadius: '0.5rem', marginTop: '0.5rem' }}>
+                        <select
+                            id="preferred_dates"
+                            name="preferred_dates"
+                            multiple // 複数選択を有効化
+                            value={formData.preferred_dates || []}
+                            onChange={handleChange}
                             style={{
-                                ...buttonBaseStyle,
-                                backgroundColor: '#4299e1',
-                                color: 'white',
-                                whiteSpace: 'nowrap',
-                                marginBottom: '0.5rem',
+                                ...inputStyle,
+                                minHeight: '200px',
+                                border: 'none',
+                                padding: '0.75rem',
+                                margin: '0',
+                                overflowY: 'auto',
+                                cursor: 'pointer',
                             }}
+                            size={allScheduleSlots.length > 5 ? 10 : allScheduleSlots.length + 1}
                         >
-                            追加
-                        </button>
-                    </div>
-                    <div style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '0.5rem', marginTop: '0.5rem' }}>
-                        {formData.preferred_dates.length > 0 ? (
-                            formData.preferred_dates.map((date, index) => (
-                                <div key={index} style={{ display: 'flex', alignItems: 'center', padding: '0.4rem 0.5rem', borderBottom: '1px dotted #e2e8f0' }}>
-                                    <span style={{ fontSize: '0.9rem', color: '#2d3748', flexGrow: 1 }}>{date}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDateRemove(date)}
-                                        style={{ color: '#e53e3e', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem' }}
-                                    >
-                                        &times;
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            <p style={{ textAlign: 'center', color: '#718096', padding: '1rem' }}>希望日程はありません</p>
+                            <option value="" disabled>-- 複数選択してください --</option>
+                            {allScheduleSlots.map(slot => (
+                                <option key={slot} value={slot}>
+                                    {slot}
+                                </option>
+                            ))}
+                        </select>
+                        {allScheduleSlots.length === 0 && (
+                             <p style={{ textAlign: 'center', color: '#718096', padding: '1rem' }}>
+                                 スロット設定画面で面談枠を追加してください。
+                             </p>
                         )}
                     </div>
 
@@ -687,6 +728,8 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, onSave, onClose })
 
 // --- III. ロジック層 (カスタムフック) ---
 
+// --- III. ロジック層 (カスタムフック) ---
+
 const useScheduleManager = (initialApplicants) => {
     const [applicants, setApplicants] = useState(initialApplicants);
     const [interviewDuration, setInterviewDuration] = useState(15);
@@ -711,15 +754,13 @@ const useScheduleManager = (initialApplicants) => {
         student: null, // 表示対象の児童（生徒）オブジェクト
     });
 
-    // 🌟 新規: 児童（生徒）追加/編集モーダルの状態
+    // 児童（生徒）追加/編集モーダルの状態
     const [upsertStudentModalState, setUpsertStudentModalState] = useState({
         isOpen: false,
         student: null,
         mode: 'add',
     });
     // ------------------------------------------
-
-    // 削除: const [newStudentName, setNewStudentName] = useState('');
 
     const TIME_OPTIONS = useMemo(() => {
         const times = [];
@@ -748,6 +789,22 @@ const useScheduleManager = (initialApplicants) => {
             availability: initialAvailability,
         };
     });
+
+    // 🌟 新規: 全面談スロットのリストを生成
+    const allScheduleSlots = useMemo(() => {
+        const slots = [];
+        // スケジュールボードと同じソート順で日時を結合
+        const sortedCols = sortDateCols(scheduleData.cols);
+        const sortedRows = sortTimeRows(scheduleData.rows);
+
+        for (const date of sortedCols) {
+            for (const time of sortedRows) {
+                slots.push(`${date} ${time}`);
+            }
+        }
+        return slots;
+    }, [scheduleData.cols, scheduleData.rows]);
+
 
     const getApplicantName = useCallback((applicantId) => {
         return applicants.find(app => app.id === applicantId)?.name || 'Unknown Applicant';
@@ -792,7 +849,7 @@ const useScheduleManager = (initialApplicants) => {
     }, [applicants, getAssignmentDetails]);
 
 
-    // --- 児童（生徒）詳細モーダル関連関数 ---
+    // --- 児童（生徒）詳細モーダル関連関数 (変更なし) ---
     const openStudentDetailsModal = useCallback((student) => {
         setStudentDetailsModalState({
             isOpen: true,
@@ -808,7 +865,7 @@ const useScheduleManager = (initialApplicants) => {
     }, []);
     // ------------------------------------------
 
-    // 🌟 新規: 児童（生徒）追加/編集モーダル関連関数
+    // 🌟 修正: 児童（生徒）追加/編集モーダル関連関数 (新規フィールド対応)
     const openAddStudentModal = useCallback(() => {
         // 新規登録用の初期データを設定
         setUpsertStudentModalState({
@@ -818,6 +875,7 @@ const useScheduleManager = (initialApplicants) => {
                 student_id: '',
                 sibling_id: '',
                 sibling_class: '',
+                sibling_coordination_slot: '', // 🌟 新規: 兄弟の調整希望日程
                 preferred_dates: []
             },
             mode: 'add',
@@ -833,17 +891,27 @@ const useScheduleManager = (initialApplicants) => {
     }, []);
 
     const handleSaveStudent = useCallback((studentData) => {
+        // データのバリデーションと整形
+        const saveData = {
+            ...studentData,
+            name: studentData.name.trim(),
+            student_id: studentData.student_id.trim() || null,
+            sibling_id: studentData.sibling_id || null,
+            sibling_class: studentData.sibling_class || null,
+            sibling_coordination_slot: studentData.sibling_coordination_slot || null, // 🌟 新規: 保存
+            preferred_dates: studentData.preferred_dates || [],
+        };
+
         if (studentData.id) {
-            // 編集ロジック (現状は詳細モーダルから編集は直接行えないが、ロジックとして用意)
-            setApplicants(prev => prev.map(s => s.id === studentData.id ? studentData : s));
+            // 編集ロジック
+            setApplicants(prev => prev.map(s => s.id === studentData.id ? saveData : s));
         } else {
             // 新規追加ロジック
             const newId = `app-${Date.now()}`;
             const newStudent = {
-                ...studentData,
+                ...saveData,
                 id: newId,
-                // 出席番号が空の場合は仮の値を割り当てる
-                student_id: studentData.student_id || `NEW-${applicants.length + 1}`,
+                student_id: saveData.student_id || `NEW-${applicants.length + 1}`,
             };
             setApplicants(prev => [...prev, newStudent]);
         }
@@ -852,7 +920,7 @@ const useScheduleManager = (initialApplicants) => {
     // ------------------------------------------
 
 
-    // --- 児童（生徒）情報の削除処理 ---
+    // --- 児童（生徒）情報の削除処理 (変更なし) ---
     const handleDeleteStudent = useCallback((studentId) => {
         // 児童（生徒）リストから削除
         setApplicants(prev => prev.filter(s => s.id !== studentId));
@@ -926,7 +994,7 @@ const useScheduleManager = (initialApplicants) => {
         return { newAssignments, newAvailability };
     };
 
-    // --- 行・列の削除処理 ---
+    // --- 行・列の削除処理 (変更なし) ---
     const performRowDeletion = useCallback((rowIndex) => {
         setScheduleData(prevData => {
             const rowToDelete = prevData.rows[rowIndex];
@@ -1008,7 +1076,7 @@ const useScheduleManager = (initialApplicants) => {
         }
     }, [scheduleData.assignments, scheduleData.cols, performColDeletion]);
 
-    // --- 行・列の追加処理 ---
+    // --- 行・列の追加処理 (変更なし) ---
     const handleAddRow = useCallback(() => {
         const newRowHeader = calculateTimeRange(selectedStartTime, interviewDuration);
         // 🚨 修正点 2: 開始時刻が同じ時間帯があるかチェック
@@ -1074,7 +1142,7 @@ const useScheduleManager = (initialApplicants) => {
     }, [selectedDate, scheduleData.cols, scheduleData.rows]);
 
 
-    // --- 利用可否設定処理 ---
+    // --- 利用可否設定処理 (変更なし) ---
     const performUnassignAndToggle = useCallback((rowIndex, colIndex) => {
         setScheduleData(prevData => {
             const newAssignments = prevData.assignments.map(row => [...row]);
@@ -1120,7 +1188,7 @@ const useScheduleManager = (initialApplicants) => {
         });
     }, [scheduleData, getApplicantName, performUnassignAndToggle]);
 
-    // クリック割り当て処理
+    // クリック割り当て処理 (変更なし)
     const handleSlotClick = useCallback((rowIndex, colIndex, isAvailable) => {
         const currentSlot = { rowIndex, colIndex };
         const isCurrentSlotSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
@@ -1204,7 +1272,7 @@ const useScheduleManager = (initialApplicants) => {
     }, [selectedSlot]);
 
 
-    // --- D&D ロジック ---
+    // --- D&D ロジック (変更なし) ---
     const handleDragStart = useCallback((e, applicantId, sourceCellId = null) => {
         e.dataTransfer.setData('applicantId', applicantId);
         e.dataTransfer.setData('sourceCellId', sourceCellId || 'applicant-list');
@@ -1443,14 +1511,14 @@ const useScheduleManager = (initialApplicants) => {
         upsertStudentModalState,
         openAddStudentModal,
         closeUpsertStudentModal,
-        handleSaveStudent, // 🌟 変更: 新規追加/編集の保存ロジック
+        handleSaveStudent,
+        allScheduleSlots, // 🌟 追加: 全スロットのリスト
         // -----------------
         interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate,
         selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
         draggingApplicantId, isAddButtonActive, setIsAddButtonActive,
         selectedSlot,
-        // 削除: newStudentName, setNewStudentName,
 
         // 関数
         getApplicantName,
@@ -1460,7 +1528,6 @@ const useScheduleManager = (initialApplicants) => {
         handleDragStart, handleDragEnd, handleDragOver, handleDrop, handleDragEnter, handleDragLeave,
         handleSlotClick,
         handleApplicantClick,
-        // 削除: handleAddStudent,
         confirmDeleteStudent,
         getAssignmentDetails,
         getSiblingAssignmentDetails,
@@ -2033,17 +2100,52 @@ const StudentSettingsScreen = ({ manager }) => {
 
 // --- V. メインコンポーネント (統合層) ---
 
+// --- V. メインコンポーネント (統合層) ---
+
 const App = () => {
-    // 🚨 修正: 児童（生徒）データ構造を更新し、新しい詳細情報（出席番号、兄弟情報、希望日程）を含める
+    // 🚨 修正: 児童（生徒）データ構造を更新し、新しい詳細情報（兄弟の調整希望日程など）を含める
+    // 15分スロット設定を前提に希望日程を修正
     const initialApplicants = [
         // 割り当て済みの佐藤太郎さんは、田中一郎さんを兄弟として設定
-        { id: 'app-1', name: '佐藤 太郎', student_id: '1201', sibling_id: 'app-3', sibling_class: '小学3年B組', preferred_dates: ['12/05 (火) 10:00 - 11:00', '12/07 (木) 14:00 - 15:00'] },
+        {
+            id: 'app-1',
+            name: '佐藤 太郎',
+            student_id: '1201',
+            sibling_id: 'app-3',
+            sibling_class: '小学3年B組',
+            sibling_coordination_slot: '12/01 (月) 09:15 - 09:30', // 調整希望日程を追加
+            preferred_dates: ['12/01 (月) 09:15 - 09:30', '11/30 (日) 14:00 - 14:15']
+        },
         // 山田花子さんは兄弟なし
-        { id: 'app-2', name: '山田 花子', student_id: '1202', sibling_id: null, sibling_class: null, preferred_dates: ['12/04 (月) 13:00 - 14:00', '12/06 (水) 11:00 - 12:00'] },
+        {
+            id: 'app-2',
+            name: '山田 花子',
+            student_id: '1202',
+            sibling_id: null,
+            sibling_class: null,
+            sibling_coordination_slot: null,
+            preferred_dates: ['12/01 (月) 13:00 - 13:15', '11/30 (日) 11:00 - 11:15']
+        },
         // 田中一郎さんは、佐藤太郎さんを兄弟として設定 (IDを相互参照)
-        { id: 'app-3', name: '田中 一郎', student_id: '1203', sibling_id: 'app-1', sibling_class: '小学5年A組', preferred_dates: ['12/05 (火) 10:00 - 11:00', '12/08 (金) 09:00 - 10:00'] },
+        {
+            id: 'app-3',
+            name: '田中 一郎',
+            student_id: '1203',
+            sibling_id: 'app-1',
+            sibling_class: '小学5年A組',
+            sibling_coordination_slot: '12/01 (月) 09:00 - 09:15', // 調整希望日程を追加
+            preferred_dates: ['12/01 (月) 09:00 - 09:15', '11/30 (日) 09:00 - 09:15']
+        },
         // 鈴木美咲さんは希望日程なし
-        { id: 'app-4', name: '鈴木 美咲', student_id: '1204', sibling_id: null, sibling_class: null, preferred_dates: [] },
+        {
+            id: 'app-4',
+            name: '鈴木 美咲',
+            student_id: '1204',
+            sibling_id: null,
+            sibling_class: null,
+            sibling_coordination_slot: null,
+            preferred_dates: []
+        },
     ];
 
     // 1. ロジック層からすべての機能を取得
@@ -2160,6 +2262,7 @@ const App = () => {
                 isOpen={manager.upsertStudentModalState.isOpen}
                 student={manager.upsertStudentModalState.student}
                 allApplicants={manager.applicants}
+                allScheduleSlots={manager.allScheduleSlots} // 🌟 追加: 全スロットを渡す
                 onSave={manager.handleSaveStudent}
                 onClose={manager.closeUpsertStudentModal}
             />
