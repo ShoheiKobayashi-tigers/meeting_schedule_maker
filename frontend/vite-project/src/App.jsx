@@ -527,13 +527,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
    const handleChange = (e) => {
        const { name, value, type, checked, options } = e.target;
 
-       if (name === 'preferred_dates') {
-           // ... (複数選択のロジックは変更なし) ...
-           const selectedDates = Array.from(options)
-               .filter(option => option.selected)
-               .map(option => option.value);
-           setFormData(prev => ({ ...prev, preferred_dates: selectedDates }));
-       } else if (name === 'hasSibling') { // 🌟 変更点 2-1: ラジオボタンのロジック
+       if (name === 'hasSibling') { // 🌟 変更点 2-1: ラジオボタンのロジック
            const isSiblingPresent = checked && value === 'yes';
            setHasSibling(isSiblingPresent);
 
@@ -557,8 +551,25 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
            setFormData(prev => ({ ...prev, [name]: value }));
        }
    };
+   const handleDateChange = (e) => {
+       const slot = e.target.value;
+       const isChecked = e.target.checked;
 
-    // 🌟 削除: handleDateChange, handleDateRemove
+       setFormData(prev => {
+           let newDates = [...prev.preferred_dates];
+
+           if (isChecked) {
+               // チェックを付けた場合、追加
+               newDates.push(slot);
+           } else {
+               // チェックを外した場合、削除
+               newDates = newDates.filter(date => date !== slot);
+           }
+
+           return { ...prev, preferred_dates: newDates };
+       });
+   };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -710,42 +721,55 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                     )}
 
                     {/* 3. 希望日程 */}
-                    <h4 style={h4Style}>希望日程（日時のリスト）</h4>
-                    <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
-                        **Ctrl/Cmdを押しながらクリック**で複数選択できます。
-                    </p>
-                    <div style={{ maxHeight: '200px', border: '1px solid #e2e8f0', borderRadius: '0.5rem', marginTop: '0.5rem' }}>
-                        <select
-                            id="preferred_dates"
-                            name="preferred_dates"
-                            multiple // 複数選択を有効化
-                            value={formData.preferred_dates || []}
-                            onChange={handleChange}
-                            style={{
-                                ...inputStyle,
-                                minHeight: '200px',
-                                border: 'none',
-                                padding: '0.75rem',
-                                margin: '0',
-                                overflowY: 'auto',
-                                cursor: 'pointer',
-                            }}
-                            size={allScheduleSlots.length > 5 ? 10 : allScheduleSlots.length + 1}
-                        >
-                            <option value="" disabled>-- 複数選択してください --</option>
-                            {allScheduleSlots.map(slot => (
-                                <option key={slot} value={slot}>
-                                    {slot}
-                                </option>
-                            ))}
-                        </select>
-                        {allScheduleSlots.length === 0 && (
-                             <p style={{ textAlign: 'center', color: '#718096', padding: '1rem' }}>
-                                 スロット設定画面で面談枠を追加してください。
-                             </p>
-                        )}
-                    </div>
+<h4 style={h4Style}>希望日程（日時のリスト）</h4>
+                    <div>
+                        <label style={labelStyle} htmlFor="preferred_dates">
+                            希望日程を複数選択してください
+                        </label>
 
+                        {/* 🌟 修正: チェックボックスで表示 */}
+                        <div style={{
+                            border: '1px solid #cbd5e0',
+                            borderRadius: '0.5rem',
+                            padding: '0.75rem',
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            backgroundColor: '#f7fafc'
+                        }}>
+                            {allScheduleSlots.length > 0 ? (
+                                allScheduleSlots.map(slot => (
+                                    <div key={slot} style={{ marginBottom: '0.5rem' }}>
+                                        <label style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            fontWeight: '500',
+                                            color: '#2d3748',
+                                            cursor: 'pointer',
+                                            marginTop: '0.25rem'
+                                        }}>
+                                            <input
+                                                type="checkbox"
+                                                name="preferred_dates"
+                                                value={slot}
+                                                checked={formData.preferred_dates.includes(slot)}
+                                                onChange={handleDateChange} // ステップ1で定義した新しいハンドラを使用
+                                                style={{ marginRight: '0.75rem', transform: 'scale(1.2)' }}
+                                            />
+                                            {slot}
+                                        </label>
+                                    </div>
+                                ))
+                            ) : (
+                                <p style={{ color: '#718096', margin: 0 }}>
+                                    面談枠が設定されていません。スロット設定画面で面談枠を作成してください。
+                                </p>
+                            )}
+                        </div>
+                        {/* ... (省略: 説明文) ... */}
+                        <p style={{fontSize: '0.8rem', color: '#718096', margin: '0.5rem 0 0.5rem 0'}}>
+                            兄弟の調整希望日程と合わせて調整の参考にします。
+                        </p>
+                    </div>
 
                     {/* フォームアクション */}
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2.5rem' }}>
