@@ -599,7 +599,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
             baseData.sibling_name_manual = siblingNameManual.trim(); // 手動入力された氏名を保存
         }
 
-        onSave(finalData);
+        onSave(baseData);
     };
 
 
