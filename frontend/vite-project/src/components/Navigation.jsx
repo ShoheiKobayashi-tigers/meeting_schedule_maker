@@ -17,11 +17,11 @@ const Navigation = ({ currentView, onViewChange, styles }) => {
         },
         {
             view: VIEWS.SETTINGS,
-            label: '設定',
+            label: '面談枠の設定',
         },
         {
             view: VIEWS.STUDENTS,
-            label: '応募者管理',
+            label: '児童（生徒）情報管理',
         },
     ];
 

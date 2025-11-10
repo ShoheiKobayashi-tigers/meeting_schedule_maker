@@ -15,12 +15,12 @@ const ScheduleTablePanel = ({ manager }) => {
               面接スケジュールボード (2次元)
             </h1>
             <p style={{ color: '#718096', marginBottom: '1.5rem' }}>
-                スロット選択後、右側の児童（生徒）をクリックして割り当てることも可能です。
+                面談枠を選択後、右側の児童（生徒）をクリックして割り当てることも可能です。
             </p>
 
             {sortedRows.length === 0 || sortedCols.length === 0 ? (
                 <p style={{textAlign: 'center', color: '#e53e3e', padding: '5rem', border: '1px dashed #e53e3e', borderRadius: '0.5rem'}}>
-                    スロットが設定されていません。「スロット設定」画面で時間帯と日付を追加してください。
+                    面談枠が設定されていません。「面談枠の設定」画面で時間帯と日付を追加してください。
                 </p>
             ) : (
                 <div style={{ overflowX: 'auto' }}>

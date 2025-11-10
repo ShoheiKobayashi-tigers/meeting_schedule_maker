@@ -21,8 +21,8 @@ const ApplicantListPanel = ({ manager }) => {
             </h2>
             <p style={{ color: '#718096', marginBottom: '1rem', fontSize: '0.875rem' }}>
                 {selectedSlot
-                    ? 'スロットが選択されています。児童（生徒）をクリックして割り当ててください。'
-                    : 'スロットからここにドロップすると割り当て解除され、リストに戻ります'
+                    ? '面談枠が選択されています。児童（生徒）をクリックして割り当ててください。'
+                    : '面談枠からここにドロップすると割り当て解除され、リストに戻ります'
                 }
             </p>
             <div className="applicant-list" style={{ overflowY: 'auto', flex: 1 }}>
@@ -36,7 +36,7 @@ const ApplicantListPanel = ({ manager }) => {
                             onClick={() => handleApplicantClick(applicant.id)}
                             style={{
                                 ...styles.baseItem,
-                                // スロット選択中はクリック可能な要素であることを示唆する色に変更
+                                // 面談枠を選択中はクリック可能な要素であることを示唆する色に変更
                                 backgroundColor: selectedSlot ? '#d1f1da' : '#ebf8ff',
                                 border: `1px solid ${selectedSlot ? '#48bb78' : '#90cdf4'}`,
                                 cursor: selectedSlot ? 'pointer' : 'grab',

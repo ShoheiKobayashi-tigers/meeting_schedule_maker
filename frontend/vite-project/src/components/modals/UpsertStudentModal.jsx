@@ -274,13 +274,13 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                     onChange={handleChange}
                                     style={inputStyle}
                                 >
-                                    <option value="">-- スロットを選択 --</option>
+                                    <option value="">-- 面談枠を選択 --</option>
                                     {allScheduleSlots.map(slot => (
                                         <option key={slot} value={slot}>{slot}</option>
                                     ))}
                                 </select>
                                 <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
-                                    面談枠が未設定の場合はスロットが表示されません。
+                                    面談枠が未設定の場合は面談枠が表示されません。
                                 </p>
                             </div>
                         </div>
@@ -327,7 +327,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                 ))
                             ) : (
                                 <p style={{ color: '#718096', margin: 0 }}>
-                                    面談枠が設定されていません。スロット設定画面で面談枠を作成してください。
+                                    面談枠が設定されていません。面談枠の設定画面で面談枠を作成してください。
                                 </p>
                             )}
                         </div>

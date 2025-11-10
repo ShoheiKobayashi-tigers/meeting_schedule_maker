@@ -63,7 +63,7 @@ const useScheduleManager = (initialApplicants) => {
         };
     });
 
-    // 🌟 新規: 全面談スロットのリストを生成
+    // 🌟 新規: 全面談面談枠のリストを生成
     const allScheduleSlots = useMemo(() => {
         const slots = [];
         // スケジュールボードと同じソート順で日時を結合
@@ -85,7 +85,7 @@ const useScheduleManager = (initialApplicants) => {
 
 
     /**
-     * 指定された児童（生徒）IDが割り当てられているスロットの日程（日付と時間帯）を返す
+     * 指定された児童（生徒）IDが割り当てられている面談枠の日程（日付と時間帯）を返す
      */
     const getAssignmentDetails = useCallback((applicantId) => {
         const { rows, cols, assignments } = scheduleData;
@@ -443,7 +443,7 @@ const useScheduleManager = (initialApplicants) => {
             setModalState({
                 isOpen: true,
                 title: '割り当ての強制解除確認',
-                message: `このスロット（${targetDate} ${targetTime}）には「${applicantName}」さんが割り当てられています。利用不可に設定すると、この割り当ては強制的に解除され、児童（生徒）リストに戻ります。実行しますか？`,
+                message: `この面談枠（${targetDate} ${targetTime}）には「${applicantName}」さんが割り当てられています。利用不可に設定すると、この割り当ては強制的に解除され、児童（生徒）リストに戻ります。実行しますか？`,
                 onConfirm: () => performUnassignAndToggle(rowIndex, colIndex),
                 confirmText: '強制解除して不可にする',
                 cancelText: 'キャンセル (可のまま)',
@@ -466,13 +466,13 @@ const useScheduleManager = (initialApplicants) => {
         const currentSlot = { rowIndex, colIndex };
         const isCurrentSlotSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
 
-        // 🚨 修正点 3: 利用不可スロットでも選択解除は可能にする
+        // 🚨 修正点 3: 利用不可面談枠でも選択解除は可能にする
         if (!isAvailable && !isCurrentSlotSelected) {
             setSelectedSlot(null);
             return;
         }
 
-        // --- スロット間のスワップ処理 (Slot A が選択されている状態で Slot B がクリックされた場合) ---
+        // --- 面談枠間のスワップ処理 (Slot A が選択されている状態で Slot B がクリックされた場合) ---
         if (selectedSlot && !isCurrentSlotSelected) {
             const fromRowIndex = selectedSlot.rowIndex;
             const fromColIndex = selectedSlot.colIndex;
@@ -484,10 +484,10 @@ const useScheduleManager = (initialApplicants) => {
                 const applicantA = newAssignments[fromRowIndex][fromColIndex];
                 const applicantB = newAssignments[rowIndex][colIndex];
 
-                // 1. スロット A に スロット B の児童（生徒） (Applicant B) を割り当てる (nullも許容)
+                // 1. 面談枠 A に 面談枠 B の児童（生徒） (Applicant B) を割り当てる (nullも許容)
                 newAssignments[fromRowIndex][fromColIndex] = applicantB;
 
-                // 2. スロット B に スロット A の児童（生徒） (Applicant A) を割り当てる (nullも許容)
+                // 2. 面談枠 B に 面談枠 A の児童（生徒） (Applicant A) を割り当てる (nullも許容)
                 newAssignments[rowIndex][colIndex] = applicantA;
 
                 return { ...prevData, assignments: newAssignments };
@@ -521,8 +521,8 @@ const useScheduleManager = (initialApplicants) => {
                 newAssignments[rowIndex][colIndex] = null; // リストに戻すために一時的に解除
             }
 
-            // 2. スロットから同じ児童（生徒）を解除する（他のスロットから移動させるため）
-            //    (targetApplicantIdとは別の、applicantIdが既に割り当てられているスロットを探す)
+            // 2. 面談枠から同じ児童（生徒）を解除する（他の面談枠から移動させるため）
+            //    (targetApplicantIdとは別の、applicantIdが既に割り当てられている面談枠を探す)
             let foundSource = false;
             for (let r = 0; r < newAssignments.length; r++) {
                 for (let c = 0; c < newAssignments[r].length; c++) {
@@ -535,7 +535,7 @@ const useScheduleManager = (initialApplicants) => {
                 if (foundSource) break;
             }
 
-            // 3. 選択されたスロットに割り当てる
+            // 3. 選択された面談枠に割り当てる
             newAssignments[rowIndex][colIndex] = applicantId;
 
             return { ...prevData, assignments: newAssignments };
@@ -591,7 +591,7 @@ const useScheduleManager = (initialApplicants) => {
         const sourceColIndex = sourceIsGrid ? parseInt(sourceParts[2], 10) : -1;
 
         if (targetIsGrid) {
-            // 利用不可スロットへのドロップは拒否
+            // 利用不可面談枠へのドロップは拒否
             if (!scheduleData.availability[targetRowIndex][targetColIndex]) {
                 setDraggingApplicantId(null);
                 return;
@@ -620,29 +620,29 @@ const useScheduleManager = (initialApplicants) => {
             const newAssignments = prevData.assignments.map(row => [...row]);
             const targetApplicantId = newAssignments[targetRowIndex][targetColIndex];
 
-            // 1. 同じスロットへのドロップや、同じ児童（生徒）のリストから埋まったスロットへのドロップは無視
+            // 1. 同じ面談枠へのドロップや、同じ児童（生徒）のリストから埋まった面談枠へのドロップは無視
             if ((sourceIsGrid && sourceRowIndex === targetRowIndex && sourceColIndex === targetColIndex) ||
                 (!sourceIsGrid && targetApplicantId !== null && applicantId === targetApplicantId)) {
                 return prevData;
             }
 
-            // 2. 割り当て解除 (移動元のスロットをクリア)
+            // 2. 割り当て解除 (移動元の面談枠をクリア)
             if (sourceIsGrid && sourceRowIndex !== -1 && sourceColIndex !== -1) {
                 newAssignments[sourceRowIndex][sourceColIndex] = null;
             }
 
             // 3. 割り当て処理
-            // ターゲットスロットが空の場合
+            // ターゲット面談枠が空の場合
             if (targetApplicantId === null) {
                 newAssignments[targetRowIndex][targetColIndex] = applicantId;
 
-            // ターゲットスロットが埋まっており、ソースがグリッドの場合 (スワップ)
+            // ターゲット面談枠が埋まっており、ソースがグリッドの場合 (スワップ)
             } else if (sourceIsGrid) {
                 newAssignments[targetRowIndex][targetColIndex] = applicantId;
                 newAssignments[sourceRowIndex][sourceColIndex] = targetApplicantId; // 移動元にターゲットの児童（生徒）を配置
-            // ターゲットスロットが埋まっており、ソースがリストの場合 (上書き & ターゲットをリストに戻す)
+            // ターゲット面談枠が埋まっており、ソースがリストの場合 (上書き & ターゲットをリストに戻す)
             } else if (!sourceIsGrid) {
-                 // ターゲットスロットが埋まっており、ソースがリストの場合 (上書き)
+                 // ターゲット面談枠が埋まっており、ソースがリストの場合 (上書き)
                  newAssignments[targetRowIndex][targetColIndex] = applicantId;
             }
 
@@ -666,7 +666,7 @@ const useScheduleManager = (initialApplicants) => {
         openAddStudentModal,
         closeUpsertStudentModal,
         handleSaveStudent,
-        allScheduleSlots, // 🌟 追加: 全スロットのリスト
+        allScheduleSlots, // 🌟 追加: 全面談枠のリスト
         // -----------------
         interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate,
