@@ -1,4 +1,6 @@
-const ApplicantList = ({ manager }) => {
+import React, { useCallback, useMemo } from 'react';
+
+const ApplicantListPanel = ({ manager }) => {
     const {
         applicants, scheduleData, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
@@ -56,4 +58,4 @@ const ApplicantList = ({ manager }) => {
           </div>
     );
 };
-export default ApplicantList;
+export default ApplicantListPanel;

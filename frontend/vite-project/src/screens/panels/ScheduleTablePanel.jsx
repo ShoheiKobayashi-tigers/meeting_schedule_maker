@@ -1,4 +1,4 @@
-const ScheduleBoard = ({ manager }) => {
+const ScheduleTablePanel = ({ manager }) => {
     const {
         scheduleData, getApplicantName, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, handleDragEnter, handleDragLeave,
@@ -118,4 +118,4 @@ const ScheduleBoard = ({ manager }) => {
         </div>
     );
 };
-export default ScheduleBoard;
+export default ScheduleTablePanel;

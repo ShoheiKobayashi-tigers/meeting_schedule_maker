@@ -1,5 +1,7 @@
+import React, { useCallback, useMemo } from 'react';
+
 // --- 児童（生徒）情報設定画面コンポーネント (追加ボタンをモーダル起動に変更) ---
-const StudentSettingsScreen = ({ manager }) => {
+const StudentSettingsPanel = ({ manager }) => {
     const {
         applicants, styles,
         confirmDeleteStudent, getAssignmentDetails,
@@ -161,4 +163,4 @@ const StudentSettingsScreen = ({ manager }) => {
         </div>
     );
 };
-export default StudentSettingsScreen;
+export default StudentSettingsPanel;

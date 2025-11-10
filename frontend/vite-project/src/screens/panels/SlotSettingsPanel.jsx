@@ -1,3 +1,4 @@
+import ToggleSwitch from '../../components/ui/ToggleSwitch.jsx';
 const SlotSettingsPanel = ({ manager }) => {
     const { scheduleData, getApplicantName, toggleSlotAvailability, styles } = manager;
 

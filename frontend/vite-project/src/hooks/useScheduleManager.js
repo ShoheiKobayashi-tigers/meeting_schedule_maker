@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
-import { sortTimeRows, sortDateCols, calculateTimeRange, getNextStartTime } from '../utils/timeUtils';
+import { calculateTimeRange, getNextStartTime } from '../utils/timeUtils';
+import { sortTimeRows, sortDateCols } from '../utils/sortUtils';
 
-export const useScheduleManager = (initialApplicants) => {
+const useScheduleManager = (initialApplicants) => {
     const [applicants, setApplicants] = useState(initialApplicants);
     const [interviewDuration, setInterviewDuration] = useState(15);
     const DURATION_OPTIONS = [1, 5, 10, 15, 20, 30, 45, 60];
@@ -653,39 +654,53 @@ export const useScheduleManager = (initialApplicants) => {
     // スタイル (動的な部分をuseMemoに含める)
     const styles = useMemo(() => ({
         container: {
-                    display: 'flex',
-                    paddingTop: '6rem',
-                    width: '100%',
-                    height: '100vh',
-                    backgroundColor: '#f8f8f8',
-                    fontFamily: 'Inter, sans-serif',
-                    position: 'relative',
-                    boxSizing: 'border-box',
-                    paddingLeft: '1.5rem',
-                    paddingRight: '1.5rem',
-                    paddingBottom: '1.5rem',
-                },
-                panel: {
-                    padding: '1.5rem',
-                    borderRadius: '0.75rem',
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                    backgroundColor: 'white',
-                    height: 'calc(100vh - 7.5rem)',
-                    overflowY: 'auto',
-                    boxSizing: 'border-box',
-                    flexShrink: 0,
-                    marginTop: '1.5rem',
-                },
-                leftPanel: {
-                    flex: '1',
-                    marginRight: '1.5rem',
-                    minWidth: '700px',
-                },
-                rightPanel: {
-                    width: '300px',
-                    minWidth: '300px',
-                    flexShrink: 0,
-                },
+            // 🌟 修正: paddingTopをナビゲーションバーの高さに合わせて調整 🌟
+            paddingTop: '5rem', // navBarの高さ（約4rem）＋余裕1rem
+            width: '100%',
+            height: '100vh',
+            backgroundColor: '#f8f8f8',
+            fontFamily: 'Inter, sans-serif',
+            position: 'relative',
+            boxSizing: 'border-box',
+            paddingLeft: '1.5rem',
+            paddingRight: '1.5rem',
+            paddingBottom: '1.5rem',
+        },
+        panel: {
+            padding: '1.5rem',
+            borderRadius: '0.75rem',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            backgroundColor: 'white',
+            // height: 'calc(100vh - 7.5rem)', // containerのpaddingTopが5remになったので調整が必要
+            height: '100%', // contentArea内の高さを利用
+            overflowY: 'auto',
+            boxSizing: 'border-box',
+            flexShrink: 0,
+            marginTop: '1.5rem',
+        },
+        // contentAreaにflexを適用し、containerの残りの領域を埋める
+        contentArea: {
+            flex: 1,
+            display: 'flex',
+            width: '100%',
+            height: 'calc(100% - 5rem)', // containerのpaddingTop分を引いた高さ
+        },
+        leftPanel: {
+            flex: '1',
+            marginRight: '1.5rem',
+            minWidth: '700px',
+        },
+        rightPanel: {
+            width: '300px',
+            minWidth: '300px',
+            flexShrink: 0,
+        },
+        fullScreenLayout: {
+            display: 'flex',
+            flexDirection: 'row',
+            width: '100%',
+            height: '100%', // contentArea内の高さを利用
+        },
         baseItem: {
             padding: '0.6rem 1rem',
             margin: '0.6rem 0',
@@ -716,10 +731,49 @@ export const useScheduleManager = (initialApplicants) => {
             fontSize: '1rem',
         },
         navButton: {
-            backgroundColor: '#718096',
-            color: 'white',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            background: '#ffffff',
+            border: '1px solid #ced4da',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            cursor: 'pointer',
+            padding: '0.75rem 1.25rem',
+            fontSize: '1rem',
+            color: '#495057',
+            fontWeight: '500',
+            transition: 'all 0.2s ease-in-out',
+            display: 'flex',
+            alignItems: 'center',
             marginRight: '1rem',
+            // ホバー時の見た目（これは動作しませんが、デザインの意図として残します）
+            '&:hover': {
+                backgroundColor: '#e9ecef',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.15)',
+            },
+        },
+        navButtonActive: {
+            backgroundColor: '#4299e1',
+            color: 'white',
+            border: '1px solid #0056b3',
+            boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
+            fontWeight: 'bold',
+        },
+        navButtonIcon: {
+            marginRight: '0.5rem',
+            fontSize: '1.2rem',
+        },
+        navBar: {
+            display: 'flex',
+            justifyContent: 'flex-start',
+            padding: '1rem 1.5rem',
+            backgroundColor: '#ffffff',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            width: '100%',
+            boxSizing: 'border-box',
+            zIndex: 10,
+            // 🌟 修正点: 画面上部に固定 🌟
+            position: 'fixed',
+            top: 0,
+            left: 0,
         },
         activeNavButton: { backgroundColor: '#2d3748', },
         addButton: {
@@ -807,3 +861,5 @@ export const useScheduleManager = (initialApplicants) => {
         styles, getSlotStyle,
     };
 };
+
+export default useScheduleManager;

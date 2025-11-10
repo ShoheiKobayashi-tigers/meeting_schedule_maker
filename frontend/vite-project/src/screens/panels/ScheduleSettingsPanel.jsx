@@ -1,4 +1,4 @@
-const SettingsScreen = ({ manager }) => {
+const ScheduleSettingsPanel = ({ manager }) => {
     const {
         scheduleData, interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate, selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
@@ -143,4 +143,4 @@ const SettingsScreen = ({ manager }) => {
         </div>
     );
 };
-export default SettingsScreen;
+export default ScheduleSettingsPanel;

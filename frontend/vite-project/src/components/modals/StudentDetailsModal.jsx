@@ -2,7 +2,7 @@
 
 import React from 'react';
 // 💡 スタイルをインポート
-import { styles } from './modals/StudentDetailModalStyle.js';
+import { styles } from './style/StudentDetailsModalStyle.js';
 
 /**
  * 児童（生徒）の詳細情報、面談割り当て、兄弟情報を表示するモーダルコンポーネント。
