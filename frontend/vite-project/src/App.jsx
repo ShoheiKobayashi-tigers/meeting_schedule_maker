@@ -62,6 +62,20 @@ const initialApplicants = [
         preferred_dates: []
     },
 ];
+
+const initialSiblings = [
+    {
+      id: '',
+      name: '佐藤　次郎',
+      familyId: '1',
+    },
+    {
+      id: '',
+      name: '鈴木　ひとみ',
+      familyId: '2',
+    },
+];
+
 const VIEWS = {
     SCHEDULE: 'schedule',
     SETTINGS: 'settings',
