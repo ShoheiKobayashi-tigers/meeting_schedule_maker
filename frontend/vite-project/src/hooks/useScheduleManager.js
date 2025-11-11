@@ -373,7 +373,7 @@ const useScheduleManager = (initialApplicants) => {
                 originalRows, sortedNewRows, prevData.assignments, prevData.availability, prevData.cols
             );
 
-            const nextStart = getNextStartTime(sortedNewRows, '09:00');
+            const nextStart = newRowHeader.split(' - ')[1];
             setSelectedStartTime(nextStart);
 
             return {

@@ -42,6 +42,7 @@ export const useManagerStyles = ({ isAddButtonActive, hoveredCellId, selectedSlo
         flex: '1',
         marginRight: '1.5rem',
         minWidth: '700px',
+        width: '1520px',
     },
     rightPanel: {
         width: '300px',
