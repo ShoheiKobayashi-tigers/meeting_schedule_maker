@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { calculateTimeRange, getNextStartTime } from '../utils/timeUtils';
 import { sortTimeRows, sortDateCols } from '../utils/sortUtils';
-import { styles, getSlotStyle } from '../styles/managerStyles.js';
+import { useManagerStyles } from '../styles/managerStyles.js';
 
 const useScheduleManager = (initialApplicants) => {
     const [applicants, setApplicants] = useState(initialApplicants);
@@ -16,6 +16,11 @@ const useScheduleManager = (initialApplicants) => {
     const [hoveredCellId, setHoveredCellId] = useState(null);
 
     const [selectedSlot, setSelectedSlot] = useState(null);
+    const { styles, getSlotStyle } = useManagerStyles({
+            isAddButtonActive,
+            hoveredCellId,
+            selectedSlot,
+        });
 
     const [modalState, setModalState] = useState({
         isOpen: false, title: '', message: '', onConfirm: () => {},
@@ -687,7 +692,8 @@ const useScheduleManager = (initialApplicants) => {
         getSiblingAssignmentDetails,
 
         // スタイル/レンダリングヘルパー
-        styles, getSlotStyle,
+        styles,
+        getSlotStyle,
     };
 };
 

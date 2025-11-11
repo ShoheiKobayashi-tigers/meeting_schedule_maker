@@ -1,10 +1,11 @@
 // managerStyles.js
 // このファイルは、useScheduleManager.js で使用されるすべてのスタイル定義を保持します。
-
+import { useMemo, useCallback } from 'react';
 // isAddButtonActiveのような状態依存のスタイル関数を定義に含めるため、
 // スタイルオブジェクト全体を生成する関数としてエクスポートします。
 // スタイル (動的な部分をuseMemoに含める)
-export const styles = useMemo(() => ({
+export const useManagerStyles = ({ isAddButtonActive, hoveredCellId, selectedSlot }) => {
+ const styles = useMemo(() => ({
     container: {
         // 🌟 修正: paddingTopをナビゲーションバーの高さに合わせて調整 🌟
         paddingTop: '5rem', // navBarの高さ（約4rem）＋余裕1rem
@@ -72,6 +73,7 @@ export const styles = useMemo(() => ({
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         cursor: 'move',
         margin: '0.3rem 0',
+        fontSize: '12px',
     },
     button: {
         padding: '0.6rem 1.2rem',
@@ -152,12 +154,18 @@ export const styles = useMemo(() => ({
         marginRight: '1rem',
         minWidth: '100px',
         backgroundColor: '#fff',
+    },addButton: {
+        backgroundColor: isAddButtonActive ? '#38a169' : '#48bb78',
+        transform: isAddButtonActive ? 'translateY(1px)' : 'translateY(0)',
+        color: 'white',
+        boxShadow: isAddButtonActive ? '0 2px 4px rgba(0, 0, 0, 0.1)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+        marginRight: '0.5rem',
     },
 }), [isAddButtonActive]);
 
-export const getSlotStyle = useCallback((cellId, isAvailable, isSelected) => ({
+const getSlotStyle = useCallback((cellId, isAvailable, isSelected) => ({
     minWidth: '140px',
-    minHeight: '70px',
+    minHeight: '5px',
     border: `2px ${hoveredCellId === cellId || isSelected ? 'solid' : 'dashed'} ${isAvailable ? (isSelected ? '#38a169' : '#718096') : '#cbd5e0'}`,
     borderRadius: '0.5rem',
     margin: '0.25rem',
@@ -170,8 +178,11 @@ export const getSlotStyle = useCallback((cellId, isAvailable, isSelected) => ({
         ? (hoveredCellId === cellId ? '#e2e8f0' : (isSelected ? '#e6fffa' : '#edf2f7'))
         : (hoveredCellId === cellId ? '#e2e8f0' : '#f7fafc'),
     color: isAvailable ? '#4a5568' : '#a0aec0',
-    fontWeight: '500',
+    fontWeight: '50',
+    fontSize: '10px',
     transition: 'all 0.2s ease-in-out',
     cursor: 'pointer',
     pointerEvents: 'auto',
 }), [hoveredCellId]);
+    return { styles, getSlotStyle };
+};
