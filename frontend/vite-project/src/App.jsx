@@ -126,7 +126,7 @@ const [currentView, setCurrentView] = useState(VIEWS.SCHEDULE);
                 student={manager.studentDetailsModalState.student}
                 onClose={manager.closeStudentDetailsModal}
                 assignmentDetails={manager.getAssignmentDetails(manager.studentDetailsModalState.student?.id)}
-                siblingDetails={manager.getSiblingAssignmentDetails(manager.studentDetailsModalState.student)}
+//                 siblingDetails={manager.getSiblingAssignmentDetails(manager.studentDetailsModalState.student)}
             />
             <UpsertStudentModal
                 isOpen={manager.upsertStudentModalState.isOpen}

@@ -110,21 +110,21 @@ const useScheduleManager = (initialApplicants) => {
     /**
      * 兄弟の氏名と面談日程を返す
      */
-    const getSiblingAssignmentDetails = useCallback((student) => {
-        if (!student || !student.sibling_id) return null;
-
-        const sibling = applicants.find(app => app.id === student.sibling_id);
-        if (!sibling) return null;
-
-        const assignment = getAssignmentDetails(sibling.id);
-
-        return {
-            name: sibling.name,
-            assignment: assignment, // {date: "MM/DD (曜)", time: "HH:mm - HH:mm"} or null
-            class: student.sibling_class || '不明'
-        };
-
-    }, [applicants, getAssignmentDetails]);
+//    const getSiblingAssignmentDetails = useCallback((student) => {
+//        if (!student || !student.sibling_id) return null;
+//
+//        const sibling = applicants.find(app => app.id === student.sibling_id);
+//        if (!sibling) return null;
+//
+//        const assignment = getAssignmentDetails(sibling.id);
+//
+//        return {
+//            name: sibling.name,
+//            assignment: assignment, // {date: "MM/DD (曜)", time: "HH:mm - HH:mm"} or null
+//            class: student.sibling_class || '不明'
+//        };
+//
+//    }, [applicants, getAssignmentDetails]);
 
 
     // --- 児童（生徒）詳細モーダル関連関数 (変更なし) ---
@@ -151,9 +151,9 @@ const useScheduleManager = (initialApplicants) => {
             student: {
                 name: '',
                 student_id: '',
-                sibling_id: '',
-                sibling_class: '',
-                sibling_coordination_slot: '', // 🌟 新規: 兄弟の調整希望日程
+//                sibling_id: '',
+//                sibling_class: '',
+//                sibling_coordination_slot: '', // 🌟 新規: 兄弟の調整希望日程
                 preferred_dates: []
             },
             mode: 'add',
@@ -174,9 +174,9 @@ const useScheduleManager = (initialApplicants) => {
             ...studentData,
             name: studentData.name.trim(),
             student_id: studentData.student_id.trim() || null,
-            sibling_id: studentData.sibling_id || null,
-            sibling_class: studentData.sibling_class || null,
-            sibling_coordination_slot: studentData.sibling_coordination_slot || null, // 🌟 新規: 保存
+//            sibling_id: studentData.sibling_id || null,
+//            sibling_class: studentData.sibling_class || null,
+//            sibling_coordination_slot: studentData.sibling_coordination_slot || null, // 🌟 新規: 保存
             preferred_dates: studentData.preferred_dates || [],
         };
 
@@ -577,6 +577,7 @@ const useScheduleManager = (initialApplicants) => {
         setHoveredCellId(null);
     }, []);
 
+    /*ドロップされたらどうなるかの挙動。システムの根幹１*/
     const handleDrop = useCallback((e, targetId) => {
         e.preventDefault();
         setHoveredCellId(null);
@@ -689,7 +690,7 @@ const useScheduleManager = (initialApplicants) => {
         handleApplicantClick,
         confirmDeleteStudent,
         getAssignmentDetails,
-        getSiblingAssignmentDetails,
+//        getSiblingAssignmentDetails,
 
         // スタイル/レンダリングヘルパー
         styles,

@@ -86,7 +86,7 @@ export const useManagerStyles = ({ isAddButtonActive, hoveredCellId, selectedSlo
         fontSize: '1rem',
     },
     navButton: {
-        background: '#ffffff',
+        backgroundColor: '#ffffff',
         border: '1px solid #ced4da',
         borderRadius: '8px',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',

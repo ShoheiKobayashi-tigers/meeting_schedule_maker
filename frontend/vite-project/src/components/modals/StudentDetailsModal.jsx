@@ -72,44 +72,45 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
                     </div>
 
                     {/* 3. 兄弟情報 */}
-                    <h4 style={h4Style}>兄弟の情報</h4>
-                    <div style={infoGroupStyle}>
-                        {student.sibling_id && siblingDetails ? (
-                            <>
-                                <div style={infoItemStyle}>
-                                    <span style={labelStyle}>兄弟氏名 / クラス</span>
-                                    <span style={valueStyle}>
-                                        {/* student.sibling_name_manual があればそれを優先して表示するのが理想的ですが、
-                                           ここでは渡された siblingDetails.name を表示します */}
-                                        {siblingDetails.name || '不明'} / {student.sibling_class || '不明'}
-                                    </span>
-                                </div>
-                                <div style={infoItemStyle}>
-                                    <span style={labelStyle}>兄弟の調整希望日程</span>
-                                    <span style={valueStyle}>
-                                        {student.sibling_coordination_slot ? (
-                                            <span style={coordinationSlotStyle}>{student.sibling_coordination_slot}</span>
-                                        ) : (
-                                            '未登録'
-                                        )}
-                                    </span>
-                                </div>
-                                <div style={{...infoItemStyle, borderBottom: 'none'}}>
-                                    <span style={labelStyle}>兄弟の現在の割り当て</span>
-                                    {siblingDetails.assignment ? (
-                                        <span style={valueStyle}>
-                                            <span style={siblingAssignmentBadgeStyle}>{siblingDetails.assignment.date}</span>
-                                            <span style={siblingAssignmentBadgeStyle}>{siblingDetails.assignment.time}</span>
-                                        </span>
-                                    ) : (
-                                        <span style={unassignedStyle}>未割り当て</span>
-                                    )}
-                                </div>
-                            </>
-                        ) : (
-                            <p style={unassignedStyle}>兄弟の登録はありません。</p>
-                        )}
-                    </div>
+
+{/*                     <h4 style={h4Style}>兄弟の情報</h4> */}
+{/*                     <div style={infoGroupStyle}> */}
+{/*                         {student.sibling_id && siblingDetails ? ( */}
+{/*                             <> */}
+{/*                                 <div style={infoItemStyle}> */}
+{/*                                     <span style={labelStyle}>兄弟氏名 / クラス</span> */}
+{/*                                     <span style={valueStyle}> */}
+{/*                                          */}{/* student.sibling_name_manual があればそれを優先して表示するのが理想的ですが、 */}
+{/*                                            ここでは渡された siblingDetails.name を表示します */}
+{/*                                         {siblingDetails.name || '不明'} / {student.sibling_class || '不明'} */}
+{/*                                     </span> */}
+{/*                                 </div> */}
+{/*                                 <div style={infoItemStyle}> */}
+{/*                                     <span style={labelStyle}>兄弟の調整希望日程</span> */}
+{/*                                     <span style={valueStyle}> */}
+{/*                                         {student.sibling_coordination_slot ? ( */}
+{/*                                             <span style={coordinationSlotStyle}>{student.sibling_coordination_slot}</span> */}
+{/*                                         ) : ( */}
+{/*                                             '未登録' */}
+{/*                                         )} */}
+{/*                                     </span> */}
+{/*                                 </div> */}
+{/*                                 <div style={{...infoItemStyle, borderBottom: 'none'}}> */}
+{/*                                     <span style={labelStyle}>兄弟の現在の割り当て</span> */}
+{/*                                     {siblingDetails.assignment ? ( */}
+{/*                                         <span style={valueStyle}> */}
+{/*                                             <span style={siblingAssignmentBadgeStyle}>{siblingDetails.assignment.date}</span> */}
+{/*                                             <span style={siblingAssignmentBadgeStyle}>{siblingDetails.assignment.time}</span> */}
+{/*                                         </span> */}
+{/*                                     ) : ( */}
+{/*                                         <span style={unassignedStyle}>未割り当て</span> */}
+{/*                                     )} */}
+{/*                                 </div> */}
+{/*                             </> */}
+{/*                         ) : ( */}
+{/*                             <p style={unassignedStyle}>兄弟の登録はありません。</p> */}
+{/*                         )} */}
+{/*                     </div> */}
 
                     {/* 4. 希望日程 */}
                     <h4 style={h4Style}>希望日程（日時のリスト）</h4>
