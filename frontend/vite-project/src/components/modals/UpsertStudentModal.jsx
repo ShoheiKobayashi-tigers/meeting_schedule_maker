@@ -93,7 +93,6 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
    // ハンドラ
    const handleChange = (e) => {
        const { name, value, type, checked, options } = e.target;
-setFormData(prev => ({ ...prev, [name]: value }));
 //        if (name === 'hasSibling') { // 🌟 変更点 2-1: ラジオボタンのロジック
 //            const isSiblingPresent = checked && value === 'yes';
 //            setHasSibling(isSiblingPresent);
@@ -117,6 +116,7 @@ setFormData(prev => ({ ...prev, [name]: value }));
 //        } else {
 //            setFormData(prev => ({ ...prev, [name]: value }));
 //        }
+          setFormData(prev => ({ ...prev, [name]: value }));
    };
    const handleDateChange = (e) => {
        const slot = e.target.value;
