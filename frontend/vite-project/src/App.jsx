@@ -63,8 +63,13 @@ const initialSiblings = [
     {
       id: 'sib-2',
       name: '鈴木　ひとみ',
-      family_id: '2',
+      family_id: '4',
     },
+    {
+      id:'sib-3',
+      name:'佐藤　輝明',
+      family_id: '1',
+    }
 ];
 
 const VIEWS = {
