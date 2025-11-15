@@ -126,6 +126,22 @@ const useScheduleManager = (initialApplicants) => {
 //
 //    }, [applicants, getAssignmentDetails]);
 
+//    const getSiblingAssignmentDetails = useCallback((student) => {
+//        if (!student || !student.sibling_id) return null;
+//
+//        const sibling = applicants.find(app => app.id === student.sibling_id);
+//        if (!sibling) return null;
+//
+//        const assignment = getAssignmentDetails(sibling.id);
+//
+//        return {
+//            name: sibling.name,
+//            assignment: assignment, // {date: "MM/DD (曜)", time: "HH:mm - HH:mm"} or null
+//            class: student.sibling_class || '不明'
+//        };
+//
+//    }, [applicants, getAssignmentDetails]);
+
 
     // --- 児童（生徒）詳細モーダル関連関数 (変更なし) ---
     const openStudentDetailsModal = useCallback((student) => {

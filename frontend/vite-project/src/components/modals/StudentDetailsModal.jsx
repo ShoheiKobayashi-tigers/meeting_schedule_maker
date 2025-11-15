@@ -73,6 +73,26 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
 
                     {/* 3. 兄弟情報 */}
 
+
+                    {/* 3. 希望日程 */}
+                    <h4 style={h4Style}>希望日程（日時のリスト）</h4>
+                    <div style={infoGroupStyle}>
+                        {student.preferred_dates && student.preferred_dates.length > 0 ? (
+                            <ul style={{ listStyleType: 'none', paddingLeft: '0', margin: '0.5rem 0' }}>
+                                {student.preferred_dates.map((date, index) => (
+                                    <li key={index} style={{ color: '#2d3748', marginBottom: '0.3rem', fontSize: '1rem', padding: '0.3rem 0.5rem', backgroundColor: '#f7faff', borderRadius: '0.3rem', borderLeft: '3px solid #4299e1' }}>
+                                        <span style={{fontWeight: '700', marginRight: '0.5rem', color: '#4299e1'}}>{index + 1}.</span>
+                                        {date}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p style={unassignedStyle}>希望日程は登録されていません。</p>
+                        )}
+                    </div>
+                </div>
+
+                {/* 4. 兄弟情報 */}
 {/*                     <h4 style={h4Style}>兄弟の情報</h4> */}
 {/*                     <div style={infoGroupStyle}> */}
 {/*                         {student.sibling_id && siblingDetails ? ( */}
@@ -112,23 +132,6 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
 {/*                         )} */}
 {/*                     </div> */}
 
-                    {/* 4. 希望日程 */}
-                    <h4 style={h4Style}>希望日程（日時のリスト）</h4>
-                    <div style={infoGroupStyle}>
-                        {student.preferred_dates && student.preferred_dates.length > 0 ? (
-                            <ul style={{ listStyleType: 'none', paddingLeft: '0', margin: '0.5rem 0' }}>
-                                {student.preferred_dates.map((date, index) => (
-                                    <li key={index} style={{ color: '#2d3748', marginBottom: '0.3rem', fontSize: '1rem', padding: '0.3rem 0.5rem', backgroundColor: '#f7faff', borderRadius: '0.3rem', borderLeft: '3px solid #4299e1' }}>
-                                        <span style={{fontWeight: '700', marginRight: '0.5rem', color: '#4299e1'}}>{index + 1}.</span>
-                                        {date}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p style={unassignedStyle}>希望日程は登録されていません。</p>
-                        )}
-                    </div>
-                </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem', flexShrink: 0 }}>
                     <button

@@ -26,53 +26,44 @@ const initialApplicants = [
         id: 'app-1',
         name: '佐藤 太郎',
         student_id: '1201',
-        sibling_id: 'app-3',
-        sibling_class: '小学3年B組',
-        sibling_coordination_slot: '12/01 (月) 09:15 - 09:30', // 調整希望日程を追加
-        preferred_dates: ['12/01 (月) 09:15 - 09:30', '11/30 (日) 14:00 - 14:15']
+        preferred_dates: ['12/01 (月) 09:15 - 09:30', '11/30 (日) 14:00 - 14:15'],
+        family_id: '1'
     },
     // 山田花子さんは兄弟なし
     {
         id: 'app-2',
         name: '山田 花子',
         student_id: '1202',
-        sibling_id: null,
-        sibling_class: null,
-        sibling_coordination_slot: null,
-        preferred_dates: ['12/01 (月) 13:00 - 13:15', '11/30 (日) 11:00 - 11:15']
+        preferred_dates: ['12/01 (月) 13:00 - 13:15', '11/30 (日) 11:00 - 11:15'],
+        family_id: '2'
     },
-    // 田中一郎さんは、佐藤太郎さんを兄弟として設定 (IDを相互参照)
     {
         id: 'app-3',
         name: '田中 一郎',
         student_id: '1203',
-        sibling_id: 'app-1',
-        sibling_class: '小学5年A組',
-        sibling_coordination_slot: '12/01 (月) 09:00 - 09:15', // 調整希望日程を追加
-        preferred_dates: ['12/01 (月) 09:00 - 09:15', '11/30 (日) 09:00 - 09:15']
+        preferred_dates: ['12/01 (月) 09:00 - 09:15', '11/30 (日) 09:00 - 09:15'],
+        family_id: '3'
     },
     // 鈴木美咲さんは希望日程なし
     {
         id: 'app-4',
         name: '鈴木 美咲',
         student_id: '1204',
-        sibling_id: null,
-        sibling_class: null,
-        sibling_coordination_slot: null,
-        preferred_dates: []
+        preferred_dates: [],
+        family_id: '4'
     },
 ];
 
 const initialSiblings = [
     {
-      id: '',
+      id: 'sib-1',
       name: '佐藤　次郎',
-      familyId: '1',
+      family_id: '1',
     },
     {
-      id: '',
+      id: 'sib-2',
       name: '鈴木　ひとみ',
-      familyId: '2',
+      family_id: '2',
     },
 ];
 
