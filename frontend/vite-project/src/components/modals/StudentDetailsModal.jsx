@@ -103,7 +103,7 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
 
                                     {/* 兄弟氏名 / 区分 */}
                                     <div style={infoItemStyle}>
-                                        <span style={labelStyle}>氏名 / 区分</span>
+                                        <span style={labelStyle}>氏名 / クラス</span>
                                         <span style={valueStyle}>
                                             <strong style={{color: '#2b6cb0'}}>{sibling.name}</strong> / {sibling.class || '不明'}
                                         </span>

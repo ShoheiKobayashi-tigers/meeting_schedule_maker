@@ -34,7 +34,7 @@ const useSiblingManager = (initialSiblings) => {
                 return {
                     id: sibling.id,
                     name: sibling.name,
-                    class: '一般兄弟',
+                    class: sibling.class,
                     assignment: assignment,
                     preferred_dates: [],
                 };

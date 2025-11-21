@@ -58,17 +58,20 @@ const initialApplicants = [
 const initialSiblings = [
     {
       id: 'sib-1',
-      name: '佐藤　次郎',
+      name: '佐藤 次郎',
+      class: '5年2組',
       family_id: '1',
     },
     {
       id: 'sib-2',
-      name: '鈴木　ひとみ',
+      name: '鈴木 ひとみ',
+      class: '6年1組',
       family_id: '4',
     },
     {
       id:'sib-3',
-      name:'佐藤　輝明',
+      name:'佐藤 輝明',
+      class: '1年2組',
       family_id: '1',
     }
 ];
