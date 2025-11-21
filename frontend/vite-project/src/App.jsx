@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 // カスタムフックをインポート
 import useScheduleManager from './hooks/useScheduleManager.js';
+import useSiblingsManager from './hooks/useSiblingsManager.js';
 
 // 共通コンポーネントをインポート
 import ConfirmationModal from './components/modals/ConfirmationModal.jsx';
@@ -80,7 +81,8 @@ const VIEWS = {
 
 const App = () => {
     const manager = useScheduleManager(initialApplicants);
-const [currentView, setCurrentView] = useState(VIEWS.SCHEDULE);
+    const siblingsManager = useSiblingsManager(initialSiblings);
+    const [currentView, setCurrentView] = useState(VIEWS.SCHEDULE);
 
     // 現在のビューに応じてレンダリングするメインコンポーネントを決定
     const renderCurrentView = () => {
@@ -122,7 +124,7 @@ const [currentView, setCurrentView] = useState(VIEWS.SCHEDULE);
                 student={manager.studentDetailsModalState.student}
                 onClose={manager.closeStudentDetailsModal}
                 assignmentDetails={manager.getAssignmentDetails(manager.studentDetailsModalState.student?.id)}
-//                 siblingDetails={manager.getSiblingAssignmentDetails(manager.studentDetailsModalState.student)}
+                siblingDetails={siblingsManager.getSiblingsForStudent(manager.studentDetailsModalState.student)}
             />
             <UpsertStudentModal
                 isOpen={manager.upsertStudentModalState.isOpen}
