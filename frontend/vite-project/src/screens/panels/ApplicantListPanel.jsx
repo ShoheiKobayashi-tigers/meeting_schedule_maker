@@ -8,7 +8,11 @@ const ApplicantListPanel = ({ manager }) => {
         handleApplicantClick
     } = manager;
 
-    const assignedIds = useMemo(() => scheduleData.assignments.flat().filter(id => id !== null), [scheduleData.assignments]);
+    const assignedIds = useMemo(() =>
+        scheduleData.assignments.flat()
+            .filter(slot => slot !== null) // nullでない割り当てオブジェクトのみ
+            .map(slot => slot.applicantId) // オブジェクトからIDを抽出
+    , [scheduleData.assignments]);
 
     return (
         <div

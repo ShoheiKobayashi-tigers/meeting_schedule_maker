@@ -60,7 +60,9 @@ const ScheduleTablePanel = ({ manager }) => {
                                     {sortedCols.map((_, colIndex) => {
                                         const cellId = `slot-${rowIndex}-${colIndex}`;
 
-                                        const applicantId = scheduleData.assignments[rowIndex][colIndex];
+                                        const assignmentSlot = scheduleData.assignments[rowIndex][colIndex];
+                                        const applicantId = assignmentSlot ? assignmentSlot.applicantId : null;
+                                        const assignmentType = assignmentSlot ? assignmentSlot.type : null;
                                         const isAvailable = scheduleData.availability[rowIndex][colIndex];
 
                                         const isSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
@@ -78,7 +80,7 @@ const ScheduleTablePanel = ({ manager }) => {
                                                 onClick={() => handleSlotClick(rowIndex, colIndex, isAvailable)}
                                             >
                                                 <div style={getSlotStyle(cellId, isAvailable, isSelected)}>
-                                                    {applicantId ? (
+                                                    {assignmentSlot ? (
                                                         <div
                                                             style={{
                                                                 ...styles.baseItem,
@@ -94,6 +96,16 @@ const ScheduleTablePanel = ({ manager }) => {
                                                             onMouseLeave={(e) => e.currentTarget.style.boxShadow = styles.scheduledApplicant.boxShadow}
                                                         >
                                                             {getApplicantName(applicantId)}
+                                                            <span style={{
+                                                             fontSize: '0.75rem',
+                                                             color: '#fff',
+                                                             backgroundColor: '#3182ce',
+                                                             padding: '2px 4px',
+                                                             borderRadius: '4px',
+                                                             marginTop: '4px',
+                                                             display: 'block' }}>
+                                                                タイプ: {assignmentType || '未設定'}
+                                                            </span>
                                                         </div>
                                                     ) : (
                                                         <span style={{ color: isAvailable ? (isSelected ? '#38a169' : '#a0aec0') : '#a0aec0', fontWeight: '700' }}>

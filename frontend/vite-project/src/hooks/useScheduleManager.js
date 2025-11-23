@@ -56,7 +56,7 @@ const useScheduleManager = (initialApplicants) => {
         const initialCols = sortDateCols(['12/01 (月)', '11/30 (日)']);
 
         const initialAssignments = Array(initialRows.length).fill(null).map(() => Array(initialCols.length).fill(null));
-        initialAssignments[0][0] = 'app-1';
+        initialAssignments[0][0] = { applicantId: 'app-1', type: 'initial' };
 
         const initialAvailability = Array(initialRows.length).fill(true).map(() => Array(initialCols.length).fill(true));
 
@@ -97,8 +97,8 @@ const useScheduleManager = (initialApplicants) => {
 
         for (let r = 0; r < rows.length; r++) {
             for (let c = 0; c < cols.length; c++) {
-                if (assignments[r][c] === applicantId) {
-                    const date = cols[c];
+                // オブジェクトのapplicantIdプロパティと比較
+                if (assignments[r][c] && assignments[r][c].applicantId === applicantId) {                    const date = cols[c];
                     const time = rows[r];
                     return { date, time };
                 }
@@ -222,7 +222,7 @@ const useScheduleManager = (initialApplicants) => {
         // スケジュールからも削除（割り当て解除）
         setScheduleData(prevData => {
             const newAssignments = prevData.assignments.map(row =>
-                row.map(id => id === studentId ? null : id)
+                row.map(slot => (slot && slot.applicantId === studentId) ? null : slot)
             );
             return { ...prevData, assignments: newAssignments };
         });
@@ -230,7 +230,7 @@ const useScheduleManager = (initialApplicants) => {
     }, []);
 
     const confirmDeleteStudent = useCallback((student) => {
-        const isAssigned = scheduleData.assignments.flat().includes(student.id);
+        const isAssigned = scheduleData.assignments.flat().some(slot => slot && slot.applicantId === student.id);
 
         setModalState({
             isOpen: true,
@@ -455,11 +455,12 @@ const useScheduleManager = (initialApplicants) => {
 
     const toggleSlotAvailability = useCallback((rowIndex, colIndex) => {
         const isCurrentlyAvailable = scheduleData.availability[rowIndex][colIndex];
-        const assignedApplicantId = scheduleData.assignments[rowIndex][colIndex];
+        const assignedSlot = scheduleData.assignments[rowIndex][colIndex];
+        const assignedApplicantId = assignedSlot ? assignedSlot.applicantId : null;
         const targetTime = scheduleData.rows[rowIndex];
         const targetDate = scheduleData.cols[colIndex];
 
-        if (isCurrentlyAvailable && assignedApplicantId) {
+        if (isCurrentlyAvailable && assignedSlot) {
             const applicantName = getApplicantName(assignedApplicantId);
             setModalState({
                 isOpen: true,
@@ -501,15 +502,11 @@ const useScheduleManager = (initialApplicants) => {
             setScheduleData(prevData => {
                 const newAssignments = prevData.assignments.map(row => [...row]);
 
-                // Applicant A (Source) と Applicant B (Target) のIDを取得
-                const applicantA = newAssignments[fromRowIndex][fromColIndex];
-                const applicantB = newAssignments[rowIndex][colIndex];
+                const slotA = newAssignments[fromRowIndex][fromColIndex]; // slotA はオブジェクトまたは null
+                const slotB = newAssignments[rowIndex][colIndex]; // slotB はオブジェクトまたは null
 
-                // 1. 面談枠 A に 面談枠 B の児童（生徒） (Applicant B) を割り当てる (nullも許容)
-                newAssignments[fromRowIndex][fromColIndex] = applicantB;
-
-                // 2. 面談枠 B に 面談枠 A の児童（生徒） (Applicant A) を割り当てる (nullも許容)
-                newAssignments[rowIndex][colIndex] = applicantA;
+                newAssignments[fromRowIndex][fromColIndex] = slotB;
+                newAssignments[rowIndex][colIndex] = slotA;
 
                 return { ...prevData, assignments: newAssignments };
             });
@@ -534,7 +531,8 @@ const useScheduleManager = (initialApplicants) => {
 
         setScheduleData(prevData => {
             const newAssignments = prevData.assignments.map(row => [...row]);
-            const targetApplicantId = newAssignments[rowIndex][colIndex];
+            const targetSlot = newAssignments[rowIndex][colIndex];
+            const targetApplicantId = targetSlot ? targetSlot.applicantId : null;
 
             // 1. 既存の割り当て (targetApplicantId) があれば、それを解除 (nullにする)
             //    これにより、リストに戻る (assignedIdsから外れる)
@@ -547,7 +545,7 @@ const useScheduleManager = (initialApplicants) => {
             let foundSource = false;
             for (let r = 0; r < newAssignments.length; r++) {
                 for (let c = 0; c < newAssignments[r].length; c++) {
-                    if (newAssignments[r][c] === applicantId) {
+                    if (newAssignments[r][c] && newAssignments[r][c].applicantId === applicantId) { // オブジェクトチェック
                         newAssignments[r][c] = null;
                         foundSource = true;
                         break;
@@ -557,7 +555,7 @@ const useScheduleManager = (initialApplicants) => {
             }
 
             // 3. 選択された面談枠に割り当てる
-            newAssignments[rowIndex][colIndex] = applicantId;
+            newAssignments[rowIndex][colIndex] = { applicantId: applicantId, type: 'manual' /* 他の初期情報 */ };
 
             return { ...prevData, assignments: newAssignments };
         });
@@ -597,11 +595,19 @@ const useScheduleManager = (initialApplicants) => {
     const handleDrop = useCallback((e, targetId) => {
         e.preventDefault();
         setHoveredCellId(null);
-        setSelectedSlot(null); // D&D完了時、クリック選択を解除
+        setSelectedSlot(null);
 
+        // 1. D&Dデータの取得
         const applicantId = e.dataTransfer.getData('applicantId');
         const sourceCellId = e.dataTransfer.getData('sourceCellId');
 
+        // applicantIdが取得できない場合は処理を中止
+        if (!applicantId) {
+            setDraggingApplicantId(null);
+            return;
+        }
+
+        // 2. ターゲット/ソースの解析
         const targetParts = targetId.split('-');
         const targetIsGrid = targetParts.length === 3;
         const targetRowIndex = targetIsGrid ? parseInt(targetParts[1], 10) : -1;
@@ -612,19 +618,20 @@ const useScheduleManager = (initialApplicants) => {
         const sourceRowIndex = sourceIsGrid ? parseInt(sourceParts[1], 10) : -1;
         const sourceColIndex = sourceIsGrid ? parseInt(sourceParts[2], 10) : -1;
 
+        // 3. グリッドターゲットのチェック (利用不可)
         if (targetIsGrid) {
-            // 利用不可面談枠へのドロップは拒否
             if (!scheduleData.availability[targetRowIndex][targetColIndex]) {
                 setDraggingApplicantId(null);
                 return;
             }
         }
 
+        // 4. ターゲットがリストの場合の処理 (割り当て解除)
         if (targetId === 'applicant-list') {
-            // リストに戻す処理（ソースがグリッドの場合のみ）
             if (sourceIsGrid) {
                 setScheduleData(prevData => {
                     const newAssignments = prevData.assignments.map(row => [...row]);
+                    // 移動元の面談枠をクリア (nullを代入)
                     newAssignments[sourceRowIndex][sourceColIndex] = null;
                     return { ...prevData, assignments: newAssignments };
                 });
@@ -633,39 +640,56 @@ const useScheduleManager = (initialApplicants) => {
             return;
         }
 
+        // 5. ターゲットがグリッド以外の場合の処理 (異常系)
         if (!targetIsGrid || targetRowIndex < 0 || targetColIndex < 0) {
             setDraggingApplicantId(null);
             return;
         }
 
+        // 6. 状態更新
         setScheduleData(prevData => {
             const newAssignments = prevData.assignments.map(row => [...row]);
-            const targetApplicantId = newAssignments[targetRowIndex][targetColIndex];
 
-            // 1. 同じ面談枠へのドロップや、同じ児童（生徒）のリストから埋まった面談枠へのドロップは無視
-            if ((sourceIsGrid && sourceRowIndex === targetRowIndex && sourceColIndex === targetColIndex) ||
-                (!sourceIsGrid && targetApplicantId !== null && applicantId === targetApplicantId)) {
+            // ターゲットセルの現在の割り当て情報 (オブジェクトまたは null)
+            const currentTargetSlot = newAssignments[targetRowIndex][targetColIndex];
+
+            // 新しく割り当てるSlotオブジェクトを作成
+            // type: 'drag' (リストからのドロップ) または 'swap' (グリッドからのドロップ)
+            const newSlotForTarget = { applicantId: applicantId, type: sourceIsGrid ? 'swap' : 'drag' /* 他の情報 */ };
+
+            // 6-1. スキップ条件の修正
+            // a) 同じ面談枠へのドロップは無視
+            if (sourceIsGrid && sourceRowIndex === targetRowIndex && sourceColIndex === targetColIndex) {
+                return prevData;
+            }
+            // b) リストから埋まった面談枠へ、同じ児童（生徒）をドロップした場合は無視
+            // 割り当てオブジェクトのapplicantIdプロパティを参照するように修正
+            if (!sourceIsGrid && currentTargetSlot && currentTargetSlot.applicantId === applicantId) {
                 return prevData;
             }
 
-            // 2. 割り当て解除 (移動元の面談枠をクリア)
-            if (sourceIsGrid && sourceRowIndex !== -1 && sourceColIndex !== -1) {
-                newAssignments[sourceRowIndex][sourceColIndex] = null;
-            }
+            // 6-2. 割り当て処理
 
-            // 3. 割り当て処理
             // ターゲット面談枠が空の場合
-            if (targetApplicantId === null) {
-                newAssignments[targetRowIndex][targetColIndex] = applicantId;
+            if (currentTargetSlot === null) {
+                // ソースがグリッドの場合、移動元をクリア
+                if (sourceIsGrid) {
+                    newAssignments[sourceRowIndex][sourceColIndex] = null;
+                }
+                // ターゲットに新しいSlotオブジェクトを代入
+                newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget; // 🌟 修正: オブジェクトを代入
 
             // ターゲット面談枠が埋まっており、ソースがグリッドの場合 (スワップ)
             } else if (sourceIsGrid) {
-                newAssignments[targetRowIndex][targetColIndex] = applicantId;
-                newAssignments[sourceRowIndex][sourceColIndex] = targetApplicantId; // 移動元にターゲットの児童（生徒）を配置
-            // ターゲット面談枠が埋まっており、ソースがリストの場合 (上書き & ターゲットをリストに戻す)
+                // ターゲットに新しいSlotオブジェクトを代入
+                newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget; // 🌟 修正: オブジェクトを代入
+                // 移動元に元のターゲットSlot（オブジェクト）を戻す (スワップ)
+                newAssignments[sourceRowIndex][sourceColIndex] = currentTargetSlot;
+
+            // ターゲット面談枠が埋まっており、ソースがリストの場合 (上書き)
             } else if (!sourceIsGrid) {
-                 // ターゲット面談枠が埋まっており、ソースがリストの場合 (上書き)
-                 newAssignments[targetRowIndex][targetColIndex] = applicantId;
+                 // ターゲット面談枠に新しいSlotオブジェクトを上書き
+                 newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget; // 🌟 修正: オブジェクトを代入
             }
 
             return { ...prevData, assignments: newAssignments };
@@ -673,7 +697,6 @@ const useScheduleManager = (initialApplicants) => {
 
         setDraggingApplicantId(null);
     }, [scheduleData.availability]);
-
 
     // UIに公開するロジックと状態
     return {
