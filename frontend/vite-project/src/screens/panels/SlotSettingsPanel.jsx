@@ -22,7 +22,8 @@ const SlotSettingsPanel = ({ manager }) => {
                     scheduleData.cols.map((colHeader, colIndex) => (
                         scheduleData.rows.map((rowHeader, rowIndex) => {
                             const isAvailable = scheduleData.availability[rowIndex][colIndex];
-                            const assignmentId = scheduleData.assignments[rowIndex][colIndex];
+                            const assignmentSlot = scheduleData.assignments[rowIndex][colIndex];
+                            const assignmentId = assignmentSlot ? assignmentSlot.applicantId : null;
 
                             return (
                                 <div key={`${rowIndex}-${colIndex}`} style={{
