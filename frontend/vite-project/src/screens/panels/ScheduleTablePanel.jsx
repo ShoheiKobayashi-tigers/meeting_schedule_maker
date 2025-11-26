@@ -96,16 +96,6 @@ const ScheduleTablePanel = ({ manager }) => {
                                                             onMouseLeave={(e) => e.currentTarget.style.boxShadow = styles.scheduledApplicant.boxShadow}
                                                         >
                                                             {getApplicantName(applicantId)}
-                                                            <span style={{
-                                                             fontSize: '0.75rem',
-                                                             color: '#fff',
-                                                             backgroundColor: '#3182ce',
-                                                             padding: '2px 4px',
-                                                             borderRadius: '4px',
-                                                             marginTop: '4px',
-                                                             display: 'block' }}>
-                                                                タイプ: {assignmentType || '未設定'}
-                                                            </span>
                                                         </div>
                                                     ) : (
                                                         <span style={{ color: isAvailable ? (isSelected ? '#38a169' : '#a0aec0') : '#a0aec0', fontWeight: '700' }}>
@@ -118,6 +108,16 @@ const ScheduleTablePanel = ({ manager }) => {
                                                         </span>
                                                     )}
                                                 </div>
+                                                {/* 👈 ここにスロットID表示を追加 */}
+                                                <span style={{
+                                                    fontSize: '0.65rem',
+                                                    color: '#a0aec0',
+                                                    marginTop: '0.25rem',
+                                                    display: 'block', // 独立した行にする
+                                                    textAlign: 'center', // 中央寄せにする
+                                                }}>
+                                                    タイプ: {assignmentType || '未設定'}
+                                                </span>
                                             </td>
                                         );
                                     })}
