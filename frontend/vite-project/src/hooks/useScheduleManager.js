@@ -190,27 +190,27 @@ const useScheduleManager = (initialApplicants) => {
             ...studentData,
             name: studentData.name.trim(),
             student_id: studentData.student_id.trim() || null,
-//            sibling_id: studentData.sibling_id || null,
-//            sibling_class: studentData.sibling_class || null,
-//            sibling_coordination_slot: studentData.sibling_coordination_slot || null, // 🌟 新規: 保存
             preferred_dates: studentData.preferred_dates || [],
         };
 
         if (studentData.id) {
             // 編集ロジック
             setApplicants(prev => prev.map(s => s.id === studentData.id ? saveData : s));
+            return saveData;
         } else {
             // 新規追加ロジック
             const newId = `app-${Date.now()}`;
+            const newFamilyId = studentData.family_id || newId.replace('app-', 'fam-');
             const newStudent = {
                 ...saveData,
                 id: newId,
                 student_id: saveData.student_id || `NEW-${applicants.length + 1}`,
+                family_id: newFamilyId,
             };
             setApplicants(prev => [...prev, newStudent]);
+            return newStudent;
         }
-        closeUpsertStudentModal();
-    }, [applicants.length, closeUpsertStudentModal]);
+    }, [applicants]);
     // ------------------------------------------
 
 

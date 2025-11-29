@@ -85,7 +85,40 @@ const VIEWS = {
 const App = () => {
     const manager = useScheduleManager(initialApplicants);
     const siblingsManager = useSiblingsManager(initialSiblings);
+    // useScheduleManagerから生徒保存関数を取得
+    const { handleSaveStudent } = manager;
+    // useSiblingsManagerから兄弟追加関数を取得
+    const { addSibling } = siblingsManager;
+
     const [currentView, setCurrentView] = useState(VIEWS.SCHEDULE);
+
+    const handleSaveStudentAndSiblings = useCallback((studentData) => {
+        // 1. スケジュールマネージャーを使って、まずメインの生徒情報を保存
+        const savedStudent = handleSaveStudent(studentData);
+
+        // 2. フォームデータに兄弟の手動入力情報があるかチェック
+        const siblingNameManual = studentData.sibling_name_manual;
+
+        if (siblingNameManual && savedStudent && savedStudent.family_id) {
+            // 💡 兄弟の手動入力情報が存在する場合、新しい兄弟として登録する
+            const newSiblingData = {
+                name: siblingNameManual,
+                family_id: savedStudent.family_id, // 保存された生徒のfamily_idを使用
+                is_manual: true,
+                // UpsertStudentModalで入力されたその他の兄弟情報もここに含める
+                class: studentData.sibling_class || '',
+                preferred_dates: studentData.sibling_coordination_slot ? [studentData.sibling_coordination_slot] : [],
+                // 他に必要なデフォルト値やフィールドがあれば追加
+            };
+
+            // SiblingsManagerの兄弟追加関数を呼び出す
+            addSibling(newSiblingData);
+        }
+
+        // 3. モーダルを閉じる
+        manager.closeUpsertStudentModal();
+
+    }, [handleSaveStudent, addSibling, manager]);
 
     // 現在のビューに応じてレンダリングするメインコンポーネントを決定
     const renderCurrentView = () => {
@@ -134,7 +167,7 @@ const App = () => {
                 student={manager.upsertStudentModalState.student}
                 allApplicants={manager.applicants}
                 allScheduleSlots={manager.allScheduleSlots}
-                onSave={manager.handleSaveStudent}
+                onSave={handleSaveStudentAndSiblings}
                 onClose={manager.closeUpsertStudentModal}
             />
         </div>
