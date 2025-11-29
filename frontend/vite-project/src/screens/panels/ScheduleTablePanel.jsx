@@ -1,4 +1,4 @@
-const ScheduleTablePanel = ({ manager }) => {
+const ScheduleTablePanel = ({ manager, siblingsManager}) => {
     const {
         scheduleData, getApplicantName, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, handleDragEnter, handleDragLeave,
@@ -8,6 +8,7 @@ const ScheduleTablePanel = ({ manager }) => {
     } = manager;
 
     const { rows: sortedRows, cols: sortedCols } = scheduleData;
+    const { getAssignedSiblingsList } = siblingsManager;
 
     return (
         <div style={{ ...styles.panel, ...styles.leftPanel }}>
@@ -57,7 +58,7 @@ const ScheduleTablePanel = ({ manager }) => {
                                     }}>
                                         {rowHeader}
                                     </td>
-                                    {sortedCols.map((_, colIndex) => {
+                                    {sortedCols.map((colHeader, colIndex) => {
                                         const cellId = `slot-${rowIndex}-${colIndex}`;
 
                                         const assignmentSlot = scheduleData.assignments[rowIndex][colIndex];
@@ -68,6 +69,10 @@ const ScheduleTablePanel = ({ manager }) => {
                                         const isSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
 
                                         const hasAssignmentOnUnavailableSlot = applicantId && !isAvailable;
+
+                                        // SlotKeyの形式: '日付 時間帯' (例: '12/01 (月) 09:00 - 09:15')
+                                        const slotKey = `${colHeader} ${rowHeader}`;
+                                        const assignedSiblingsList = getAssignedSiblingsList(slotKey);
 
                                         return (
                                             <td
@@ -108,7 +113,6 @@ const ScheduleTablePanel = ({ manager }) => {
                                                         </span>
                                                     )}
                                                 </div>
-                                                {/* 👈 ここにスロットID表示を追加 */}
                                                 <span style={{
                                                     fontSize: '0.65rem',
                                                     color: '#a0aec0',
@@ -116,7 +120,20 @@ const ScheduleTablePanel = ({ manager }) => {
                                                     display: 'block', // 独立した行にする
                                                     textAlign: 'center', // 中央寄せにする
                                                 }}>
-                                                    タイプ: {assignmentType || '未設定'}
+                                                    {assignedSiblingsList.length > 0 && (
+                                                        <div style={{
+                                                            fontSize: '0.65rem',
+                                                            color: '#a0aec0', // 兄弟の固定割り当てを強調する色
+                                                            marginTop: applicantId ? '0.5rem' : '0.2rem',
+                                                            marginBottom: '0.2rem',
+                                                        }}>
+                                                            {assignedSiblingsList.map((siblingText, index) => (
+                                                                <div key={index} title="確定済み兄弟の面談枠">
+                                                                     {siblingText}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </span>
                                             </td>
                                         );

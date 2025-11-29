@@ -1,6 +1,6 @@
 // src/hooks/useSiblingManager.js
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback ,useMemo } from 'react';
 
 const useSiblingManager = (initialSiblings) => {
     // 1. 兄弟リストをuseStateで管理
@@ -17,6 +17,37 @@ const useSiblingManager = (initialSiblings) => {
     const deleteSibling = useCallback((siblingId) => {
         setSiblings(prevSiblings => prevSiblings.filter(s => s.id !== siblingId));
     }, []);
+
+    // 兄弟の割り当て情報をSlotKeyで検索可能なMapとして生成
+    const siblingAssignmentsMap = useMemo(() => {
+        const map = {};
+        siblings.forEach(sibling => {
+            // assigned_slot（面談枠の文字列）をキーとして使用
+            if (sibling.assigned_slot) {
+                if (!map[sibling.assigned_slot]) {
+                    map[sibling.assigned_slot] = [];
+                }
+                map[sibling.assigned_slot].push(sibling);
+            }
+        });
+        return map;
+    }, [siblings]); // 兄弟リストが更新されたときのみ再計算される
+
+    // ユーザーの要望に応じた文字列リスト生成関数を定義
+    const getAssignedSiblingsList = useCallback((slotKey) => {
+        // 1. Mapから該当スロットに割り当てられた兄弟のリストを取得（O(1)アクセス）
+        const assignedSiblings = siblingAssignmentsMap[slotKey];
+
+        if (!assignedSiblings || assignedSiblings.length === 0) {
+            return [];
+        }
+
+        // 2. 「クラス / 名前」形式の文字列リストを生成
+        return assignedSiblings.map(sibling => {
+            const className = sibling.class || 'クラス未設定';
+            return `${className} / ${sibling.name}`;
+        });
+    }, [siblingAssignmentsMap]);
 
     const getSiblingsForStudent = useCallback((student) => {
             if (!student || !student.family_id) return [];
@@ -35,8 +66,7 @@ const useSiblingManager = (initialSiblings) => {
                     id: sibling.id,
                     name: sibling.name,
                     class: sibling.class,
-                    assignment: assignment,
-                    preferred_dates: [],
+                    assigned_slot: sibling.assigned_slot,
                 };
             });
     }, [siblings]);
@@ -47,6 +77,7 @@ const useSiblingManager = (initialSiblings) => {
         getSiblingsForStudent,
         addSibling,
         deleteSibling,
+        getAssignedSiblingsList,
         // ... (updateSibling, getSiblingById などの関数)
     };
 };

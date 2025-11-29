@@ -92,6 +92,7 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
                     </div>
                     {/* 4. 兄弟情報 */}
                     <h4 style={h4Style}>兄弟の情報 (家族ID: {student.family_id})</h4>
+                    <span style={labelStyle}>氏名 / クラス / 面談日時</span>
                     <div style={infoGroupStyle}>
                         {/* 💡 修正点: siblingDetails が配列であり、中身があるか確認 */}
                         {siblingDetails && siblingDetails.length > 0 ? (
@@ -100,10 +101,11 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
                                     <li key={sibling.id} style={{ marginBottom: '1rem', padding: '0.75rem', border: '1px solid #e2e8f0', borderRadius: '0.5rem', backgroundColor: '#f7faff' }}>
 
                                         {/* 兄弟氏名 / 区分 */}
+
                                         <div style={infoItemStyle}>
-                                            <span style={labelStyle}>氏名 / クラス</span>
+
                                             <span style={valueStyle}>
-                                                <strong style={{color: '#2b6cb0'}}>{sibling.name}</strong> / {sibling.class || '不明'}
+                                                <strong style={{color: '#2b6cb0'}}>{sibling.name}</strong> / {sibling.class || '不明'} / {sibling.assigned_slot || '未定'}
                                             </span>
                                         </div>
 

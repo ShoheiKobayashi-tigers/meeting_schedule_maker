@@ -61,18 +61,21 @@ const initialSiblings = [
       name: '佐藤 次郎',
       class: '5年2組',
       family_id: '1',
+      assigned_slot: "12/01 (月) 09:00 - 09:15",
     },
     {
       id: 'sib-2',
       name: '鈴木 ひとみ',
-      class: '6年1組',
+      class: '6年2組',
       family_id: '4',
+      assigned_slot: "12/01 (月) 09:00 - 09:15",
     },
     {
       id:'sib-3',
       name:'佐藤 輝明',
       class: '1年2組',
       family_id: '1',
+      assigned_slot: "11/30 (日) 09:00 - 09:15",
     }
 ];
 
@@ -107,7 +110,7 @@ const App = () => {
                 is_manual: true,
                 // UpsertStudentModalで入力されたその他の兄弟情報もここに含める
                 class: studentData.sibling_class || '',
-                preferred_dates: studentData.sibling_coordination_slot ? [studentData.sibling_coordination_slot] : [],
+                assigned_slot: studentData.sibling_coordination_slot || null,
                 // 他に必要なデフォルト値やフィールドがあれば追加
             };
 
@@ -124,13 +127,13 @@ const App = () => {
     const renderCurrentView = () => {
         switch (currentView) {
             case VIEWS.SCHEDULE:
-                return <ScheduleScreen manager={manager} />;
+                return <ScheduleScreen manager={manager} siblingsManager={siblingsManager}/>;
             case VIEWS.SETTINGS:
                 return <SettingsScreen manager={manager} />;
             case VIEWS.STUDENTS:
                 return <StudentSettingsScreen manager={manager}  />;
             default:
-                return <ScheduleScreen manager={manager} />;
+                return <ScheduleScreen manager={manager} siblingsManager={siblingsManager}/>;
         }
     };
 
