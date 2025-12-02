@@ -63,11 +63,9 @@ const SiblingForm = ({ initialData, onSave, onCancel }) => {
     // 編集モードの場合、IDを保持
     const defaultData = initialData.id ? initialData : { id: null, name: '', class: '', family_id: '' };
     const [formData, setFormData] = useState(defaultData);
-
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
-
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData.name || !formData.family_id) {

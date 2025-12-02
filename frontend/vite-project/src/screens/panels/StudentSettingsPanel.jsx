@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 
-// --- 児童（生徒）情報設定画面コンポーネント (追加ボタンをモーダル起動に変更) ---
+// --- 児童（生徒）情報設定画面コンポーネント ---
 const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
     const {
         applicants, styles,
         confirmDeleteStudent, getAssignmentDetails,
         openStudentDetailsModal,
-        openAddStudentModal // 🌟 変更: モーダル起動関数を使用
+        openAddStudentModal
     } = manager;
 
     // スケジュールに割り当てられている児童（生徒）のIDリスト
@@ -66,7 +66,6 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
         openStudentDetailsModal(student);
     }, [openStudentDetailsModal]);
 
-    // 🌟 変更: 新規追加ボタンのハンドラ
     const handleAddStudentClick = useCallback(() => {
         openAddStudentModal();
     }, [openAddStudentModal]);
@@ -81,7 +80,7 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
                 スケジュールボードに配置する児童（生徒）のリストを管理します。
             </p>
 
-            {/* 児童（生徒）追加フォーム -> モーダル起動ボタンに変更 */}
+            {/* 児童（生徒）追加フォーム  */}
             <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#2d3748', borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem', marginTop: '1.5rem' }}>
                 新規児童（生徒）の追加
             </h2>
@@ -172,8 +171,8 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
                 <button
                     onClick={onViewSiblingsSettings}
                     style={{
-                        ...manager.styles.button, // 既存のボタンベーススタイルを使用
-                        backgroundColor: '#ed8936', // 目立つ色に設定
+                        ...manager.styles.button,
+                        backgroundColor: '#86b3e0',
                         color: 'white',
                         padding: '0.6rem 1.2rem',
                         borderRadius: '0.3rem',
@@ -183,8 +182,8 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
                         border: 'none',
                         transition: 'background-color 0.2s',
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dd6b20'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ed8936'}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#a0d8ef'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#86b3e0'}
                     title="兄弟情報の一覧・設定画面へ移動"
                 >
                     兄弟情報の一覧・設定へ &rarr;

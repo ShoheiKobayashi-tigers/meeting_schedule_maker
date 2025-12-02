@@ -65,11 +65,8 @@ const ScheduleTablePanel = ({ manager, siblingsManager}) => {
                                         const applicantId = assignmentSlot ? assignmentSlot.applicantId : null;
                                         const assignmentType = assignmentSlot ? assignmentSlot.type : null;
                                         const isAvailable = scheduleData.availability[rowIndex][colIndex];
-
                                         const isSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
-
                                         const hasAssignmentOnUnavailableSlot = applicantId && !isAvailable;
-
                                         // SlotKeyの形式: '日付 時間帯' (例: '12/01 (月) 09:00 - 09:15')
                                         const slotKey = `${colHeader} ${rowHeader}`;
                                         const assignedSiblingsList = getAssignedSiblingsList(slotKey);

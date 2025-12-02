@@ -68,7 +68,7 @@ const useScheduleManager = (initialApplicants) => {
         };
     });
 
-    // 🌟 新規: 全面談面談枠のリストを生成
+    // 全面談面談枠のリストを生成
     const allScheduleSlots = useMemo(() => {
         const slots = [];
         // スケジュールボードと同じソート順で日時を結合
@@ -98,7 +98,8 @@ const useScheduleManager = (initialApplicants) => {
         for (let r = 0; r < rows.length; r++) {
             for (let c = 0; c < cols.length; c++) {
                 // オブジェクトのapplicantIdプロパティと比較
-                if (assignments[r][c] && assignments[r][c].applicantId === applicantId) {                    const date = cols[c];
+                if (assignments[r][c] && assignments[r][c].applicantId === applicantId) {
+                    const date = cols[c];
                     const time = rows[r];
                     return { date, time };
                 }
@@ -106,42 +107,6 @@ const useScheduleManager = (initialApplicants) => {
         }
         return null;
     }, [scheduleData]);
-
-    /**
-     * 兄弟の氏名と面談日程を返す
-     */
-//    const getSiblingAssignmentDetails = useCallback((student) => {
-//        if (!student || !student.sibling_id) return null;
-//
-//        const sibling = applicants.find(app => app.id === student.sibling_id);
-//        if (!sibling) return null;
-//
-//        const assignment = getAssignmentDetails(sibling.id);
-//
-//        return {
-//            name: sibling.name,
-//            assignment: assignment, // {date: "MM/DD (曜)", time: "HH:mm - HH:mm"} or null
-//            class: student.sibling_class || '不明'
-//        };
-//
-//    }, [applicants, getAssignmentDetails]);
-
-//    const getSiblingAssignmentDetails = useCallback((student) => {
-//        if (!student || !student.sibling_id) return null;
-//
-//        const sibling = applicants.find(app => app.id === student.sibling_id);
-//        if (!sibling) return null;
-//
-//        const assignment = getAssignmentDetails(sibling.id);
-//
-//        return {
-//            name: sibling.name,
-//            assignment: assignment, // {date: "MM/DD (曜)", time: "HH:mm - HH:mm"} or null
-//            class: student.sibling_class || '不明'
-//        };
-//
-//    }, [applicants, getAssignmentDetails]);
-
 
     // --- 児童（生徒）詳細モーダル関連関数 (変更なし) ---
     const openStudentDetailsModal = useCallback((student) => {
@@ -159,7 +124,7 @@ const useScheduleManager = (initialApplicants) => {
     }, []);
     // ------------------------------------------
 
-    // 🌟 修正: 児童（生徒）追加/編集モーダル関連関数 (新規フィールド対応)
+    //  児童（生徒）追加/編集モーダル関連関数
     const openAddStudentModal = useCallback(() => {
         // 新規登録用の初期データを設定
         setUpsertStudentModalState({
@@ -167,9 +132,6 @@ const useScheduleManager = (initialApplicants) => {
             student: {
                 name: '',
                 student_id: '',
-//                sibling_id: '',
-//                sibling_class: '',
-//                sibling_coordination_slot: '', // 🌟 新規: 兄弟の調整希望日程
                 preferred_dates: []
             },
             mode: 'add',
@@ -211,8 +173,6 @@ const useScheduleManager = (initialApplicants) => {
             return newStudent;
         }
     }, [applicants]);
-    // ------------------------------------------
-
 
     // --- 児童（生徒）情報の削除処理 (変更なし) ---
     const handleDeleteStudent = useCallback((studentId) => {
@@ -251,7 +211,7 @@ const useScheduleManager = (initialApplicants) => {
         const newAvailability = Array(newRows.length).fill(null).map(() => Array(oldCols.length).fill(true));
 
         newRows.forEach((rowHeader, newRowIndex) => {
-            // 🚨 修正点 1: rowHeader全体ではなく、開始時刻部分で一致を検索
+            // 開始時刻部分で一致を検索
             const rowStartTime = rowHeader.split(' - ')[0];
             const oldIndex = oldRows.findIndex(r => r.startsWith(rowStartTime + ' -'));
 
@@ -373,7 +333,7 @@ const useScheduleManager = (initialApplicants) => {
     // --- 行・列の追加処理 (変更なし) ---
     const handleAddRow = useCallback(() => {
         const newRowHeader = calculateTimeRange(selectedStartTime, interviewDuration);
-        // 🚨 修正点 2: 開始時刻が同じ時間帯があるかチェック
+        // 開始時刻が同じ時間帯があるかチェック
         const newRowStartTime = newRowHeader.split(' - ')[0];
         if (scheduleData.rows.some(row => row.startsWith(newRowStartTime + ' -'))) {
              // すでに同じ開始時刻が存在する場合は何もしない (durationが異なっても不可とする)
@@ -488,7 +448,7 @@ const useScheduleManager = (initialApplicants) => {
         const currentSlot = { rowIndex, colIndex };
         const isCurrentSlotSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
 
-        // 🚨 修正点 3: 利用不可面談枠でも選択解除は可能にする
+        // 利用不可面談枠でも選択解除は可能にする
         if (!isAvailable && !isCurrentSlotSelected) {
             setSelectedSlot(null);
             return;
@@ -534,14 +494,14 @@ const useScheduleManager = (initialApplicants) => {
             const targetSlot = newAssignments[rowIndex][colIndex];
             const targetApplicantId = targetSlot ? targetSlot.applicantId : null;
 
-            // 1. 既存の割り当て (targetApplicantId) があれば、それを解除 (nullにする)
-            //    これにより、リストに戻る (assignedIdsから外れる)
+            // 既存の割り当て (targetApplicantId) があれば、それを解除 (nullにする)
+            // これにより、リストに戻る (assignedIdsから外れる)
             if (targetApplicantId) {
                 newAssignments[rowIndex][colIndex] = null; // リストに戻すために一時的に解除
             }
 
-            // 2. 面談枠から同じ児童（生徒）を解除する（他の面談枠から移動させるため）
-            //    (targetApplicantIdとは別の、applicantIdが既に割り当てられている面談枠を探す)
+            // 面談枠から同じ児童（生徒）を解除する（他の面談枠から移動させるため）
+            // (targetApplicantIdとは別の、applicantIdが既に割り当てられている面談枠を探す)
             let foundSource = false;
             for (let r = 0; r < newAssignments.length; r++) {
                 for (let c = 0; c < newAssignments[r].length; c++) {
@@ -554,7 +514,7 @@ const useScheduleManager = (initialApplicants) => {
                 if (foundSource) break;
             }
 
-            // 3. 選択された面談枠に割り当てる
+            // 選択された面談枠に割り当てる
             newAssignments[rowIndex][colIndex] = { applicantId: applicantId, type: 'manual' /* 他の初期情報 */ };
 
             return { ...prevData, assignments: newAssignments };
@@ -677,19 +637,19 @@ const useScheduleManager = (initialApplicants) => {
                     newAssignments[sourceRowIndex][sourceColIndex] = null;
                 }
                 // ターゲットに新しいSlotオブジェクトを代入
-                newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget; // 🌟 修正: オブジェクトを代入
+                newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget;
 
             // ターゲット面談枠が埋まっており、ソースがグリッドの場合 (スワップ)
             } else if (sourceIsGrid) {
                 // ターゲットに新しいSlotオブジェクトを代入
-                newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget; // 🌟 修正: オブジェクトを代入
+                newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget;
                 // 移動元に元のターゲットSlot（オブジェクト）を戻す (スワップ)
                 newAssignments[sourceRowIndex][sourceColIndex] = currentTargetSlot;
 
             // ターゲット面談枠が埋まっており、ソースがリストの場合 (上書き)
             } else if (!sourceIsGrid) {
                  // ターゲット面談枠に新しいSlotオブジェクトを上書き
-                 newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget; // 🌟 修正: オブジェクトを代入
+                 newAssignments[targetRowIndex][targetColIndex] = newSlotForTarget;
             }
 
             return { ...prevData, assignments: newAssignments };
@@ -706,12 +666,11 @@ const useScheduleManager = (initialApplicants) => {
         studentDetailsModalState,
         openStudentDetailsModal,
         closeStudentDetailsModal,
-        // 🌟 新規/変更
         upsertStudentModalState,
         openAddStudentModal,
         closeUpsertStudentModal,
         handleSaveStudent,
-        allScheduleSlots, // 🌟 追加: 全面談枠のリスト
+        allScheduleSlots, // 全面談枠のリスト
         // -----------------
         interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate,
@@ -729,7 +688,6 @@ const useScheduleManager = (initialApplicants) => {
         handleApplicantClick,
         confirmDeleteStudent,
         getAssignmentDetails,
-//        getSiblingAssignmentDetails,
 
         // スタイル/レンダリングヘルパー
         styles,

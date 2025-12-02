@@ -90,7 +90,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
    // ハンドラ
    const handleChange = (e) => {
        const { name, value, type, checked, options } = e.target;
-       if (name === 'hasSibling') { // 🌟 変更点 2-1: ラジオボタンのロジック
+       if (name === 'hasSibling') {
            const isSiblingPresent = checked && value === 'yes';
            setHasSibling(isSiblingPresent);
 
@@ -102,7 +102,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                // 兄弟が「いる」状態であることを示すために使用します
                setFormData(prev => ({ ...prev, sibling_id: 'manual_entry' }));
            }
-       } else if (name === 'sibling_name_manual') { // 🌟 変更点 2-2: 手動氏名入力のロジック
+       } else if (name === 'sibling_name_manual') {
            setSiblingNameManual(value);
        } else {
            setFormData(prev => ({ ...prev, [name]: value }));
@@ -238,7 +238,6 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                 </p>
                             )}
                         </div>
-                        {/* ... (省略: 説明文) ... */}
                     </div>
                     {/* 3. 兄弟情報 */}
                     <h4 style={h4Style}>兄弟の情報</h4>
@@ -271,7 +270,6 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                     </div>
                     {hasSibling && (
                         <div style={{ borderLeft: '3px solid #63b3ed', paddingLeft: '1rem', marginTop: '1rem', paddingBottom: '0.5rem' }}>
-{/*                             🚨 兄弟の氏名入力フィールド（手動入力） */}
                             <div>
                                 <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
                                 <input

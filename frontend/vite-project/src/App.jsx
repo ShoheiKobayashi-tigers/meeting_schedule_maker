@@ -103,7 +103,7 @@ const App = () => {
         const siblingNameManual = studentData.sibling_name_manual;
 
         if (siblingNameManual && savedStudent && savedStudent.family_id) {
-            // 💡 兄弟の手動入力情報が存在する場合、新しい兄弟として登録する
+            // 兄弟の手動入力情報が存在する場合、新しい兄弟として登録する
             const newSiblingData = {
                 name: siblingNameManual,
                 family_id: savedStudent.family_id, // 保存された生徒のfamily_idを使用
