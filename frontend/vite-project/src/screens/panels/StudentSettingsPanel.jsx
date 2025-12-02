@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
 // --- 児童（生徒）情報設定画面コンポーネント (追加ボタンをモーダル起動に変更) ---
-const StudentSettingsPanel = ({ manager }) => {
+const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
     const {
         applicants, styles,
         confirmDeleteStudent, getAssignmentDetails,
@@ -159,6 +159,28 @@ const StudentSettingsPanel = ({ manager }) => {
                         児童（生徒）が登録されていません。
                     </p>
                 )}
+            </div>
+            <div style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px dashed #edf2f7', textAlign: 'center' }}>
+                <button
+                    onClick={onViewSiblingsSettings}
+                    style={{
+                        ...manager.styles.button, // 既存のボタンベーススタイルを使用
+                        backgroundColor: '#ed8936', // 目立つ色に設定
+                        color: 'white',
+                        padding: '0.6rem 1.2rem',
+                        borderRadius: '0.3rem',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        border: 'none',
+                        transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dd6b20'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ed8936'}
+                    title="兄弟情報の一覧・設定画面へ移動"
+                >
+                    兄弟情報の一覧・設定へ &rarr;
+                </button>
             </div>
         </div>
     );

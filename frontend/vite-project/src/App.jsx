@@ -131,7 +131,7 @@ const App = () => {
             case VIEWS.SETTINGS:
                 return <SettingsScreen manager={manager} />;
             case VIEWS.STUDENTS:
-                return <StudentSettingsScreen manager={manager}  />;
+                return <StudentSettingsScreen manager={manager}  siblingsManager={siblingsManager}/>;
             default:
                 return <ScheduleScreen manager={manager} siblingsManager={siblingsManager}/>;
         }

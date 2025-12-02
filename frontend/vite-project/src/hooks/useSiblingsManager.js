@@ -18,6 +18,12 @@ const useSiblingManager = (initialSiblings) => {
         setSiblings(prevSiblings => prevSiblings.filter(s => s.id !== siblingId));
     }, []);
 
+    const updateSibling = useCallback((updatedSiblingData) => {
+        setSiblings(prevSiblings => prevSiblings.map(s =>
+            s.id === updatedSiblingData.id ? { ...s, ...updatedSiblingData } : s
+        ));
+    }, []);
+
     // 兄弟の割り当て情報をSlotKeyで検索可能なMapとして生成
     const siblingAssignmentsMap = useMemo(() => {
         const map = {};
@@ -77,8 +83,9 @@ const useSiblingManager = (initialSiblings) => {
         getSiblingsForStudent,
         addSibling,
         deleteSibling,
+        updateSibling,
         getAssignedSiblingsList,
-        // ... (updateSibling, getSiblingById などの関数)
+        // ... (getSiblingById などの関数)
     };
 };
 
