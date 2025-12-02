@@ -7,7 +7,6 @@ import { useMemo, useCallback } from 'react';
 export const useManagerStyles = ({ isAddButtonActive, hoveredCellId, selectedSlot }) => {
  const styles = useMemo(() => ({
     container: {
-        // 🌟 修正: paddingTopをナビゲーションバーの高さに合わせて調整 🌟
         paddingTop: '5rem', // navBarの高さ（約4rem）＋余裕1rem
         width: '100%',
         height: '100vh',
@@ -125,7 +124,6 @@ export const useManagerStyles = ({ isAddButtonActive, hoveredCellId, selectedSlo
         width: '100%',
         boxSizing: 'border-box',
         zIndex: 10,
-        // 🌟 修正点: 画面上部に固定 🌟
         position: 'fixed',
         top: 0,
         left: 0,
