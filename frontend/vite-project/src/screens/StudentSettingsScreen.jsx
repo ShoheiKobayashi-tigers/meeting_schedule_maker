@@ -20,6 +20,7 @@ const StudentSettingsScreen = ({ manager, siblingsManager }) => {
                         siblingsManager={siblingsManager}
                         // 戻るボタンのコールバック
                         onBack={() => setCurrentRightPanel('DEFAULT')}
+                        applicants={manager.applicants}
                     />
                 ) : (
                     // デフォルトの右パネル表示

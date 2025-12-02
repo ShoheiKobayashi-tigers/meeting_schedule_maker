@@ -89,7 +89,7 @@ const App = () => {
     const manager = useScheduleManager(initialApplicants);
     const siblingsManager = useSiblingsManager(initialSiblings);
     // useScheduleManagerから生徒保存関数を取得
-    const { handleSaveStudent } = manager;
+    const { handleSaveStudent, applicants } = manager;
     // useSiblingsManagerから兄弟追加関数を取得
     const { addSibling } = siblingsManager;
 
@@ -131,7 +131,7 @@ const App = () => {
             case VIEWS.SETTINGS:
                 return <SettingsScreen manager={manager} />;
             case VIEWS.STUDENTS:
-                return <StudentSettingsScreen manager={manager}  siblingsManager={siblingsManager}/>;
+                return <StudentSettingsScreen manager={manager}  siblingsManager={siblingsManager} applicants={applicants}/>;
             default:
                 return <ScheduleScreen manager={manager} siblingsManager={siblingsManager}/>;
         }

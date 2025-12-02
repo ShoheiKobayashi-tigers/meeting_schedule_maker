@@ -56,20 +56,72 @@ const styles = {
     input: { width: '100%', padding: '0.5rem', border: '1px solid #e2e8f0', borderRadius: '0.25rem', boxSizing: 'border-box' },
     formGroup: { marginBottom: '1rem' },
     label: { display: 'block', fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.3rem', color: '#4a5568' },
+    select: {
+        // 1. デフォルトの見た目をリセット
+        appearance: 'none',
+        WebkitAppearance: 'none',
+        MozAppearance: 'none',
+
+        // 2. 基本的なデザインを設定
+        padding: '0.6rem 2.5rem 0.6rem 0.75rem', // 右側にカスタム矢印のスペースを確保
+        border: '1px solid #ced4da', // ボーダー色
+        borderRadius: '0.3rem',
+        backgroundColor: '#ffffff',
+        cursor: 'pointer',
+        minWidth: '120px',
+        fontSize: '0.8rem',
+        fontFamily: 'Roboto, Arial, sans-serif',
+
+        // 3. カスタム矢印を追加 (シンプルな下向きの矢印SVG)
+        // #495057 は inputStyle のテキスト色に合わせています。
+        backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23495057' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 1rem center',
+        backgroundSize: '0.6rem',
+
+        // 4. フォーカス時のスタイル
+        ':focus': {
+            borderColor: '#4299e1',
+            boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.25)',
+            outline: 'none',
+        },
+    },
 };
 
 // 兄弟の追加・編集フォームコンポーネント
-const SiblingForm = ({ initialData, onSave, onCancel }) => {
+const SiblingForm = ({ initialData, onSave, onCancel, applicants }) => {
     // 編集モードの場合、IDを保持
     const defaultData = initialData.id ? initialData : { id: null, name: '', class: '', family_id: '' };
     const [formData, setFormData] = useState(defaultData);
+    // 兄弟のFamily IDを決定するための選択済み生徒のfamily_idを保持する
+    // 新規登録時は 'NEW' (未選択) または initialData の family_id を選択
+    const [selectedFamilyId, setSelectedFamilyId] = useState(initialData.family_id || 'NEW');
+    const uniqueApplicants = applicants.reduce((acc, current) => {
+        // family_id をキーとして、最初に見つかった生徒情報を格納 (重複排除)
+        if (current.family_id && !acc.some(app => app.family_id === current.family_id)) {
+            acc.push(current);
+        }
+        return acc;
+    }, []);
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+    // プルダウンの選択が変更されたときのハンドラー
+    const handleFamilyIdChange = (e) => {
+        const value = e.target.value;
+        setSelectedFamilyId(value);
+        // formData の family_id を更新
+        setFormData(prev => ({ ...prev, family_id: value === 'NEW' ? '' : value }));
+    };
     const handleSubmit = (e) => {
         e.preventDefault();
+        // Family IDが設定されていない場合はエラー
+        if (selectedFamilyId === 'NEW' || !formData.family_id) {
+             alert('氏名と関連付ける生徒（Family ID）の選択は必須です。');
+             return;
+        }
         if (!formData.name || !formData.family_id) {
-             alert('氏名とFamily IDは必須です。');
+             alert('氏名は必須です。');
              return;
         }
         onSave(formData);
@@ -80,6 +132,26 @@ const SiblingForm = ({ initialData, onSave, onCancel }) => {
             <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
                 {initialData.id ? '兄弟情報の編集' : '兄弟の新規登録'}
             </h3>
+            {/* Family IDを自動割り当てするためのプルダウン */}
+            <div style={styles.formGroup}>
+                <label style={styles.label} htmlFor="family-selector">自クラスの児童（生徒）を選択</label>
+                <select
+                    id="family-selector"
+                    name="family_id_selector"
+                    value={selectedFamilyId}
+                    onChange={handleFamilyIdChange}
+                    style={styles.select}
+                    required
+                >
+                    <option value="NEW" disabled>-- 生徒を選択してください --</option>
+                    {uniqueApplicants.map((app) => (
+                        // family_idをoptionのvalueに使用
+                        <option key={app.family_id} value={app.family_id}>
+                            {app.name}
+                        </option>
+                    ))}
+                </select>
+            </div>
             <div style={styles.formGroup}>
                 <label style={styles.label} htmlFor="name">氏名</label>
                 <input type="text" id="name" name="name" value={formData.name || ''} onChange={handleChange} style={styles.input} required />
@@ -87,10 +159,6 @@ const SiblingForm = ({ initialData, onSave, onCancel }) => {
             <div style={styles.formGroup}>
                 <label style={styles.label} htmlFor="class">クラス名（任意）</label>
                 <input type="text" id="class" name="class" value={formData.class || ''} onChange={handleChange} style={styles.input} />
-            </div>
-            <div style={styles.formGroup}>
-                <label style={styles.label} htmlFor="family_id">Family ID (同一家族識別子)</label>
-                <input type="text" id="family_id" name="family_id" value={formData.family_id || ''} onChange={handleChange} style={styles.input} required placeholder="例: family-1" />
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1.5rem' }}>
@@ -106,7 +174,7 @@ const SiblingForm = ({ initialData, onSave, onCancel }) => {
 };
 
 // --- SiblingsSettingPanelメインコンポーネント ---
-const SiblingsSettingPanel = ({ siblingsManager, onBack }) => {
+const SiblingsSettingPanel = ({ siblingsManager, onBack, applicants = [] }) => {
     const { siblings, addSibling, updateSibling, deleteSibling } = siblingsManager;
     // 編集中の兄弟データ (null: リスト表示, object: フォーム表示)
     const [editingSibling, setEditingSibling] = useState(null);
@@ -146,6 +214,7 @@ const SiblingsSettingPanel = ({ siblingsManager, onBack }) => {
                 initialData={editingSibling}
                 onSave={handleSave}
                 onCancel={() => setEditingSibling(null)}
+                applicants={applicants}
             />
         );
     }
