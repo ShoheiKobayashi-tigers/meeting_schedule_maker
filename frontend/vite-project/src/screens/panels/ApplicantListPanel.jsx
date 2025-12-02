@@ -11,8 +11,7 @@ const ApplicantListPanel = ({ manager }) => {
     const assignedIds = useMemo(() =>
         scheduleData.assignments.flat()
             .filter(slot => slot !== null) // nullでない割り当てオブジェクトのみ
-            .map(slot => slot.applicantId) // オブ
-            ジェクトからIDを抽出
+            .map(slot => slot.applicantId) // オブジェクトからIDを抽出
     , [scheduleData.assignments]);
 
     return (
