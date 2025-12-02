@@ -129,13 +129,6 @@ export const useManagerStyles = ({ isAddButtonActive, hoveredCellId, selectedSlo
         left: 0,
     },
     activeNavButton: { backgroundColor: '#2d3748', },
-    addButton: {
-        backgroundColor: isAddButtonActive ? '#38a169' : '#48bb78',
-        transform: isAddButtonActive ? 'translateY(1px)' : 'translateY(0)',
-        color: 'white',
-        boxShadow: isAddButtonActive ? '0 2px 4px rgba(0, 0, 0, 0.1)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-        marginRight: '0.5rem',
-    },
     deleteButton: {
         backgroundColor: 'transparent',
         color: '#e53e3e',
@@ -153,7 +146,8 @@ export const useManagerStyles = ({ isAddButtonActive, hoveredCellId, selectedSlo
         marginRight: '1rem',
         minWidth: '100px',
         backgroundColor: '#fff',
-    },addButton: {
+    },
+    addButton: {
         backgroundColor: isAddButtonActive ? '#38a169' : '#48bb78',
         transform: isAddButtonActive ? 'translateY(1px)' : 'translateY(0)',
         color: 'white',
