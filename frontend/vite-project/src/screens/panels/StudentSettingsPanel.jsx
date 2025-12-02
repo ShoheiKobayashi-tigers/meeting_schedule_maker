@@ -10,7 +10,15 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
     } = manager;
 
     // スケジュールに割り当てられている児童（生徒）のIDリスト
-    const assignedIds = useMemo(() => manager.scheduleData.assignments.flat().filter(id => id !== null), [manager.scheduleData.assignments]);
+    const assignedIds = useMemo(() =>
+        manager.scheduleData.assignments
+            // 1. ネストの深さに関わらず、すべての要素を平坦化
+            .flat(Infinity)
+            // 2. オブジェクトがあれば applicantId を抽出し、そうでなければ null を返す
+            .map(slot => slot?.applicantId)
+            // 3. null や undefined を除外して、ID文字列のみのリストにする
+            .filter(id => id !== null && id !== undefined),
+    [manager.scheduleData.assignments]);
 
     const inputAndButtonContainer = {
         display: 'flex',
@@ -108,7 +116,7 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
                                 {student.name}
                             </span>
                             {/* 割り当て日程を表示 */}
-                            {isAssigned && assignment ? (
+                            {assignment ? (
                                 <div style={{
                                     fontSize: '0.875rem',
                                     fontWeight: '700',
