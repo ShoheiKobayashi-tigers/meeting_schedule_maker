@@ -189,7 +189,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                             value={formData.student_id}
                             onChange={handleChange}
                             style={inputStyle}
-                            placeholder="例: 1201"
+                            placeholder="例: 1"
                         />
                     </div>
 
@@ -200,7 +200,6 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                             希望日程を複数選択してください
                         </label>
 
-                        {/* 🌟 修正: チェックボックスで表示 */}
                         <div style={{
                             border: '1px solid #cbd5e0',
                             borderRadius: '0.5rem',
@@ -297,7 +296,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                 />
                             </div>
 
-{/*                             🌟 既存の兄弟の調整希望日程プルダウン（再利用） */}
+                            {/*既存の兄弟の調整希望日程プルダウン（再利用） */}
                             <div>
                                 <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の現在の面談日程</label>
                                 <select
