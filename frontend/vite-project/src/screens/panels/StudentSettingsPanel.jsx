@@ -6,7 +6,8 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
         applicants, styles,
         confirmDeleteStudent, getAssignmentDetails,
         openStudentDetailsModal,
-        openAddStudentModal
+        openAddStudentModal,
+        openEditStudentModal
     } = manager;
 
     // スケジュールに割り当てられている児童（生徒）のIDリスト
@@ -44,6 +45,15 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
         fontSize: '0.875rem',
         fontWeight: '600',
         marginLeft: '1rem',
+    };
+
+    const editButton = {
+        ...styles.button,
+        backgroundColor: '#86b3e0',
+        color: 'white',
+        padding: '0.4rem 0.8rem',
+        fontSize: '0.9rem',
+        marginRight: '0.5rem',
     };
 
     const detailsLinkStyle = {
@@ -147,6 +157,13 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
                                 onMouseLeave={(e) => e.currentTarget.style.color = '#4299e1'}
                             >
                                 詳細
+                            </button>
+                            <button
+                                style={editButton}
+                                onClick={() => openEditStudentModal(student)}
+                                title="この児童（生徒）の詳細を表示"
+                            >
+                                編集
                             </button>
                             {/* 削除ボタン */}
                             <button

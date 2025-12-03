@@ -38,6 +38,12 @@ const useScheduleManager = (initialApplicants) => {
         student: null,
         mode: 'add',
     });
+
+    // 既存の児童（生徒）を編集するためのモーダルを開く
+    const openEditStudentModal = useCallback((student) => {
+        setUpsertStudentModalState({ isOpen: true, student: student });
+    }, []);
+
     // ------------------------------------------
 
     const TIME_OPTIONS = useMemo(() => {
@@ -52,7 +58,7 @@ const useScheduleManager = (initialApplicants) => {
     }, [interviewDuration]);
 
     const [scheduleData, setScheduleData] = useState(() => {
-        const initialRows = sortTimeRows([calculateTimeRange('09:00', 15), calculateTimeRange('09:15', 15)]);
+        const initialRows = sortTimeRows([calculateTimeRange('09:00', 15), calculateTimeRange('09:15', 15), calculateTimeRange('14:00', 15)]);
         const initialCols = sortDateCols(['12/01 (月)', '11/30 (日)']);
 
         const initialAssignments = Array(initialRows.length).fill(null).map(() => Array(initialCols.length).fill(null));
@@ -668,6 +674,7 @@ const useScheduleManager = (initialApplicants) => {
         closeStudentDetailsModal,
         upsertStudentModalState,
         openAddStudentModal,
+        openEditStudentModal,
         closeUpsertStudentModal,
         handleSaveStudent,
         allScheduleSlots, // 全面談枠のリスト

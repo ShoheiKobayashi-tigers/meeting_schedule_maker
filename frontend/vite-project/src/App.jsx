@@ -35,7 +35,7 @@ const initialApplicants = [
         id: 'app-2',
         name: '山田 花子',
         student_id: '1202',
-        preferred_dates: ['12/01 (月) 13:00 - 13:15', '11/30 (日) 11:00 - 11:15'],
+        preferred_dates: ['12/01 (月) 09:00 - 09:15', '12/01 (月) 14:00 - 14:15'],
         family_id: '2'
     },
     {
