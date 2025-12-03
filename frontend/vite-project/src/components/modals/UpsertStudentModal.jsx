@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { styles } from './style/UpsertStudentModalStyle.js';
+import { combineName, splitName } from '../../utils/nameUtils.js';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, onSave, onClose }) => {
     if (!isOpen || !student) return null;
-
+    const { lastName: initialLastName, firstName: initialFirstName } = splitName(student.name);
     const initialFormData = {
-        name: student.name || '',
+        lastName: initialLastName || '',
+        firstName: initialFirstName || '',
         student_id: student.student_id || '',
         preferred_dates: student.preferred_dates || [],
         id: student.id,
@@ -75,14 +77,15 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
 
     const handleSave = (e) => {
         e.preventDefault();
-        if (!formData.name.trim()) {
+        const fullName = combineName(formData.lastName, formData.firstName);
+        if (!fullName.trim()) {
             alert('氏名は必須です。');
             return;
         }
 　　　　　// 最終的な保存データの整形ロジックを更新
         const baseData = {
             ...formData,
-            name: formData.name.trim(),
+            name: fullName,
             student_id: formData.student_id.trim(),
         };
         // 兄弟がいない場合、全ての兄弟関連フィールドを null/空に設定して保存
@@ -129,16 +132,35 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                         <h4 style={h4Style}>基本情報</h4>
                         <div>
                             <label style={labelStyle} htmlFor="name">氏名 <span style={{color: '#e53e3e'}}>*</span></label>
-                            <input
-                                id="name"
-                                name="name"
-                                type="text"
-                                value={formData.name}
-                                onChange={handleChange}
-                                style={inputStyle}
-                                placeholder="例: 佐藤 太郎"
-                                required
-                            />
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                {/* 苗字 (lastName) */}
+                                <div style={{ flex: 1 }}>
+                                    <label htmlFor="lastName" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>苗字</label>
+                                    <input
+                                        id="lastName"
+                                        name="lastName"
+                                        type="text"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        style={inputStyle}
+                                        required
+                                    />
+                                </div>
+
+                                {/* 名前 (firstName) */}
+                                <div style={{ flex: 1 }}>
+                                    <label htmlFor="firstName" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>名前</label>
+                                    <input
+                                        id="firstName"
+                                        name="firstName"
+                                        type="text"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        style={inputStyle}
+                                        required
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <label style={labelStyle} htmlFor="student_id">出席番号</label>
