@@ -88,18 +88,18 @@ const StudentDetailsModal = ({ isOpen, student, onClose, assignmentDetails, sibl
                         )}
                     </div>
                     {/* 4. 兄弟情報 */}
-                    <h4 style={h4Style}>兄弟の情報 (家族ID: {student.family_id})</h4>
-                    <span style={labelStyle}>氏名 / クラス / 面談日時</span>
+                    <h4 style={h4Style}>兄弟の情報</h4>
+                    <span style={labelStyle}>氏名 (クラス) : 面談日時</span>
                     <div style={infoGroupStyle}>
                         {/* siblingDetails が配列であり、中身があるか確認 */}
                         {siblingDetails && siblingDetails.length > 0 ? (
                             <ul style={{ listStyleType: 'none', paddingLeft: '0', margin: '0.5rem 0' }}>
                                 {siblingDetails.map((sibling) => (
-                                    <li key={sibling.id} style={{ marginBottom: '1rem', padding: '0.75rem', border: '1px solid #e2e8f0', borderRadius: '0.5rem', backgroundColor: '#f7faff' }}>
+                                    <li key={sibling.id} style={{ marginBottom: '1rem', padding: '0.1rem', paddingLeft: '1rem', border: '1px solid #e2e8f0', borderRadius: '0.5rem', backgroundColor: '#f7faff' }}>
                                         {/* 兄弟氏名 / 区分 */}
                                         <div style={infoItemStyle}>
                                             <span style={valueStyle}>
-                                                <strong style={{color: '#2b6cb0'}}>{sibling.name}</strong> / {sibling.class || '不明'} / {sibling.assigned_slot || '未定'}
+                                                <strong style={{color: '#2b6cb0'}}>{sibling.name}</strong> ( {sibling.class || '不明'} )   ：   {sibling.assigned_slot || '未定'}
                                             </span>
                                         </div>
 
