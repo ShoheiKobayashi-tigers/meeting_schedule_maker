@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 
 // スタイル定義 (既存コンポーネントのスタイルを参考に簡略化)
 const styles = {
@@ -204,6 +204,22 @@ const SiblingsSettingPanel = ({ manager, siblingsManager, onBack }) => {
     const { siblings, addSibling, updateSibling, deleteSibling } = siblingsManager;
     // 編集中の兄弟データ (null: リスト表示, object: フォーム表示)
     const [editingSibling, setEditingSibling] = useState(null);
+    const getStudentNameByFamilyId = useCallback((familyId) => {
+        // manager.applicants (生徒リスト) から family_id が一致する生徒を検索
+        const student = manager.applicants.find(app => app.family_id === familyId);
+        return student ? student.name : '生徒未登録'; // 見つからなかった場合のフォールバック
+    }, [manager.applicants]); // 依存配列に applicants を含める
+    const sortedSiblings = useMemo(() => {
+        // nullやundefinedを考慮してソートキーを比較
+        return [...siblings].sort((a, b) => {
+            const idA = a.family_id || '';
+            const idB = b.family_id || '';
+
+            if (idA < idB) return -1;
+            if (idA > idB) return 1;
+            return 0;
+        });
+    }, [siblings]);
 
     // 保存処理（新規登録/更新）
     const handleSave = useCallback((data) => {
@@ -270,30 +286,33 @@ const SiblingsSettingPanel = ({ manager, siblingsManager, onBack }) => {
             </div>
 
             <div style={styles.listContainer}>
-                {siblings.map((sibling) => (
-                    <div key={sibling.id} style={styles.item}>
-                        <div style={styles.info}>
-                            <div style={styles.name}>{sibling.name}</div>
-                            <div style={styles.details}>
-                                {sibling.class ? `クラス: ${sibling.class}` : 'クラス未設定'} | Family ID: <span style={{fontWeight: 'bold'}}>{sibling.family_id || '未設定'}</span>
+                {sortedSiblings.map((sibling) => {
+                    const studentName = getStudentNameByFamilyId(sibling.family_id);
+                    return(
+                        <div key={sibling.id} style={styles.item}>
+                            <div style={styles.info}>
+                                <div style={styles.name}>{sibling.name}<span style={{...styles.details, fontSize: '13px'}}> ( {studentName} ) </span></div>
+                                <div style={styles.details}>
+                                    {sibling.class ? ` ${sibling.class}` : 'クラス未設定'}
+                                </div>
+                            </div>
+                            <div style={styles.actions}>
+                                <button
+                                    style={{ ...styles.buttonBase, backgroundColor: '#f0f4f8', color: '#4299e1' }}
+                                    onClick={() => handleEdit(sibling)}
+                                >
+                                    編集
+                                </button>
+                                <button
+                                    style={{ ...styles.buttonBase, backgroundColor: '#fef2f2', border: '1px solid #f56565', color: '#c53030' }}
+                                    onClick={() => handleDelete(sibling)}
+                                >
+                                    削除
+                                </button>
                             </div>
                         </div>
-                        <div style={styles.actions}>
-                            <button
-                                style={{ ...styles.buttonBase, backgroundColor: '#f0f4f8', color: '#4299e1' }}
-                                onClick={() => handleEdit(sibling)}
-                            >
-                                編集
-                            </button>
-                            <button
-                                style={{ ...styles.buttonBase, backgroundColor: '#fef2f2', border: '1px solid #f56565', color: '#c53030' }}
-                                onClick={() => handleDelete(sibling)}
-                            >
-                                削除
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
                 {siblings.length === 0 && (
                     <p style={{textAlign: 'center', color: '#718096', padding: '1rem'}}>
                         兄弟が登録されていません。
