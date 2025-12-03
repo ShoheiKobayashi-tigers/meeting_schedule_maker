@@ -1,4 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 // スタイル定義 (既存コンポーネントのスタイルを参考に簡略化)
 const styles = {

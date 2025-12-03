@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { styles } from './style/UpsertStudentModalStyle.js';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, onSave, onClose }) => {
     if (!isOpen || !student) return null;
