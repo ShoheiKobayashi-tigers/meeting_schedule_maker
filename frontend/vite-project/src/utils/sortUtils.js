@@ -21,3 +21,32 @@ export const sortDateCols = (cols) => {
         return datePartA.localeCompare(datePartB);
     });
 };
+
+/**
+ * スケジュールスロット文字列 ("MM/DD (曜日) HH:mm - HH:mm") を
+ * 日付でソートし、日付が同じ場合は開始時刻でソートする
+ * @param {string[]} slots - スケジュールスロットの配列
+ * @returns {string[]} ソートされたスケジュールスロットの配列
+ */
+export const sortScheduleSlots = (slots) => {
+    return [...slots].sort((a, b) => {
+        // スロットを日付部分と時刻部分に分割
+        // 例: "12/04 (木) 09:00 - 09:15" -> ["12/04 (木", "09:00 - 09:15"]
+        const partsA = a.split(') ');
+        const partsB = b.split(') ');
+
+        // 1. 日付で比較 (MM/DDの部分のみを抽出)
+        const datePartA = partsA[0].substring(0, 5); // "MM/DD"
+        const datePartB = partsB[0].substring(0, 5); // "MM/DD"
+        const dateCompare = datePartA.localeCompare(datePartB);
+
+        if (dateCompare !== 0) {
+            return dateCompare;
+        }
+
+        // 2. 日付が同じ場合は開始時刻で比較 (HH:mm の部分のみを抽出)
+        const timePartA = partsA[1].split(' - ')[0]; // "HH:mm"
+        const timePartB = partsB[1].split(' - ')[0]; // "HH:mm"
+        return timePartA.localeCompare(timePartB);
+    });
+};
