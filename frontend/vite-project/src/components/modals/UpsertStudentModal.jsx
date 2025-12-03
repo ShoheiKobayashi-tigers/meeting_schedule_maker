@@ -23,7 +23,8 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
     const [hasSibling, setHasSibling] = useState(false);
 
     // 🚨 新規状態: 兄弟の氏名を手動入力するための状態
-     const [siblingNameManual, setSiblingNameManual] = useState('');
+    const [siblingLastNameManual, setSiblingLastNameManual] = useState('');
+    const [siblingFirstNameManual, setSiblingFirstNameManual] = useState('');
 
     // モード判定
     const isEditMode = !!student.id;
@@ -50,8 +51,10 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                // 兄弟が「いる」状態であることを示すために使用します
                setFormData(prev => ({ ...prev, sibling_id: 'manual_entry' }));
            }
-       } else if (name === 'sibling_name_manual') {
-           setSiblingNameManual(value);
+       } else if (name === 'sibling_last_name_manual') {
+           setSiblingLastNameManual(value);
+       } else if (name === 'sibling_first_name_manual') {
+           setSiblingFirstNameManual(value);
        } else {
            setFormData(prev => ({ ...prev, [name]: value }));
        }
@@ -82,6 +85,8 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
             alert('氏名は必須です。');
             return;
         }
+        // 兄弟のフルネームを生成（hasSiblingがtrueの場合に使用）
+        const siblingFullName = combineName(siblingLastNameManual, siblingFirstNameManual);
 　　　　　// 最終的な保存データの整形ロジックを更新
         const baseData = {
             ...formData,
@@ -96,11 +101,14 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
             baseData.sibling_name_manual = null; // 手動入力フィールドもクリア
         } else {
             // 兄弟がいる場合
-            // sibling_idは「いる」ことを示すダミー値 (manual_entry) または以前のIDを保持
+            if (!siblingFullName.trim()) {
+                 alert('兄弟の氏名（苗字と名前）は必須です。');
+                 return;
+            }
             baseData.sibling_id = formData.sibling_id || 'manual_entry';
             baseData.sibling_class = (formData.sibling_class && formData.sibling_class.trim()) ? formData.sibling_class.trim() : null;
             baseData.sibling_coordination_slot = formData.sibling_coordination_slot || null;
-            baseData.sibling_name_manual = siblingNameManual.trim(); // 手動入力された氏名を保存
+            baseData.sibling_name_manual = siblingFullName; // 手動入力された氏名を保存
         }
         onSave(baseData);
     };
@@ -253,16 +261,35 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                             <div style={{ borderLeft: '3px solid #63b3ed', paddingLeft: '1rem', marginTop: '1rem', paddingBottom: '0.5rem' }}>
                                 <div>
                                     <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
-                                    <input
-                                        id="sibling_name_manual"
-                                        name="sibling_name_manual"
-                                        type="text"
-                                        value={siblingNameManual}
-                                        onChange={handleChange}
-                                        style={inputStyle}
-                                        placeholder="例: 佐藤 次郎"
-                                        required = {hasSibling}// 氏名を入力必須とする
-                                    />
+                                    <div style={{ display: 'flex', gap: '1rem' }}>
+                                        {/* 苗字 (lastName) */}
+                                        <div style={{ flex: 1 }}>
+                                            <label htmlFor="sibling_last_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>苗字</label>
+                                            <input
+                                                id="sibling_last_name_manual"
+                                                name="sibling_last_name_manual"
+                                                type="text"
+                                                value={siblingLastNameManual}
+                                                onChange={handleChange}
+                                                style={inputStyle}
+                                                required={hasSibling}
+                                            />
+                                        </div>
+
+                                        {/* 名前 (firstName) */}
+                                        <div style={{ flex: 1 }}>
+                                            <label htmlFor="sibling_first_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>名前</label>
+                                            <input
+                                                id="sibling_first_name_manual"
+                                                name="sibling_first_name_manual"
+                                                type="text"
+                                                value={siblingFirstNameManual}
+                                                onChange={handleChange}
+                                                style={inputStyle}
+                                                required={hasSibling}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div>
