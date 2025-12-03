@@ -245,121 +245,125 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                             </div>
                         </div>
                         {/* 3. 兄弟情報 */}
-                        <h4 style={h4Style}>兄弟の情報</h4>
-                        <div>
-                            <label style={labelStyle}>兄弟はいますか？</label>
-                            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '0.5rem' }}>
-                                <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
-                                    <input
-                                        type="radio"
-                                        name="hasSibling"
-                                        value="yes"
-                                        checked={hasSibling}
-                                        onChange={handleChange}
-                                        style={{ marginRight: '0.5rem' }}
-                                    />
-                                    いる
-                                </label>
-                                <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
-                                    <input
-                                        type="radio"
-                                        name="hasSibling"
-                                        value="no"
-                                        checked={!hasSibling}
-                                        onChange={handleChange}
-                                        style={{ marginRight: '0.5rem' }}
-                                    />
-                                    いない
-                                </label>
+                        {!isEditMode && (
+                            <>
+                            <h4 style={h4Style}>兄弟の情報</h4>
+                            <div>
+                                <label style={labelStyle}>兄弟はいますか？</label>
+                                <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '0.5rem' }}>
+                                    <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
+                                        <input
+                                            type="radio"
+                                            name="hasSibling"
+                                            value="yes"
+                                            checked={hasSibling}
+                                            onChange={handleChange}
+                                            style={{ marginRight: '0.5rem' }}
+                                        />
+                                        いる
+                                    </label>
+                                    <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
+                                        <input
+                                            type="radio"
+                                            name="hasSibling"
+                                            value="no"
+                                            checked={!hasSibling}
+                                            onChange={handleChange}
+                                            style={{ marginRight: '0.5rem' }}
+                                        />
+                                        いない
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-                        {hasSibling && (
-                            <div style={{ borderLeft: '3px solid #63b3ed', paddingLeft: '1rem', marginTop: '1rem', paddingBottom: '0.5rem' }}>
-                                <div>
-                                    <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
-                                    <div style={{ display: 'flex', gap: '1rem' }}>
-                                        {/* 苗字 (lastName) */}
-                                        <div style={{ flex: 1 }}>
-                                            <label htmlFor="sibling_last_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>苗字</label>
-                                            <input
-                                                id="sibling_last_name_manual"
-                                                name="sibling_last_name_manual"
-                                                type="text"
-                                                value={siblingLastNameManual}
-                                                onChange={handleChange}
-                                                style={inputStyle}
-                                                required={hasSibling}
-                                            />
-                                        </div>
+                            {hasSibling && (
+                                <div style={{ borderLeft: '3px solid #63b3ed', paddingLeft: '1rem', marginTop: '1rem', paddingBottom: '0.5rem' }}>
+                                    <div>
+                                        <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
+                                        <div style={{ display: 'flex', gap: '1rem' }}>
+                                            {/* 苗字 (lastName) */}
+                                            <div style={{ flex: 1 }}>
+                                                <label htmlFor="sibling_last_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>苗字</label>
+                                                <input
+                                                    id="sibling_last_name_manual"
+                                                    name="sibling_last_name_manual"
+                                                    type="text"
+                                                    value={siblingLastNameManual}
+                                                    onChange={handleChange}
+                                                    style={inputStyle}
+                                                    required={hasSibling}
+                                                />
+                                            </div>
 
-                                        {/* 名前 (firstName) */}
-                                        <div style={{ flex: 1 }}>
-                                            <label htmlFor="sibling_first_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>名前</label>
-                                            <input
-                                                id="sibling_first_name_manual"
-                                                name="sibling_first_name_manual"
-                                                type="text"
-                                                value={siblingFirstNameManual}
-                                                onChange={handleChange}
-                                                style={inputStyle}
-                                                required={hasSibling}
-                                            />
+                                            {/* 名前 (firstName) */}
+                                            <div style={{ flex: 1 }}>
+                                                <label htmlFor="sibling_first_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>名前</label>
+                                                <input
+                                                    id="sibling_first_name_manual"
+                                                    name="sibling_first_name_manual"
+                                                    type="text"
+                                                    value={siblingFirstNameManual}
+                                                    onChange={handleChange}
+                                                    style={inputStyle}
+                                                    required={hasSibling}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
+
+                                    <div>
+                                        <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
+                                        <div style={{ display: 'flex', gap: '1rem' }}>
+                                            {/* 学年 (Grade) */}
+                                            <div style={{ flex: 1 }}>
+                                                <label htmlFor="sibling_grade_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>学年</label>
+                                                <input
+                                                    id="sibling_grade_manual"
+                                                    name="sibling_grade_manual"
+                                                    type="number"
+                                                    value={siblingGradeManual}
+                                                    onChange={handleChange}
+                                                    style={inputStyle}
+                                                    placeholder="例: 5"
+                                                />
+                                            </div>
+
+                                            {/* 組 (Class Number) */}
+                                            <div style={{ flex: 1 }}>
+                                                <label htmlFor="sibling_class_number_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>組</label>
+                                                <input
+                                                    id="sibling_class_number_manual"
+                                                    name="sibling_class_number_manual"
+                                                    type="text"
+                                                    value={siblingClassNumberManual}
+                                                    onChange={handleChange}
+                                                    style={inputStyle}
+                                                    placeholder="例: 1"
+                                                />
+                                            </div>
+                                        </div>                                </div>
+
+                                    {/*既存の兄弟の調整希望日程プルダウン（再利用） */}
+                                    <div>
+                                        <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の現在の面談日程</label>
+                                        <select
+                                            id="sibling_coordination_slot"
+                                            name="sibling_coordination_slot"
+                                            value={formData.sibling_coordination_slot || ''}
+                                            onChange={handleChange}
+                                            style={inputStyle}
+                                        >
+                                            <option value="">-- 面談枠を選択 --</option>
+                                            {allScheduleSlots.map(slot => (
+                                                <option key={slot} value={slot}>{slot}</option>
+                                            ))}
+                                        </select>
+                                        <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
+                                            面談枠が未設定の場合は面談枠が表示されません。
+                                        </p>
+                                    </div>
                                 </div>
-
-                                <div>
-                                    <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
-                                    <div style={{ display: 'flex', gap: '1rem' }}>
-                                        {/* 学年 (Grade) */}
-                                        <div style={{ flex: 1 }}>
-                                            <label htmlFor="sibling_grade_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>学年</label>
-                                            <input
-                                                id="sibling_grade_manual"
-                                                name="sibling_grade_manual"
-                                                type="number"
-                                                value={siblingGradeManual}
-                                                onChange={handleChange}
-                                                style={inputStyle}
-                                                placeholder="例: 5"
-                                            />
-                                        </div>
-
-                                        {/* 組 (Class Number) */}
-                                        <div style={{ flex: 1 }}>
-                                            <label htmlFor="sibling_class_number_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>組</label>
-                                            <input
-                                                id="sibling_class_number_manual"
-                                                name="sibling_class_number_manual"
-                                                type="text"
-                                                value={siblingClassNumberManual}
-                                                onChange={handleChange}
-                                                style={inputStyle}
-                                                placeholder="例: 1"
-                                            />
-                                        </div>
-                                    </div>                                </div>
-
-                                {/*既存の兄弟の調整希望日程プルダウン（再利用） */}
-                                <div>
-                                    <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の現在の面談日程</label>
-                                    <select
-                                        id="sibling_coordination_slot"
-                                        name="sibling_coordination_slot"
-                                        value={formData.sibling_coordination_slot || ''}
-                                        onChange={handleChange}
-                                        style={inputStyle}
-                                    >
-                                        <option value="">-- 面談枠を選択 --</option>
-                                        {allScheduleSlots.map(slot => (
-                                            <option key={slot} value={slot}>{slot}</option>
-                                        ))}
-                                    </select>
-                                    <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
-                                        面談枠が未設定の場合は面談枠が表示されません。
-                                    </p>
-                                </div>
-                            </div>
+                            )}
+                            </>
                         )}
                         {/* フォームアクション */}
                         <button type="submit" style={{ display: 'none' }} aria-hidden="true" />
