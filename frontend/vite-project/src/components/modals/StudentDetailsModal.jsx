@@ -1,7 +1,7 @@
 // src/components/modals/StudentDetailsModal.jsx
 
 import React from 'react';
-// 💡 スタイルをインポート
+//  スタイルをインポート
 import { styles } from './style/StudentDetailsModalStyle.js';
 
 /**

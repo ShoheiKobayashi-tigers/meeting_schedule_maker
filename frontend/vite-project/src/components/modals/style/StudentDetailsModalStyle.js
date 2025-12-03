@@ -1,4 +1,4 @@
-// src/components/modals/StudentDetailsModalStyles.js
+// src/components/modals/StudentDetailsModalStyle.js
 
 export const styles = {
     overlayStyle: {
@@ -23,6 +23,7 @@ export const styles = {
         maxWidth: '700px',
         width: '90%',
         minHeight: '400px',
+        maxHeight: '90vh',
         position: 'relative',
         animation: 'fadeInUp 0.3s ease-out',
         display: 'flex',

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { styles } from './style/UpsertStudentModalStyle.js';
+
 const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, onSave, onClose }) => {
     if (!isOpen || !student) return null;
 
@@ -22,70 +24,11 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
     const isEditMode = !!student.id;
 
     // スタイル
-    const overlayStyle = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1002,
-        fontFamily: 'Inter, sans-serif',
-    };
-
-    const contentStyle = {
-        backgroundColor: 'white',
-        padding: '2.5rem',
-        borderRadius: '1rem',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-        maxWidth: '650px',
-        width: '90%',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        position: 'relative',
-        animation: 'fadeInUp 0.3s ease-out',
-    };
-
-    const inputStyle = {
-        border: '1px solid #cbd5e0',
-        borderRadius: '0.5rem',
-        padding: '0.6rem 0.75rem',
-        width: '100%',
-        boxSizing: 'border-box',
-        fontSize: '1rem',
-        marginBottom: '0.5rem',
-    };
-
-    const labelStyle = {
-        display: 'block',
-        fontWeight: '700',
-        color: '#4a5568',
-        marginBottom: '0.25rem',
-        marginTop: '1rem',
-    };
-
-    const h4Style = {
-        fontSize: '1.3rem',
-        fontWeight: '800',
-        color: '#2d3748',
-        borderBottom: '2px solid #edf2f7',
-        paddingBottom: '0.5rem',
-        marginTop: '2rem',
-        marginBottom: '1rem',
-    };
-
-    const buttonBaseStyle = {
-        padding: '0.75rem 1.5rem',
-        borderRadius: '0.5rem',
-        fontWeight: '700',
-        cursor: 'pointer',
-        transition: 'all 0.2s',
-        border: 'none',
-        fontSize: '1rem',
-    };
+    const {
+        overlayStyle, contentStyle, h4Style,
+        labelStyle, inputStyle, buttonBaseStyle,
+        headerStyle, closeButtonStyle
+    } = styles;
 
    // ハンドラ
    const handleChange = (e) => {
@@ -127,7 +70,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
        });
    };
 
-    const handleSubmit = (e) => {
+    const handleSave = (e) => {
         e.preventDefault();
         if (!formData.name.trim()) {
             alert('氏名は必須です。');
@@ -155,196 +98,211 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
         }
         onSave(baseData);
     };
-
+    const handleSubmit = (e) => {
+        e.preventDefault(); // Enter キーなどによる送信を防止し、
+        handleSave();       // 抽出した保存ロジックを呼び出す
+    };
 
     return (
         <div style={overlayStyle} onClick={onClose}>
             <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
-                <h3 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#2d3748', borderBottom: '2px solid #e2e8f0', paddingBottom: '1rem' }}>
-                    {isEditMode ? '児童（生徒）情報の編集' : '新規児童（生徒）の追加'}
-                </h3>
-                <form onSubmit={handleSubmit}>
+                <div style={{...headerStyle, flexShrink: 0}}>
+                    <h3 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#2d3748', borderBottom: '2px solid #e2e8f0', paddingBottom: '1rem' }}>
+                        {isEditMode ? '児童（生徒）情報の編集' : '新規児童（生徒）の追加'}
+                    </h3>
+                    <button
+                        style={closeButtonStyle}
+                        onClick={onClose}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#e53e3e'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = '#a0aec0'}
+                    >
+                        &times;
+                    </button>
+                </div>
+                <div style={{ flexGrow: 1, overflowY: 'auto', paddingRight: '1rem' }}>
+                    <form onSubmit={handleSubmit}>
 
-                    {/* 1. 基本情報 */}
-                    <h4 style={h4Style}>基本情報</h4>
-                    <div>
-                        <label style={labelStyle} htmlFor="name">氏名 <span style={{color: '#e53e3e'}}>*</span></label>
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            value={formData.name}
-                            onChange={handleChange}
-                            style={inputStyle}
-                            placeholder="例: 佐藤 太郎"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label style={labelStyle} htmlFor="student_id">出席番号</label>
-                        <input
-                            id="student_id"
-                            name="student_id"
-                            type="text"
-                            value={formData.student_id}
-                            onChange={handleChange}
-                            style={inputStyle}
-                            placeholder="例: 1"
-                        />
-                    </div>
-
-                    {/* 2. 希望日程 */}
-                    <h4 style={h4Style}>希望日程（日時のリスト）</h4>
-                    <div>
-                        <label style={labelStyle} htmlFor="preferred_dates">
-                            希望日程を複数選択してください
-                        </label>
-
-                        <div style={{
-                            border: '1px solid #cbd5e0',
-                            borderRadius: '0.5rem',
-                            padding: '0.75rem',
-                            maxHeight: '200px',
-                            overflowY: 'auto',
-                            backgroundColor: '#f7fafc'
-                        }}>
-                            {allScheduleSlots.length > 0 ? (
-                                allScheduleSlots.map(slot => (
-                                    <div key={slot} style={{ marginBottom: '0.5rem' }}>
-                                        <label style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            fontWeight: '500',
-                                            color: '#2d3748',
-                                            cursor: 'pointer',
-                                            marginTop: '0.25rem'
-                                        }}>
-                                            <input
-                                                type="checkbox"
-                                                name="preferred_dates"
-                                                value={slot}
-                                                checked={formData.preferred_dates.includes(slot)}
-                                                onChange={handleDateChange} // ステップ1で定義した新しいハンドラを使用
-                                                style={{ marginRight: '0.75rem', transform: 'scale(1.2)' }}
-                                            />
-                                            {slot}
-                                        </label>
-                                    </div>
-                                ))
-                            ) : (
-                                <p style={{ color: '#718096', margin: 0 }}>
-                                    面談枠が設定されていません。面談枠の設定画面で面談枠を作成してください。
-                                </p>
-                            )}
+                        {/* 1. 基本情報 */}
+                        <h4 style={h4Style}>基本情報</h4>
+                        <div>
+                            <label style={labelStyle} htmlFor="name">氏名 <span style={{color: '#e53e3e'}}>*</span></label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                value={formData.name}
+                                onChange={handleChange}
+                                style={inputStyle}
+                                placeholder="例: 佐藤 太郎"
+                                required
+                            />
                         </div>
-                    </div>
-                    {/* 3. 兄弟情報 */}
-                    <h4 style={h4Style}>兄弟の情報</h4>
-                    <div>
-                        <label style={labelStyle}>兄弟はいますか？</label>
-                        <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '0.5rem' }}>
-                            <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
-                                <input
-                                    type="radio"
-                                    name="hasSibling"
-                                    value="yes"
-                                    checked={hasSibling}
-                                    onChange={handleChange}
-                                    style={{ marginRight: '0.5rem' }}
-                                />
-                                いる
+                        <div>
+                            <label style={labelStyle} htmlFor="student_id">出席番号</label>
+                            <input
+                                id="student_id"
+                                name="student_id"
+                                type="text"
+                                value={formData.student_id}
+                                onChange={handleChange}
+                                style={inputStyle}
+                                placeholder="例: 1"
+                            />
+                        </div>
+
+                        {/* 2. 希望日程 */}
+                        <h4 style={h4Style}>希望日程（日時のリスト）</h4>
+                        <div>
+                            <label style={labelStyle} htmlFor="preferred_dates">
+                                希望日程を複数選択してください
                             </label>
-                            <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
-                                <input
-                                    type="radio"
-                                    name="hasSibling"
-                                    value="no"
-                                    checked={!hasSibling}
-                                    onChange={handleChange}
-                                    style={{ marginRight: '0.5rem' }}
-                                />
-                                いない
-                            </label>
-                        </div>
-                    </div>
-                    {hasSibling && (
-                        <div style={{ borderLeft: '3px solid #63b3ed', paddingLeft: '1rem', marginTop: '1rem', paddingBottom: '0.5rem' }}>
-                            <div>
-                                <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
-                                <input
-                                    id="sibling_name_manual"
-                                    name="sibling_name_manual"
-                                    type="text"
-                                    value={siblingNameManual}
-                                    onChange={handleChange}
-                                    style={inputStyle}
-                                    placeholder="例: 佐藤 次郎"
-                                    required = {hasSibling}// 氏名を入力必須とする
-                                />
-                            </div>
 
-                            <div>
-                                <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
-                                <input
-                                    id="sibling_class"
-                                    name="sibling_class"
-                                    type="text"
-                                    value={formData.sibling_class || ''}
-                                    onChange={handleChange}
-                                    style={inputStyle}
-                                    placeholder="例: 小学5年A組"
-                                />
-                            </div>
-
-                            {/*既存の兄弟の調整希望日程プルダウン（再利用） */}
-                            <div>
-                                <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の現在の面談日程</label>
-                                <select
-                                    id="sibling_coordination_slot"
-                                    name="sibling_coordination_slot"
-                                    value={formData.sibling_coordination_slot || ''}
-                                    onChange={handleChange}
-                                    style={inputStyle}
-                                >
-                                    <option value="">-- 面談枠を選択 --</option>
-                                    {allScheduleSlots.map(slot => (
-                                        <option key={slot} value={slot}>{slot}</option>
-                                    ))}
-                                </select>
-                                <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
-                                    面談枠が未設定の場合は面談枠が表示されません。
-                                </p>
+                            <div style={{
+                                border: '1px solid #cbd5e0',
+                                borderRadius: '0.5rem',
+                                padding: '0.75rem',
+                                maxHeight: '200px',
+                                overflowY: 'auto',
+                                backgroundColor: '#f7fafc'
+                            }}>
+                                {allScheduleSlots.length > 0 ? (
+                                    allScheduleSlots.map(slot => (
+                                        <div key={slot} style={{ marginBottom: '0.5rem' }}>
+                                            <label style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                fontWeight: '500',
+                                                color: '#2d3748',
+                                                cursor: 'pointer',
+                                                marginTop: '0.25rem'
+                                            }}>
+                                                <input
+                                                    type="checkbox"
+                                                    name="preferred_dates"
+                                                    value={slot}
+                                                    checked={formData.preferred_dates.includes(slot)}
+                                                    onChange={handleDateChange} // ステップ1で定義した新しいハンドラを使用
+                                                    style={{ marginRight: '0.75rem', transform: 'scale(1.2)' }}
+                                                />
+                                                {slot}
+                                            </label>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p style={{ color: '#718096', margin: 0 }}>
+                                        面談枠が設定されていません。面談枠の設定画面で面談枠を作成してください。
+                                    </p>
+                                )}
                             </div>
                         </div>
-                    )}
+                        {/* 3. 兄弟情報 */}
+                        <h4 style={h4Style}>兄弟の情報</h4>
+                        <div>
+                            <label style={labelStyle}>兄弟はいますか？</label>
+                            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '0.5rem' }}>
+                                <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
+                                    <input
+                                        type="radio"
+                                        name="hasSibling"
+                                        value="yes"
+                                        checked={hasSibling}
+                                        onChange={handleChange}
+                                        style={{ marginRight: '0.5rem' }}
+                                    />
+                                    いる
+                                </label>
+                                <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
+                                    <input
+                                        type="radio"
+                                        name="hasSibling"
+                                        value="no"
+                                        checked={!hasSibling}
+                                        onChange={handleChange}
+                                        style={{ marginRight: '0.5rem' }}
+                                    />
+                                    いない
+                                </label>
+                            </div>
+                        </div>
+                        {hasSibling && (
+                            <div style={{ borderLeft: '3px solid #63b3ed', paddingLeft: '1rem', marginTop: '1rem', paddingBottom: '0.5rem' }}>
+                                <div>
+                                    <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
+                                    <input
+                                        id="sibling_name_manual"
+                                        name="sibling_name_manual"
+                                        type="text"
+                                        value={siblingNameManual}
+                                        onChange={handleChange}
+                                        style={inputStyle}
+                                        placeholder="例: 佐藤 次郎"
+                                        required = {hasSibling}// 氏名を入力必須とする
+                                    />
+                                </div>
 
+                                <div>
+                                    <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
+                                    <input
+                                        id="sibling_class"
+                                        name="sibling_class"
+                                        type="text"
+                                        value={formData.sibling_class || ''}
+                                        onChange={handleChange}
+                                        style={inputStyle}
+                                        placeholder="例: 小学5年A組"
+                                    />
+                                </div>
 
-                    {/* フォームアクション */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2.5rem' }}>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            style={{
-                                ...buttonBaseStyle,
-                                backgroundColor: '#edf2f7',
-                                color: '#4a5568',
-                                marginRight: '1rem',
-                            }}
-                        >
-                            キャンセル
-                        </button>
-                        <button
-                            type="submit"
-                            style={{
-                                ...buttonBaseStyle,
-                                backgroundColor: isEditMode ? '#4299e1' : '#38a169',
-                                color: 'white',
-                            }}
-                        >
-                            {isEditMode ? '更新' : '登録'}
-                        </button>
-                    </div>
-                </form>
+                                {/*既存の兄弟の調整希望日程プルダウン（再利用） */}
+                                <div>
+                                    <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の現在の面談日程</label>
+                                    <select
+                                        id="sibling_coordination_slot"
+                                        name="sibling_coordination_slot"
+                                        value={formData.sibling_coordination_slot || ''}
+                                        onChange={handleChange}
+                                        style={inputStyle}
+                                    >
+                                        <option value="">-- 面談枠を選択 --</option>
+                                        {allScheduleSlots.map(slot => (
+                                            <option key={slot} value={slot}>{slot}</option>
+                                        ))}
+                                    </select>
+                                    <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
+                                        面談枠が未設定の場合は面談枠が表示されません。
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                        {/* フォームアクション */}
+                        <button type="submit" style={{ display: 'none' }} aria-hidden="true" />
+                    </form>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2.5rem', paddingTop: '1rem' }}>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        style={{
+                            ...buttonBaseStyle,
+                            backgroundColor: '#edf2f7',
+                            color: '#4a5568',
+                            marginRight: '1rem',
+                        }}
+                    >
+                        キャンセル
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleSave}
+                        style={{
+                            ...buttonBaseStyle,
+                            backgroundColor: isEditMode ? '#4299e1' : '#38a169',
+                            color: 'white',
+                        }}
+                    >
+                        {isEditMode ? '更新' : '登録'}
+                    </button>
+                </div>
             </div>
         </div>
     );
