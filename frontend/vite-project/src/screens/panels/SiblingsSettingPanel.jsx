@@ -89,14 +89,20 @@ const styles = {
 };
 
 // 兄弟の追加・編集フォームコンポーネント
-const SiblingForm = ({ initialData, onSave, onCancel, applicants }) => {
+const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
     // 編集モードの場合、IDを保持
-    const defaultData = initialData.id ? initialData : { id: null, name: '', class: '', family_id: '' };
+    const defaultData = {
+        id: initialData.id || null,
+        name: initialData.name || '',
+        class: initialData.class || '',
+        family_id: initialData.family_id || '',
+        assigned_slot: initialData.assigned_slot || '',
+    }
     const [formData, setFormData] = useState(defaultData);
     // 兄弟のFamily IDを決定するための選択済み生徒のfamily_idを保持する
     // 新規登録時は 'NEW' (未選択) または initialData の family_id を選択
     const [selectedFamilyId, setSelectedFamilyId] = useState(initialData.family_id || 'NEW');
-    const uniqueApplicants = applicants.reduce((acc, current) => {
+    const uniqueApplicants = manager.applicants.reduce((acc, current) => {
         // family_id をキーとして、最初に見つかった生徒情報を格納 (重複排除)
         if (current.family_id && !acc.some(app => app.family_id === current.family_id)) {
             acc.push(current);
@@ -128,7 +134,7 @@ const SiblingForm = ({ initialData, onSave, onCancel, applicants }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={styles.panel}>
+        <form onSubmit={handleSubmit} style={styles.panel} manager={manager}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
                 {initialData.id ? '兄弟情報の編集' : '兄弟の新規登録'}
             </h3>
@@ -160,7 +166,26 @@ const SiblingForm = ({ initialData, onSave, onCancel, applicants }) => {
                 <label style={styles.label} htmlFor="class">クラス名（任意）</label>
                 <input type="text" id="class" name="class" value={formData.class || ''} onChange={handleChange} style={styles.input} />
             </div>
-
+            <div style={styles.formGroup}>
+                <label style={styles.label} htmlFor="assigned_slot">面談調整日程（任意）</label>
+                <select
+                    id="assigned_slot"
+                    name="assigned_slot"
+                    value={formData.assigned_slot || ''}
+                    onChange={handleChange}
+                    style={{...styles.select, minWidth: '100%'}} // selectStyleを適用し、幅を調整
+                >
+                    <option value="">-- 面談枠を選択（任意） --</option>
+                    {manager.allScheduleSlots.map(slot => (
+                        <option key={slot} value={slot}>{slot}</option>
+                    ))}
+                </select>
+                {manager.allScheduleSlots.length === 0 && (
+                     <p style={{fontSize: '0.8rem', color: '#718096', margin: '0.5rem 0 0 0'}}>
+                         面談枠が設定されていません。
+                     </p>
+                )}
+            </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1.5rem' }}>
                 <button type="button" onClick={onCancel} style={{ ...styles.buttonBase, backgroundColor: '#e2e8f0', color: '#4a5568' }}>
                     キャンセル
@@ -174,7 +199,7 @@ const SiblingForm = ({ initialData, onSave, onCancel, applicants }) => {
 };
 
 // --- SiblingsSettingPanelメインコンポーネント ---
-const SiblingsSettingPanel = ({ siblingsManager, onBack, applicants = [] }) => {
+const SiblingsSettingPanel = ({ manager, siblingsManager, onBack }) => {
     const { siblings, addSibling, updateSibling, deleteSibling } = siblingsManager;
     // 編集中の兄弟データ (null: リスト表示, object: フォーム表示)
     const [editingSibling, setEditingSibling] = useState(null);
@@ -203,8 +228,7 @@ const SiblingsSettingPanel = ({ siblingsManager, onBack, applicants = [] }) => {
 
     // 新規追加ボタンクリック
     const handleAdd = useCallback(() => {
-        // family_idは、既存の学生からコピーするロジックなども考えられますが、ここでは空で開始
-        setEditingSibling({ id: null, name: '', class: '', family_id: '' });
+        setEditingSibling({ id: null, name: '', class: '', family_id: '',  assigned_slot: ''});
     }, []);
 
     // 編集フォーム表示中はフォームをレンダリング
@@ -214,7 +238,9 @@ const SiblingsSettingPanel = ({ siblingsManager, onBack, applicants = [] }) => {
                 initialData={editingSibling}
                 onSave={handleSave}
                 onCancel={() => setEditingSibling(null)}
-                applicants={applicants}
+                manager={manager}
+                applicants={manager.applicants}
+                allScheduleSlots={manager.allScheduleSlots}
             />
         );
     }

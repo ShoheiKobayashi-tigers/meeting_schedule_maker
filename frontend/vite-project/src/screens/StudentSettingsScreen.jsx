@@ -17,10 +17,10 @@ const StudentSettingsScreen = ({ manager, siblingsManager }) => {
             <div style={manager.styles.rightPanel}>
               {currentRightPanel === 'SIBLINGS_SETTINGS' ? (
                     <SiblingsSettingPanel
+                        manager={manager}
                         siblingsManager={siblingsManager}
                         // 戻るボタンのコールバック
                         onBack={() => setCurrentRightPanel('DEFAULT')}
-                        applicants={manager.applicants}
                     />
                 ) : (
                     // デフォルトの右パネル表示
