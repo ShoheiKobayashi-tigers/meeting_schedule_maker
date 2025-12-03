@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import { combineName, splitName } from '../../utils/nameUtils.js';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -94,10 +95,12 @@ const styles = {
 
 // 兄弟の追加・編集フォームコンポーネント
 const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
+    const { lastName: initialLastName, firstName: initialFirstName } = splitName(initialData.name);
     // 編集モードの場合、IDを保持
     const defaultData = {
         id: initialData.id || null,
-        name: initialData.name || '',
+        lastName: initialLastName || '',
+        firstName: initialFirstName || '',
         class: initialData.class || '',
         family_id: initialData.family_id || '',
         assigned_slot: initialData.assigned_slot || '',
@@ -125,16 +128,22 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
     };
     const handleSubmit = (e) => {
         e.preventDefault();
+        const fullName = combineName(formData.lastName, formData.firstName);
         // Family IDが設定されていない場合はエラー
         if (selectedFamilyId === 'NEW' || !formData.family_id) {
              alert('氏名と関連付ける生徒（Family ID）の選択は必須です。');
              return;
         }
-        if (!formData.name || !formData.family_id) {
+        if (!fullName || !formData.family_id) {
              alert('氏名は必須です。');
              return;
         }
-        onSave(formData);
+        const dataToSave = {
+            ...formData,
+            name: fullName, // フルネームを name フィールドにセット
+        };
+
+        onSave(dataToSave);
     };
 
     return (
@@ -164,7 +173,35 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
             </div>
             <div style={styles.formGroup}>
                 <label style={styles.label} htmlFor="name">氏名</label>
-                <input type="text" id="name" name="name" value={formData.name || ''} onChange={handleChange} style={styles.input} required />
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    {/* 苗字 (lastName) */}
+                    <div style={{ flex: 1 }}>
+                        <label htmlFor="lastName" style={{...styles.label, fontSize: '0.875rem', fontWeight: 'normal'}}>苗字</label>
+                        <input
+                            id="lastName"
+                            name="lastName"
+                            type="text"
+                            value={formData.lastName}
+                            onChange={handleChange}
+                            style={styles.input}
+                            required
+                        />
+                    </div>
+
+                    {/* 名前 (firstName) */}
+                    <div style={{ flex: 1 }}>
+                        <label htmlFor="firstName" style={{...styles.label, fontSize: '0.875rem', fontWeight: 'normal'}}>名前</label>
+                        <input
+                            id="firstName"
+                            name="firstName"
+                            type="text"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            style={styles.input}
+                            required
+                        />
+                    </div>
+                </div>
             </div>
             <div style={styles.formGroup}>
                 <label style={styles.label} htmlFor="class">クラス名（任意）</label>
