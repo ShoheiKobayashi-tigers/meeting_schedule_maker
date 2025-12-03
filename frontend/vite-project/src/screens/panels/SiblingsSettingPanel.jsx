@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { combineName, splitName } from '../../utils/nameUtils.js';
+import { combineClass, splitClass } from '../../utils/classUtils.js';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -95,12 +96,14 @@ const styles = {
 // 兄弟の追加・編集フォームコンポーネント
 const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
     const { lastName: initialLastName, firstName: initialFirstName } = splitName(initialData.name);
+    const { grade: initialGrade, classNumber: initialClassNumber } = splitClass(initialData.class);
     // 編集モードの場合、IDを保持
     const defaultData = {
         id: initialData.id || null,
         lastName: initialLastName || '',
         firstName: initialFirstName || '',
-        class: initialData.class || '',
+        grade: initialGrade || '',
+        classNumber: initialClassNumber || '',
         family_id: initialData.family_id || '',
         assigned_slot: initialData.assigned_slot || '',
     }
@@ -137,9 +140,22 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
              alert('氏名は必須です。');
              return;
         }
+
+        const fullClass = combineClass(formData.grade, formData.classNumber);
+        const isPartialClassInput =
+            (formData.grade && !formData.classNumber) ||
+            (!formData.grade && formData.classNumber);
+        if (isPartialClassInput) {
+            alert('兄弟のクラスを設定する場合、学年と組の両方を入力してください。');
+            return;
+        }
+
         const dataToSave = {
             ...formData,
             name: fullName, // フルネームを name フィールドにセット
+            class: fullClass,
+            grade: undefined, // 保存データから grade を削除
+            classNumber: undefined, // 保存データから classNumber を削除
         };
 
         onSave(dataToSave);
@@ -204,7 +220,35 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
             </div>
             <div style={styles.formGroup}>
                 <label style={styles.label} htmlFor="class">クラス名（任意）</label>
-                <input type="text" id="class" name="class" value={formData.class || ''} onChange={handleChange} style={styles.input} />
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    {/* 学年 (Grade) */}
+                    <div style={{ flex: 1 }}>
+                        <label htmlFor="grade" style={{...styles.label, fontSize: '0.875rem', fontWeight: 'normal'}}>学年</label>
+                        <input
+                            id="grade"
+                            name="grade"
+                            type="number"
+                            value={formData.grade || ''} //  formData.grade を使用
+                            onChange={handleChange}
+                            style={styles.input}
+                            placeholder="例: 5"
+                        />
+                    </div>
+
+                    {/* 組 (Class Number) */}
+                    <div style={{ flex: 1 }}>
+                        <label htmlFor="classNumber" style={{...styles.label, fontSize: '0.875rem', fontWeight: 'normal'}}>組</label>
+                        <input
+                            id="classNumber"
+                            name="classNumber"
+                            type="text"
+                            value={formData.classNumber || ''} //  formData.classNumber を使用
+                            onChange={handleChange}
+                            style={styles.input}
+                            placeholder="例: 1"
+                        />
+                    </div>
+                </div>
             </div>
             <div style={styles.formGroup}>
                 <label style={styles.label} htmlFor="assigned_slot">面談調整日程（任意）</label>
