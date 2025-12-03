@@ -337,11 +337,11 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                             type="submit"
                             style={{
                                 ...buttonBaseStyle,
-                                backgroundColor: isEditMode ? '#dd6b20' : '#38a169',
+                                backgroundColor: isEditMode ? '#4299e1' : '#38a169',
                                 color: 'white',
                             }}
                         >
-                            {isEditMode ? '情報を更新' : '児童（生徒）を登録'}
+                            {isEditMode ? '更新' : '登録'}
                         </button>
                     </div>
                 </form>
