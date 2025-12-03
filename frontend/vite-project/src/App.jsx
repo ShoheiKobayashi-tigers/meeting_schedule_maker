@@ -26,7 +26,7 @@ const initialApplicants = [
     {
         id: 'app-1',
         name: '佐藤 太郎',
-        student_id: '1201',
+        student_id: '1',
         preferred_dates: ['12/01 (月) 09:15 - 09:30', '11/30 (日) 14:00 - 14:15'],
         family_id: '1'
     },
@@ -34,14 +34,14 @@ const initialApplicants = [
     {
         id: 'app-2',
         name: '山田 花子',
-        student_id: '1202',
+        student_id: '2',
         preferred_dates: ['12/01 (月) 09:00 - 09:15', '12/01 (月) 14:00 - 14:15'],
         family_id: '2'
     },
     {
         id: 'app-3',
         name: '田中 一郎',
-        student_id: '1203',
+        student_id: '3',
         preferred_dates: ['12/01 (月) 09:00 - 09:15', '11/30 (日) 09:00 - 09:15'],
         family_id: '3'
     },
@@ -49,7 +49,7 @@ const initialApplicants = [
     {
         id: 'app-4',
         name: '鈴木 美咲',
-        student_id: '1204',
+        student_id: '4',
         preferred_dates: [],
         family_id: '4'
     },

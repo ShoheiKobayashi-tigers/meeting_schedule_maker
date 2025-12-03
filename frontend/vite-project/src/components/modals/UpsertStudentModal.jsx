@@ -249,7 +249,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                         value={formData.sibling_class || ''}
                                         onChange={handleChange}
                                         style={inputStyle}
-                                        placeholder="例: 小学5年A組"
+                                        placeholder="例: 5年1組"
                                     />
                                 </div>
 
