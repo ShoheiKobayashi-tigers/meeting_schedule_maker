@@ -93,6 +93,26 @@ const styles = {
     },
 };
 
+const SiblingSchema = z.object({
+    id: z.string().nullable().optional(),
+    // Family IDは必須
+    family_id: z.string().min(1, { message: '関連付ける生徒の選択は必須です。' }),
+    // 氏名（苗字と名前）は必須
+    lastName: z.string().min(1, { message: '苗字は必須です。' }),
+    firstName: z.string().min(1, { message: '名前は必須です。' }),
+    // クラス情報は、両方入力されるか、両方空である必要がある
+    grade: z.union([z.literal(''), z.string().min(1).refine(val => /^\d+$/.test(val), { message: '学年は半角数字で入力してください。' })]).optional(),
+    classNumber: z.union([z.literal(''), z.string().min(1)]).optional(),
+    assigned_slot: z.string().optional(),
+}).refine(data => {
+    // 学年と組が片方だけ入力されていないことをチェック
+    const isPartialClassInput = (data.grade && !data.classNumber) || (!data.grade && data.classNumber);
+    return !isPartialClassInput;
+}, {
+    message: '兄弟のクラスを設定する場合、学年と組の両方を入力してください。',
+    path: ['grade'], // エラーをどちらかのフィールドに紐づける
+});
+
 // 兄弟の追加・編集フォームコンポーネント
 const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
     const { lastName: initialLastName, firstName: initialFirstName } = splitName(initialData.name);
@@ -107,7 +127,6 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
         family_id: initialData.family_id || '',
         assigned_slot: initialData.assigned_slot || '',
     }
-    const [formData, setFormData] = useState(defaultData);
     // 兄弟のFamily IDを決定するための選択済み生徒のfamily_idを保持する
     // 新規登録時は 'NEW' (未選択) または initialData の family_id を選択
     const [selectedFamilyId, setSelectedFamilyId] = useState(initialData.family_id || 'NEW');
@@ -118,40 +137,32 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
         }
         return acc;
     }, []);
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+
+    // React Hook Form の設定
+    const {
+        register,
+        handleSubmit: hookFormSubmit, // useForm の handleSubmit とコンポーネントの onSubmit を区別
+        setValue,
+        watch,
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(SiblingSchema),
+        defaultValues: defaultData
+    });
+
     // プルダウンの選択が変更されたときのハンドラー
     const handleFamilyIdChange = (e) => {
         const value = e.target.value;
         setSelectedFamilyId(value);
-        // formData の family_id を更新
-        setFormData(prev => ({ ...prev, family_id: value === 'NEW' ? '' : value }));
+        // data の family_id を更新
+        setValue('family_id', value === 'NEW' ? '' : value, { shouldValidate: true });
     };
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const fullName = combineName(formData.lastName, formData.firstName);
-        // Family IDが設定されていない場合はエラー
-        if (selectedFamilyId === 'NEW' || !formData.family_id) {
-             alert('氏名と関連付ける生徒（Family ID）の選択は必須です。');
-             return;
-        }
-        if (!fullName || !formData.family_id) {
-             alert('氏名は必須です。');
-             return;
-        }
-
-        const fullClass = combineClass(formData.grade, formData.classNumber);
-        const isPartialClassInput =
-            (formData.grade && !formData.classNumber) ||
-            (!formData.grade && formData.classNumber);
-        if (isPartialClassInput) {
-            alert('兄弟のクラスを設定する場合、学年と組の両方を入力してください。');
-            return;
-        }
+    const onSubmit = (data) => {
+        const fullName = combineName(data.lastName, data.firstName);
+        const fullClass = combineClass(data.grade, data.classNumber);
 
         const dataToSave = {
-            ...formData,
+            ...data,
             name: fullName, // フルネームを name フィールドにセット
             class: fullClass,
             grade: undefined, // 保存データから grade を削除
@@ -162,7 +173,7 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={styles.panel} manager={manager}>
+        <form onSubmit={hookFormSubmit(onSubmit)} style={styles.panel} manager={manager}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
                 {initialData.id ? '兄弟情報の編集' : '兄弟の新規登録'}
             </h3>
@@ -174,7 +185,7 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
                     name="family_id_selector"
                     value={selectedFamilyId}
                     onChange={handleFamilyIdChange}
-                    style={styles.select}
+                    style={{...styles.select, borderColor: errors.family_id ? '#e53e3e' : '#ced4da'}}
                     required
                 >
                     <option value="NEW" disabled>-- 生徒を選択してください --</option>
@@ -185,6 +196,7 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
                         </option>
                     ))}
                 </select>
+                {errors.family_id && <p style={{ color: '#e53e3e', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.family_id.message}</p>}
             </div>
             <div style={styles.formGroup}>
                 <label style={styles.label} htmlFor="name">氏名</label>
@@ -196,11 +208,11 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
                             id="lastName"
                             name="lastName"
                             type="text"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            style={styles.input}
+                            {...register('lastName')}
+                            style={{...styles.input, borderColor: errors.lastName ? '#e53e3e' : '#e2e8f0'}}
                             required
                         />
+                        {errors.lastName && <p style={{ color: '#e53e3e', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.lastName.message}</p>}
                     </div>
 
                     {/* 名前 (firstName) */}
@@ -210,16 +222,17 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
                             id="firstName"
                             name="firstName"
                             type="text"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            style={styles.input}
+                            {...register('firstName')}
+                            style={{...styles.input, borderColor: errors.firstName ? '#e53e3e' : '#e2e8f0'}}
                             required
                         />
+                        {errors.firstName && <p style={{ color: '#e53e3e', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.firstName.message}</p>}
                     </div>
                 </div>
             </div>
             <div style={styles.formGroup}>
                 <label style={styles.label} htmlFor="class">クラス名（任意）</label>
+                {errors.grade && errors.grade.type === 'refine' && <p style={{ color: '#e53e3e', fontSize: '0.75rem', marginBottom: '0.5rem' }}>{errors.grade.message}</p>}
                 <div style={{ display: 'flex', gap: '1rem' }}>
                     {/* 学年 (Grade) */}
                     <div style={{ flex: 1 }}>
@@ -227,12 +240,12 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
                         <input
                             id="grade"
                             name="grade"
-                            type="number"
-                            value={formData.grade || ''} //  formData.grade を使用
-                            onChange={handleChange}
-                            style={styles.input}
+                            type="text"
+                            {...register('grade')}
+                            style={{...styles.input, borderColor: errors.grade ? '#e53e3e' : '#e2e8f0'}}
                             placeholder="例: 5"
                         />
+                        {errors.grade && errors.grade.type !== 'refine' && <p style={{ color: '#e53e3e', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.grade.message}</p>}
                     </div>
 
                     {/* 組 (Class Number) */}
@@ -242,9 +255,8 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
                             id="classNumber"
                             name="classNumber"
                             type="text"
-                            value={formData.classNumber || ''} //  formData.classNumber を使用
-                            onChange={handleChange}
-                            style={styles.input}
+                            {...register('classNumber')}
+                            style={{...styles.input, borderColor: errors.classNumber ? '#e53e3e' : '#e2e8f0'}}
                             placeholder="例: 1"
                         />
                     </div>
@@ -255,8 +267,7 @@ const SiblingForm = ({ manager, initialData, onSave, onCancel }) => {
                 <select
                     id="assigned_slot"
                     name="assigned_slot"
-                    value={formData.assigned_slot || ''}
-                    onChange={handleChange}
+                    {...register('assigned_slot')}
                     style={{...styles.select, minWidth: '100%'}} // selectStyleを適用し、幅を調整
                 >
                     <option value="">-- 面談枠を選択（任意） --</option>
@@ -374,20 +385,23 @@ const SiblingsSettingPanel = ({ manager, siblingsManager, onBack }) => {
                     return(
                         <div key={sibling.id} style={styles.item}>
                             <div style={styles.info}>
-                                <div style={styles.name}>{sibling.name}<span style={{...styles.details, fontSize: '13px'}}> ( {studentName} ) </span></div>
+                                <div style={styles.name}>{sibling.name}</div>
                                 <div style={styles.details}>
                                     {sibling.class ? ` ${sibling.class}` : 'クラス未設定'}
+                                </div>
+                                <div style={styles.details}>
+                                     ( {studentName} )
                                 </div>
                             </div>
                             <div style={styles.actions}>
                                 <button
-                                    style={{ ...styles.buttonBase, backgroundColor: '#f0f4f8', color: '#4299e1' }}
+                                    style={{ ...styles.buttonBase, backgroundColor: '#86b3e0', color: 'white' }}
                                     onClick={() => handleEdit(sibling)}
                                 >
                                     編集
                                 </button>
                                 <button
-                                    style={{ ...styles.buttonBase, backgroundColor: '#fef2f2', border: '1px solid #f56565', color: '#c53030' }}
+                                    style={{ ...styles.buttonBase, backgroundColor: '#fef2f2', border: '1px solid #f56565', color: '#e53e3e' }}
                                     onClick={() => handleDelete(sibling)}
                                 >
                                     削除

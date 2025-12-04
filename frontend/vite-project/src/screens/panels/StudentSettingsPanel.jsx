@@ -45,6 +45,7 @@ const StudentSettingsPanel = ({ manager, onViewSiblingsSettings }) => {
         fontSize: '0.875rem',
         fontWeight: '600',
         marginLeft: '1rem',
+        color: '#e53e3e',
     };
 
     const editButton = {
