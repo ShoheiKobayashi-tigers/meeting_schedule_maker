@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { styles } from './style/UpsertStudentModalStyle.js';
 import { combineName, splitName } from '../../utils/nameUtils.js';
 import { combineClass, splitClass } from '../../utils/classUtils.js';
@@ -6,32 +6,119 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+// 基本的なバリデーションスキーマ
+const studentSchema = z.object({
+    lastName: z.string().min(1, '苗字は必須です'),
+    firstName: z.string().min(1, '名前は必須です'),
+    student_id: z.string().min(1, '出席番号は必須です'),
+    preferred_dates: z.array(z.string()).default([]),
+
+    // 兄弟に関するフィールド
+    hasSibling: z.enum(['yes', 'no']),
+    sibling_last_name_manual: z.string().optional(),
+    sibling_first_name_manual: z.string().optional(),
+    sibling_grade_manual: z.string().optional(),
+    sibling_class_number_manual: z.string().optional(),
+    sibling_coordination_slot: z.string().optional().nullable(),
+}).superRefine((data, ctx) => {
+    // 条件付きバリデーション: 兄弟がいる場合
+    if (data.hasSibling === 'yes') {
+        // 1. 兄弟の氏名は必須
+        if (!data.sibling_last_name_manual || data.sibling_last_name_manual.trim() === '') {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: '兄弟の苗字は必須です',
+                path: ['sibling_last_name_manual'],
+            });
+        }
+        if (!data.sibling_first_name_manual || data.sibling_first_name_manual.trim() === '') {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: '兄弟の名前は必須です',
+                path: ['sibling_first_name_manual'],
+            });
+        }
+
+        // 2. クラスの設定: 片方だけ入力されている場合はエラー
+        const grade = data.sibling_grade_manual?.trim();
+        const classNumber = data.sibling_class_number_manual?.trim();
+        if (!data.sibling_first_name_manual || data.sibling_first_name_manual.trim() === '') {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: '学年は必須です',
+                path: ['sibling_grade_manual'],
+            });
+        }
+        if (!data.sibling_first_name_manual || data.sibling_first_name_manual.trim() === '') {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'クラスは必須です',
+                path: ['sibling_class_number_manual'],
+            });
+        }
+    }
+});
+
 const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, onSave, onClose }) => {
     if (!isOpen || !student) return null;
+
+    // 分割ユーティリティの使用
     const { lastName: initialLastName, firstName: initialFirstName } = splitName(student.name);
-    const initialFormData = {
-        lastName: initialLastName || '',
-        firstName: initialFirstName || '',
-        student_id: student.student_id || '',
-        preferred_dates: student.preferred_dates || [],
-        id: student.id,
-        family_id: student.family_id || '',
-    };
-
-    const [formData, setFormData] = useState(initialFormData);
-
-    // 兄弟の有無を管理
-    const [hasSibling, setHasSibling] = useState(false);
-
-    //  新規状態: 兄弟の氏名を手動入力するための状態
-    const [siblingLastNameManual, setSiblingLastNameManual] = useState('');
-    const [siblingFirstNameManual, setSiblingFirstNameManual] = useState('');
-    // 兄弟のクラスを手動入力するための状態 (学年と組)
-    const [siblingGradeManual, setSiblingGradeManual] = useState('');
-    const [siblingClassNumberManual, setSiblingClassNumberManual] = useState('');
 
     // モード判定
     const isEditMode = !!student.id;
+
+    const defaultFormValues = React.useMemo(() => {
+        const { lastName, firstName } = splitName(student.name);
+
+        return {
+            lastName: lastName || '',
+            firstName: firstName || '',
+            student_id: String(student.student_id || ''),
+            preferred_dates: student.preferred_dates || [],
+            hasSibling: 'no',
+            sibling_last_name_manual: '',
+            sibling_first_name_manual: '',
+            sibling_grade_manual: '',
+            sibling_class_number_manual: '',
+            sibling_coordination_slot: '',
+        };
+    }, [student]);
+
+    // React Hook Form のセットアップ
+    const {
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        formState: { errors },
+    } = useForm({
+        resolver: zodResolver(studentSchema),
+        defaultValues: defaultFormValues,
+    });
+
+    // モーダルが開いたときやstudentが変わったときにフォームをリセット
+    useEffect(() => {
+        if (isOpen && student) {
+            const { lastName, firstName } = splitName(student.name);
+            reset({
+                lastName: lastName || '',
+                firstName: firstName || '',
+                student_id: String(student.student_id || ''),
+                preferred_dates: student.preferred_dates || [],
+                hasSibling: 'no',
+                sibling_last_name_manual: '',
+                sibling_first_name_manual: '',
+                sibling_grade_manual: '',
+                sibling_class_number_manual: '',
+                sibling_coordination_slot: '',
+            });
+        }
+    }, [isOpen, student, reset]);
+
+    // 兄弟がいるかどうかを監視（表示切り替え用）
+    const hasSiblingValue = watch('hasSibling');
+    const isSiblingPresent = hasSiblingValue === 'yes';
 
     // スタイル
     const {
@@ -40,97 +127,41 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
         headerStyle, closeButtonStyle
     } = styles;
 
-    // ハンドラ
-    const handleChange = (e) => {
-        const { name, value, type, checked, options } = e.target;
-        if (name === 'hasSibling') {
-            const isSiblingPresent = checked && value === 'yes';
-            setHasSibling(isSiblingPresent);
+    // 送信ハンドラ
+    const onSubmit = (data) => {
+        const fullName = combineName(data.lastName, data.firstName);
 
-            // 「いない」に変更した場合、関連フィールドをクリア
-            if (!isSiblingPresent) {
-                setSiblingLastNameManual('');
-                setSiblingFirstNameManual('');
-                setSiblingGradeManual('');
-                setSiblingClassNumberManual('');
-            } else {
-                // 「いる」に変更した場合、フォームの内部状態としてプレースホルダーIDを設定
-                // 兄弟が「いる」状態であることを示すために使用します
-                setFormData(prev => ({ ...prev, sibling_id: 'manual_entry' }));
-            }
-        } else if (name === 'sibling_last_name_manual') {
-            setSiblingLastNameManual(value);
-        } else if (name === 'sibling_first_name_manual') {
-            setSiblingFirstNameManual(value);
-        } else if (name === 'sibling_grade_manual') {
-            setSiblingGradeManual(value);
-        } else if (name === 'sibling_class_number_manual') {
-            setSiblingClassNumberManual(value);
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
-        }
-    };
-    const handleDateChange = (e) => {
-        const slot = e.target.value;
-        const isChecked = e.target.checked;
-
-        setFormData(prev => {
-            let newDates = [...prev.preferred_dates];
-
-            if (isChecked) {
-                // チェックを付けた場合、追加
-                newDates.push(slot);
-            } else {
-                // チェックを外した場合、削除
-                newDates = newDates.filter(date => date !== slot);
-            }
-
-            return { ...prev, preferred_dates: newDates };
-        });
-    };
-
-    const handleSave = (e) => {
-        e.preventDefault();
-        const fullName = combineName(formData.lastName, formData.firstName);
-        if (!fullName.trim()) {
-            alert('氏名は必須です。');
-            return;
-        }
-        // 兄弟のフルネームを生成（hasSiblingがtrueの場合に使用）
-        const siblingFullName = combineName(siblingLastNameManual, siblingFirstNameManual);
-        const siblingFullClass = combineClass(siblingGradeManual, siblingClassNumberManual);
-　　　　　// 最終的な保存データの整形ロジックを更新
         const baseData = {
-            ...formData,
+            id: student.id,
+            family_id: student.family_id || '',
             name: fullName,
-            student_id: formData.student_id.trim(),
+            student_id: data.student_id.trim(),
+            preferred_dates: data.preferred_dates,
         };
-        // 兄弟がいない場合、全ての兄弟関連フィールドを null/空に設定して保存
-        if (!hasSibling) {
+
+        if (isSiblingPresent) {
+            const siblingFullName = combineName(data.sibling_last_name_manual, data.sibling_first_name_manual);
+            const siblingFullClass = combineClass(data.sibling_grade_manual, data.sibling_class_number_manual);
+
+            baseData.sibling_id = 'manual_entry'; // 新規追加ロジックに基づく
+            baseData.sibling_name_manual = siblingFullName;
+            baseData.sibling_class = siblingFullClass || null;
+            baseData.sibling_coordination_slot = data.sibling_coordination_slot || null;
+        } else {
             baseData.sibling_id = null;
+            baseData.sibling_name_manual = null;
             baseData.sibling_class = null;
             baseData.sibling_coordination_slot = null;
-            baseData.sibling_name_manual = null; // 手動入力フィールドもクリア
-        } else {
-            // 兄弟がいる場合
-            if (!siblingFullName.trim()) {
-                 alert('兄弟の氏名（苗字と名前）は必須です。');
-                 return;
-            }
-            if (!siblingFullClass && (siblingGradeManual.trim() || siblingClassNumberManual.trim())) {
-                alert('兄弟のクラスを設定する場合、学年と組の両方を入力してください。');
-                return;
-            }
-            baseData.sibling_id = formData.sibling_id || 'manual_entry';
-            baseData.sibling_class = siblingFullClass;
-            baseData.sibling_coordination_slot = formData.sibling_coordination_slot || null;
-            baseData.sibling_name_manual = siblingFullName; // 手動入力された氏名を保存
         }
+
         onSave(baseData);
     };
-    const handleSubmit = (e) => {
-        e.preventDefault(); // Enter キーなどによる送信を防止し、
-        handleSave();       // 抽出した保存ロジックを呼び出す
+
+    // エラーメッセージ用のスタイル
+    const errorMsgStyle = {
+        color: '#e53e3e',
+        fontSize: '0.75rem',
+        marginTop: '0.25rem'
     };
 
     return (
@@ -150,57 +181,36 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                     </button>
                 </div>
                 <div style={{ flexGrow: 1, overflowY: 'auto', paddingRight: '1rem' }}>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit(onSubmit)}>
 
-                        {/* 1. 基本情報 */}
+                        {/* 1. 基本情報 (省略) */}
                         <h4 style={h4Style}>基本情報</h4>
+                        {/* 氏名、出席番号の入力フィールドは省略 */}
                         <div>
                             <label style={labelStyle} htmlFor="name">氏名 <span style={{color: '#e53e3e'}}>*</span></label>
                             <div style={{ display: 'flex', gap: '1rem' }}>
-                                {/* 苗字 (lastName) */}
                                 <div style={{ flex: 1 }}>
                                     <label htmlFor="lastName" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>苗字</label>
-                                    <input
-                                        id="lastName"
-                                        name="lastName"
-                                        type="text"
-                                        value={formData.lastName}
-                                        onChange={handleChange}
-                                        style={inputStyle}
-                                        required
-                                    />
+                                    <input id="lastName" name="lastName" type="text" {...register('lastName')} style={inputStyle} required />
+                                    {errors.lastName && <p style={errorMsgStyle}>{errors.lastName.message}</p>}
                                 </div>
-
-                                {/* 名前 (firstName) */}
                                 <div style={{ flex: 1 }}>
                                     <label htmlFor="firstName" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>名前</label>
-                                    <input
-                                        id="firstName"
-                                        name="firstName"
-                                        type="text"
-                                        value={formData.firstName}
-                                        onChange={handleChange}
-                                        style={inputStyle}
-                                        required
-                                    />
+                                    <input id="firstName" name="firstName" type="text" {...register('firstName')} style={inputStyle} required />
+                                    {errors.firstName && <p style={errorMsgStyle}>{errors.firstName.message}</p>}
                                 </div>
                             </div>
                         </div>
                         <div>
-                            <label style={labelStyle} htmlFor="student_id">出席番号</label>
-                            <input
-                                id="student_id"
-                                name="student_id"
-                                type="number"
-                                value={formData.student_id}
-                                onChange={handleChange}
-                                style={inputStyle}
-                                placeholder="例: 1"
-                            />
+                            <label style={labelStyle} htmlFor="student_id">出席番号 <span style={{color: '#e53e3e'}}>*</span></label>
+                            <input id="student_id" name="student_id" type="number" {...register('student_id')} style={inputStyle} placeholder="半角数字のみ" />
+                            {errors.student_id && <p style={errorMsgStyle}>{errors.student_id.message}</p>}
                         </div>
 
-                        {/* 2. 希望日程 */}
+
+                        {/* 2. 希望日程 (省略) */}
                         <h4 style={h4Style}>希望日程（日時のリスト）</h4>
+                        {/* チェックボックスグループは省略 */}
                         <div>
                             <label style={labelStyle} htmlFor="preferred_dates">
                                 希望日程を複数選択してください
@@ -228,9 +238,8 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                                 <input
                                                     type="checkbox"
                                                     name="preferred_dates"
+                                                    {...register('preferred_dates')}
                                                     value={slot}
-                                                    checked={formData.preferred_dates.includes(slot)}
-                                                    onChange={handleDateChange} // ステップ1で定義した新しいハンドラを使用
                                                     style={{ marginRight: '0.75rem', transform: 'scale(1.2)' }}
                                                 />
                                                 {slot}
@@ -244,6 +253,8 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                 )}
                             </div>
                         </div>
+
+
                         {/* 3. 兄弟情報 */}
                         {!isEditMode && (
                             <>
@@ -252,117 +263,81 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                 <label style={labelStyle}>兄弟はいますか？</label>
                                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '0.5rem' }}>
                                     <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
-                                        <input
-                                            type="radio"
-                                            name="hasSibling"
-                                            value="yes"
-                                            checked={hasSibling}
-                                            onChange={handleChange}
-                                            style={{ marginRight: '0.5rem' }}
-                                        />
+                                        <input type="radio" name="hasSibling" value="yes" {...register('hasSibling')} style={{ marginRight: '0.5rem' }} />
                                         いる
                                     </label>
                                     <label style={{ fontWeight: '500', color: '#4a5568', display: 'flex', alignItems: 'center' }}>
-                                        <input
-                                            type="radio"
-                                            name="hasSibling"
-                                            value="no"
-                                            checked={!hasSibling}
-                                            onChange={handleChange}
-                                            style={{ marginRight: '0.5rem' }}
-                                        />
+                                        <input type="radio" name="hasSibling" value="no" {...register('hasSibling')} style={{ marginRight: '0.5rem' }} />
                                         いない
                                     </label>
                                 </div>
                             </div>
-                            {hasSibling && (
-                                <div style={{ borderLeft: '3px solid #63b3ed', paddingLeft: '1rem', marginTop: '1rem', paddingBottom: '0.5rem' }}>
-                                    <div>
-                                        <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
-                                        <div style={{ display: 'flex', gap: '1rem' }}>
-                                            {/* 苗字 (lastName) */}
-                                            <div style={{ flex: 1 }}>
-                                                <label htmlFor="sibling_last_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>苗字</label>
-                                                <input
-                                                    id="sibling_last_name_manual"
-                                                    name="sibling_last_name_manual"
-                                                    type="text"
-                                                    value={siblingLastNameManual}
-                                                    onChange={handleChange}
-                                                    style={inputStyle}
-                                                    required={hasSibling}
-                                                />
-                                            </div>
 
-                                            {/* 名前 (firstName) */}
-                                            <div style={{ flex: 1 }}>
-                                                <label htmlFor="sibling_first_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>名前</label>
-                                                <input
-                                                    id="sibling_first_name_manual"
-                                                    name="sibling_first_name_manual"
-                                                    type="text"
-                                                    value={siblingFirstNameManual}
-                                                    onChange={handleChange}
-                                                    style={inputStyle}
-                                                    required={hasSibling}
-                                                />
-                                            </div>
+                            <div style={{
+                                borderLeft: '3px solid #63b3ed',
+                                paddingLeft: '1rem',
+                                marginTop: '1rem',
+                                paddingBottom: '0.5rem',
+                                display: isSiblingPresent ? 'block' : 'none'
+                            }}>
+                                <div>
+                                    <label style={labelStyle} htmlFor="sibling_name_manual">兄弟の氏名 <span style={{color: '#e53e3e'}}>*</span></label>
+                                    <div style={{ display: 'flex', gap: '1rem' }}>
+                                        {/* 苗字 (lastName) */}
+                                        <div style={{ flex: 1 }}>
+                                            <label htmlFor="sibling_last_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>苗字</label>
+                                            <input
+                                                id="sibling_last_name_manual"
+                                                name="sibling_last_name_manual"
+                                                type="text"
+                                                {...register('sibling_last_name_manual')}
+                                                style={inputStyle}
+                                            />
+                                            {errors.sibling_last_name_manual && <p style={errorMsgStyle}>{errors.sibling_last_name_manual.message}</p>}
+                                        </div>
+
+                                        {/* 名前 (firstName) */}
+                                        <div style={{ flex: 1 }}>
+                                            <label htmlFor="sibling_first_name_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>名前</label>
+                                            <input
+                                                id="sibling_first_name_manual"
+                                                name="sibling_first_name_manual"
+                                                type="text"
+                                                {...register('sibling_first_name_manual')}
+                                                style={inputStyle}
+                                            />
+                                            {errors.sibling_first_name_manual && <p style={errorMsgStyle}>{errors.sibling_first_name_manual.message}</p>}
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div>
-                                        <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス</label>
-                                        <div style={{ display: 'flex', gap: '1rem' }}>
-                                            {/* 学年 (Grade) */}
-                                            <div style={{ flex: 1 }}>
-                                                <label htmlFor="sibling_grade_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>学年</label>
-                                                <input
-                                                    id="sibling_grade_manual"
-                                                    name="sibling_grade_manual"
-                                                    type="number"
-                                                    value={siblingGradeManual}
-                                                    onChange={handleChange}
-                                                    style={inputStyle}
-                                                    placeholder="例: 5"
-                                                />
-                                            </div>
-
-                                            {/* 組 (Class Number) */}
-                                            <div style={{ flex: 1 }}>
-                                                <label htmlFor="sibling_class_number_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>組</label>
-                                                <input
-                                                    id="sibling_class_number_manual"
-                                                    name="sibling_class_number_manual"
-                                                    type="text"
-                                                    value={siblingClassNumberManual}
-                                                    onChange={handleChange}
-                                                    style={inputStyle}
-                                                    placeholder="例: 1"
-                                                />
-                                            </div>
-                                        </div>                                </div>
-
-                                    {/*既存の兄弟の調整希望日程プルダウン（再利用） */}
-                                    <div>
-                                        <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の現在の面談日程</label>
-                                        <select
-                                            id="sibling_coordination_slot"
-                                            name="sibling_coordination_slot"
-                                            value={formData.sibling_coordination_slot || ''}
-                                            onChange={handleChange}
-                                            style={inputStyle}
-                                        >
-                                            <option value="">-- 面談枠を選択 --</option>
-                                            {allScheduleSlots.map(slot => (
-                                                <option key={slot} value={slot}>{slot}</option>
-                                            ))}
-                                        </select>
-                                        <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>
-                                            面談枠が未設定の場合は面談枠が表示されません。
-                                        </p>
+                                {/* 兄弟のクラス (省略) */}
+                                <div>
+                                    <label style={labelStyle} htmlFor="sibling_class">兄弟のクラス <span style={{color: '#e53e3e'}}>*</span></label>
+                                    <div style={{ display: 'flex', gap: '1rem' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <label htmlFor="sibling_grade_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>学年</label>
+                                            <input id="sibling_grade_manual" name="sibling_grade_manual" type="number" {...register('sibling_grade_manual')} style={inputStyle} placeholder="半角数字のみ" />
+                                            {errors.sibling_grade_manual && <p style={errorMsgStyle}>{errors.sibling_grade_manual.message}</p>}
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <label htmlFor="sibling_class_number_manual" style={{...labelStyle, fontSize: '0.875rem', fontWeight: 'normal'}}>組</label>
+                                            <input id="sibling_class_number_manual" name="sibling_class_number_manual" type="text" {...register('sibling_class_number_manual')} style={inputStyle} placeholder="半角英数字" />
+                                            {errors.sibling_class_number_manual && <p style={errorMsgStyle}>{errors.sibling_class_number_manual.message}</p>}
+                                        </div>
                                     </div>
                                 </div>
-                            )}
+
+                                {/* 兄弟の調整希望日程 (省略) */}
+                                <div>
+                                    <label style={labelStyle} htmlFor="sibling_coordination_slot">兄弟の現在の面談日程</label>
+                                    <select id="sibling_coordination_slot" name="sibling_coordination_slot" {...register('sibling_coordination_slot')} style={inputStyle}>
+                                        <option value="">-- 面談枠を選択 --</option>
+                                        {allScheduleSlots.map(slot => (<option key={slot} value={slot}>{slot}</option>))}
+                                    </select>
+                                    <p style={{fontSize: '0.8rem', color: '#718096', margin: '0 0 0.5rem 0'}}>面談枠が未設定の場合は面談枠が表示されません。</p>
+                                </div>
+                            </div>
                             </>
                         )}
                         {/* フォームアクション */}
@@ -384,7 +359,7 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                     </button>
                     <button
                         type="button"
-                        onClick={handleSave}
+                        onClick={handleSubmit(onSubmit)}
                         style={{
                             ...buttonBaseStyle,
                             backgroundColor: isEditMode ? '#4299e1' : '#38a169',
