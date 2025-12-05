@@ -59,7 +59,7 @@ const studentSchema = z.object({
     }
 });
 
-const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, onSave, onClose }) => {
+const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, unBlockedSlots, onSave, onClose }) => {
     if (!isOpen || !student) return null;
 
     // 分割ユーティリティの使用
@@ -224,8 +224,8 @@ const UpsertStudentModal = ({ isOpen, student, allApplicants, allScheduleSlots, 
                                 overflowY: 'auto',
                                 backgroundColor: '#f7fafc'
                             }}>
-                                {allScheduleSlots.length > 0 ? (
-                                    allScheduleSlots.map(slot => (
+                                {unBlockedSlots.length > 0 ? (
+                                    unBlockedSlots.map(slot => (
                                         <div key={slot} style={{ marginBottom: '0.5rem' }}>
                                             <label style={{
                                                 display: 'flex',

@@ -22,6 +22,9 @@ const useScheduleManager = (initialApplicants) => {
             selectedSlot,
         });
 
+    // クリックで選択された児童のIDを保持する状態
+    const [clickedApplicantId, setClickedApplicantId] = useState(null);
+
     const [modalState, setModalState] = useState({
         isOpen: false, title: '', message: '', onConfirm: () => {},
     });
@@ -38,8 +41,6 @@ const useScheduleManager = (initialApplicants) => {
         student: null,
         mode: 'add',
     });
-    // クリックで選択された児童のIDを保持する状態
-    const [clickedApplicantId, setClickedApplicantId] = useState(null);
 
     // 既存の児童（生徒）を編集するためのモーダルを開く
     const openEditStudentModal = useCallback((student) => {
@@ -66,7 +67,7 @@ const useScheduleManager = (initialApplicants) => {
         const initialAssignments = Array(initialRows.length).fill(null).map(() => Array(initialCols.length).fill(null));
         initialAssignments[0][0] = { applicantId: 'app-1', type: 'neutral' };
 
-        const initialAvailability = Array(initialRows.length).fill(true).map(() => Array(initialCols.length).fill(true));
+        const initialAvailability = Array(initialRows.length).fill('available').map(() => Array(initialCols.length).fill('available'));
 
         return {
             rows: initialRows,
@@ -91,6 +92,30 @@ const useScheduleManager = (initialApplicants) => {
         return slots;
     }, [scheduleData.cols, scheduleData.rows]);
 
+    const unBlockedSlots = useMemo(() => {
+        const slots = [];
+        const sortedCols = sortDateCols(scheduleData.cols);
+        const sortedRows = sortTimeRows(scheduleData.rows);
+
+        // 二重ループでマトリックスを走査
+        for (let colIndex = 0; colIndex < sortedCols.length; colIndex++) {
+            const date = sortedCols[colIndex];
+
+            for (let rowIndex = 0; rowIndex < sortedRows.length; rowIndex++) {
+                const time = sortedRows[rowIndex];
+
+                // 該当セルの availability 状態を取得
+                const availabilityStatus = scheduleData.availability[rowIndex][colIndex];
+
+                // availabilityStatus が 'admin_block' でない場合のみリストに追加
+                // (利用可能状態、または他の利用不可理由だがadmin_blockではない状態も含む)
+                if (availabilityStatus !== 'admin_block') {
+                    slots.push(`${date} ${time}`);
+                }
+            }
+        }
+        return slots;
+    }, [scheduleData.cols, scheduleData.rows, scheduleData.availability]);
 
     const getApplicantName = useCallback((applicantId) => {
         return applicants.find(app => app.id === applicantId)?.name || 'Unknown Applicant';
@@ -216,7 +241,7 @@ const useScheduleManager = (initialApplicants) => {
     // マトリックス再構築ヘルパー (行追加/削除時)
     const reconstructAssignments = (oldRows, newRows, oldAssignments, oldAvailability, oldCols) => {
         const newAssignments = Array(newRows.length).fill(null).map(() => Array(oldCols.length).fill(null));
-        const newAvailability = Array(newRows.length).fill(null).map(() => Array(oldCols.length).fill(true));
+        const newAvailability = Array(newRows.length).fill(null).map(() => Array(oldCols.length).fill('available'));
 
         newRows.forEach((rowHeader, newRowIndex) => {
             // 開始時刻部分で一致を検索
@@ -229,7 +254,7 @@ const useScheduleManager = (initialApplicants) => {
                     newAvailability[newRowIndex][newColIndex] = oldAvailability[oldIndex][newColIndex];
                 } else {
                     newAssignments[newRowIndex][newColIndex] = null;
-                    newAvailability[newRowIndex][newColIndex] = true;
+                    newAvailability[newRowIndex][newColIndex] = 'available';
                 }
             });
         });
@@ -239,7 +264,7 @@ const useScheduleManager = (initialApplicants) => {
     // マトリックス再構築ヘルパー (列追加/削除時)
     const reconstructCols = (oldCols, newCols, oldRows, oldAssignments, oldAvailability) => {
         const newAssignments = oldRows.map(() => Array(newCols.length).fill(null));
-        const newAvailability = oldRows.map(() => Array(newCols.length).fill(true));
+        const newAvailability = oldRows.map(() => Array(newCols.length).fill('available'));
 
         oldRows.forEach((_, rowIndex) => {
             newCols.forEach((colHeader, newColIndex) => {
@@ -249,7 +274,7 @@ const useScheduleManager = (initialApplicants) => {
                     newAvailability[rowIndex][newColIndex] = oldAvailability[rowIndex][oldIndex];
                 } else {
                     newAssignments[rowIndex][newColIndex] = null;
-                    newAvailability[rowIndex][newColIndex] = true;
+                    newAvailability[rowIndex][newColIndex] = 'available';
                 }
             });
         });
@@ -338,7 +363,7 @@ const useScheduleManager = (initialApplicants) => {
         }
     }, [scheduleData.assignments, scheduleData.cols, performColDeletion]);
 
-    // --- 行・列の追加処理 (変更なし) ---
+    // --- 行・列の追加処理 ---
     const handleAddRow = useCallback(() => {
         const newRowHeader = calculateTimeRange(selectedStartTime, interviewDuration);
         // 開始時刻が同じ時間帯があるかチェック
@@ -404,13 +429,13 @@ const useScheduleManager = (initialApplicants) => {
     }, [selectedDate, scheduleData.cols, scheduleData.rows]);
 
 
-    // --- 利用可否設定処理 (変更なし) ---
+    // --- 利用可否設定処理 ---
     const performUnassignAndToggle = useCallback((rowIndex, colIndex) => {
         setScheduleData(prevData => {
             const newAssignments = prevData.assignments.map(row => [...row]);
             const newAvailability = prevData.availability.map((row, rIdx) =>
                 rIdx === rowIndex
-                    ? row.map((val, cIdx) => (cIdx === colIndex ? false : val))
+                    ? row.map((val, cIdx) => (cIdx === colIndex ? 'admin_block' : val))
                     : row
             );
 
@@ -422,7 +447,7 @@ const useScheduleManager = (initialApplicants) => {
     }, []);
 
     const toggleSlotAvailability = useCallback((rowIndex, colIndex) => {
-        const isCurrentlyAvailable = scheduleData.availability[rowIndex][colIndex];
+        const isCurrentlyAvailable = scheduleData.availability[rowIndex][colIndex] !== 'admin_block';
         const assignedSlot = scheduleData.assignments[rowIndex][colIndex];
         const assignedApplicantId = assignedSlot ? assignedSlot.applicantId : null;
         const targetTime = scheduleData.rows[rowIndex];
@@ -440,14 +465,19 @@ const useScheduleManager = (initialApplicants) => {
             });
             return;
         }
-
         setScheduleData(prevData => {
             const newAvailability = prevData.availability.map((row, rIdx) =>
                 rIdx === rowIndex
-                    ? row.map((val, cIdx) => (cIdx === colIndex ? !val : val))
+                    ? row.map((val, cIdx) => {
+                        if (cIdx === colIndex) {
+                            // 現在の状態が 'available' なら 'admin_block' に、それ以外なら 'available' に戻す
+                            return val === 'available' ? 'admin_block' : 'available';
+                        }
+                        return val;
+                    })
                     : row
             );
-            return { ...prevData, availability: newAvailability };
+            return { ...prevData, availability: newAvailability, selectedSlot: null, clickedApplicantId: null };
         });
     }, [scheduleData, getApplicantName, performUnassignAndToggle]);
 
@@ -636,7 +666,7 @@ const useScheduleManager = (initialApplicants) => {
 
         // 3. グリッドターゲットのチェック (利用不可)
         if (targetIsGrid) {
-            if (!scheduleData.availability[targetRowIndex][targetColIndex]) {
+            if (scheduleData.availability[targetRowIndex][targetColIndex] === 'admin_block') {
                 setDraggingApplicantId(null);
                 return;
             }
@@ -727,6 +757,7 @@ const useScheduleManager = (initialApplicants) => {
         closeUpsertStudentModal,
         handleSaveStudent,
         allScheduleSlots, // 全面談枠のリスト
+        unBlockedSlots,
         // -----------------
         interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate,

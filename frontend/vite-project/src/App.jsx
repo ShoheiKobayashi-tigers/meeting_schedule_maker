@@ -170,6 +170,7 @@ const App = () => {
                 student={manager.upsertStudentModalState.student}
                 allApplicants={manager.applicants}
                 allScheduleSlots={manager.allScheduleSlots}
+                unBlockedSlots={manager.unBlockedSlots}
                 onSave={handleSaveStudentAndSiblings}
                 onClose={manager.closeUpsertStudentModal}
             />
