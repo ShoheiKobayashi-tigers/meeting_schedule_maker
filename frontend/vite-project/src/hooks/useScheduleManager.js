@@ -6,7 +6,7 @@ import { useManagerStyles } from '../styles/managerStyles.js';
 const useScheduleManager = (initialApplicants) => {
     const [applicants, setApplicants] = useState(initialApplicants);
     const [interviewDuration, setInterviewDuration] = useState(15);
-    const DURATION_OPTIONS = [1, 5, 10, 15, 20, 30, 45, 60];
+    const DURATION_OPTIONS = [5, 10, 15, 20, 30, 45, 60];
 
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
     const [selectedStartTime, setSelectedStartTime] = useState('09:00');
