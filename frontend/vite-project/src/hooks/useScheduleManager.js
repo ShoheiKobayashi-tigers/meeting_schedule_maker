@@ -64,7 +64,7 @@ const useScheduleManager = (initialApplicants) => {
         const initialCols = sortDateCols(['12/01 (月)', '11/30 (日)']);
 
         const initialAssignments = Array(initialRows.length).fill(null).map(() => Array(initialCols.length).fill(null));
-        initialAssignments[0][0] = { applicantId: 'app-1', type: 'initial' };
+        initialAssignments[0][0] = { applicantId: 'app-1', type: 'neutral' };
 
         const initialAvailability = Array(initialRows.length).fill(true).map(() => Array(initialCols.length).fill(true));
 
@@ -483,7 +483,7 @@ const useScheduleManager = (initialApplicants) => {
                 }
 
                 // 2. ターゲットスロットに割り当てる
-                newAssignments[rowIndex][colIndex] = { applicantId: clickedApplicantId, type: 'manual' };
+                newAssignments[rowIndex][colIndex] = { applicantId: clickedApplicantId, type: 'neutral' };
 
                 // 3. ターゲットスロットに元々いた児童をリストに戻す（上書きの場合）
                 // (元のロジックでは、handleApplicantClick内でtargetApplicantIdの解除処理がありましたが、
@@ -558,7 +558,7 @@ const useScheduleManager = (initialApplicants) => {
             }
 
             // 選択された面談枠に割り当てる
-            newAssignments[rowIndex][colIndex] = { applicantId: applicantId, type: 'manual' /* 他の初期情報 */ };
+            newAssignments[rowIndex][colIndex] = { applicantId: applicantId, type: 'neutral' /* 他の初期情報 */ };
 
             return { ...prevData, assignments: newAssignments };
         });
@@ -670,8 +670,7 @@ const useScheduleManager = (initialApplicants) => {
             const currentTargetSlot = newAssignments[targetRowIndex][targetColIndex];
 
             // 新しく割り当てるSlotオブジェクトを作成
-            // type: 'drag' (リストからのドロップ) または 'swap' (グリッドからのドロップ)
-            const newSlotForTarget = { applicantId: applicantId, type: sourceIsGrid ? 'swap' : 'drag' /* 他の情報 */ };
+            const newSlotForTarget = { applicantId: applicantId, type: 'neutral' };
 
             // 6-1. スキップ条件の修正
             // a) 同じ面談枠へのドロップは無視
