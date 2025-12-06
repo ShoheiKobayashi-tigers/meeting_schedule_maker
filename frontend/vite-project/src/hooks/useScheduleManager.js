@@ -627,7 +627,7 @@ const useScheduleManager = (initialApplicants) => {
         e.dataTransfer.effectAllowed = "move";
         setSelectedSlot(null); // D&D開始時、クリック選択を解除
         
-//        availabilityUtils.jsのメソッドにapplicants, scheduleData, draggingSlotIndex,draggingApplicantIdを引数にして送る
+//        availabilityUtils.jsのメソッドにapplicants, scheduleData, draggingSlotIndex,applicantIdを引数にして送る
     }, []);
 
     const handleDragEnd = useCallback(() => {
