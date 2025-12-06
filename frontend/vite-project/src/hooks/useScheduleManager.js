@@ -653,6 +653,7 @@ const useScheduleManager = (initialApplicants) => {
         e.preventDefault();
         setHoveredCellId(null);
         setSelectedSlot(null);
+        setDraggingSlotIndex(null);
 
         // 1. D&Dデータの取得
         const applicantId = e.dataTransfer.getData('applicantId');
