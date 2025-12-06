@@ -4,7 +4,7 @@ const ApplicantListPanel = ({ manager }) => {
     const {
         applicants, scheduleData, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
-        selectedSlot,handleApplicantListClick,clickedApplicantId,
+        selectedSlot, clickedApplicantId,
         handleApplicantClick
     } = manager;
 
@@ -39,7 +39,7 @@ const ApplicantListPanel = ({ manager }) => {
                             draggable="true"
                             onDragStart={(e) => handleDragStart(e, applicant.id)}
                             onDragEnd={handleDragEnd}
-                            onClick={() => handleApplicantListClick(applicant.id)}
+                            onClick={() => handleApplicantClick(applicant.id)}
                             style={{
                                 ...styles.baseItem,
                                 // 面談枠を選択中はクリック可能な要素であることを示唆する色に変更

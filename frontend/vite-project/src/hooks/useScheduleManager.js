@@ -561,7 +561,20 @@ const useScheduleManager = (initialApplicants) => {
     }, [selectedSlot, clickedApplicantId]);
 
     const handleApplicantClick = useCallback((applicantId) => {
-        if (!selectedSlot) return;
+        if (!selectedSlot) {
+            setClickedApplicantId(prevId => {
+                // prevId と applicantId が同じなら null (解除)、異なるなら applicantId (選択)
+                const newId = prevId === applicantId ? null : applicantId;
+                // newId が null でない場合のみ、後続メソッドを実行する
+                if (newId !== null) {
+                    // 後続メソッド（後日実装）
+                    // newId を引数として渡す
+                    // 例: availabilityUtils.process(newId);
+                }
+                return newId;
+            });
+            return;
+        }
 
         const { rowIndex, colIndex } = selectedSlot;
 
@@ -599,18 +612,18 @@ const useScheduleManager = (initialApplicants) => {
         setSelectedSlot(null); // 割り当て完了後、選択解除
     }, [selectedSlot]);
 
-    const handleApplicantListClick = useCallback((applicantId) => {
-        // 面談枠が選択されている場合は、既存の割り当てロジックを優先
-        if (selectedSlot) {
-            handleApplicantClick(applicantId); // 既存の割り当て処理を呼び出す
-            return;
-        }
-
-        // 児童IDが既に選択されている場合は解除、そうでなければ選択
-        setClickedApplicantId(prevId =>
-            prevId === applicantId ? null : applicantId
-        );
-    }, [selectedSlot, handleApplicantClick]);
+//    const handleApplicantListClick = useCallback((applicantId) => {
+//        // 面談枠が選択されている場合は、既存の割り当てロジックを優先
+//        if (selectedSlot) {
+//            handleApplicantClick(applicantId); // 既存の割り当て処理を呼び出す
+//            return;
+//        }
+//
+//        // 児童IDが既に選択されている場合は解除、そうでなければ選択
+//        setClickedApplicantId(prevId =>
+//            prevId === applicantId ? null : applicantId
+//        );
+//    }, [selectedSlot, handleApplicantClick]);
 
 
     // --- D&D ロジック ---
@@ -786,7 +799,7 @@ const useScheduleManager = (initialApplicants) => {
         handleDragStart, handleDragEnd, handleDragOver, handleDrop, handleDragEnter, handleDragLeave,
         handleSlotClick,
         handleApplicantClick,
-        handleApplicantListClick,
+//        handleApplicantListClick,
         confirmDeleteStudent,
         getAssignmentDetails,
 
