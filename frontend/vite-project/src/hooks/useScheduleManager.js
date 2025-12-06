@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { calculateTimeRange, getNextStartTime } from '../utils/timeUtils';
 import { sortTimeRows, sortDateCols } from '../utils/sortUtils';
+import {parseSlotId, createSlotId} from '../utils/slotUtils';
 import { useManagerStyles } from '../styles/managerStyles.js';
 
 const useScheduleManager = (initialApplicants) => {
@@ -12,6 +13,7 @@ const useScheduleManager = (initialApplicants) => {
     const [selectedStartTime, setSelectedStartTime] = useState('09:00');
 
     const [draggingApplicantId, setDraggingApplicantId] = useState(null);
+    const [draggingSlotIndex, setDraggingSlotIndex] = useState(null);
     const [isAddButtonActive, setIsAddButtonActive] = useState(false);
     const [hoveredCellId, setHoveredCellId] = useState(null);
 
@@ -610,13 +612,22 @@ const useScheduleManager = (initialApplicants) => {
     }, [selectedSlot, handleApplicantClick]);
 
 
-    // --- D&D ロジック (変更なし) ---
+    // --- D&D ロジック ---
     const handleDragStart = useCallback((e, applicantId, sourceCellId = null) => {
+        //sourceIdはドラッグされた児童がもともといた場所を示す文字列
+        const sourceId = sourceCellId || 'applicant-list'; //どちらかnullじゃないほうを登録
         e.dataTransfer.setData('applicantId', applicantId);
-        e.dataTransfer.setData('sourceCellId', sourceCellId || 'applicant-list');
+        e.dataTransfer.setData('sourceCellId', sourceId);
         setDraggingApplicantId(applicantId);
+        if (sourceId !== 'applicant-list'){
+            setDraggingSlotIndex(parseSlotId(sourceId));//sourceCellIdを{Index, Index}のオブジェクトに変換したものをセット
+        } else {
+            setDraggingSlotIndex(null);
+        }
         e.dataTransfer.effectAllowed = "move";
         setSelectedSlot(null); // D&D開始時、クリック選択を解除
+        
+//        availabilityUtils.jsのメソッドにapplicants, scheduleData, draggingSlotIndex,draggingApplicantIdを引数にして送る
     }, []);
 
     const handleDragEnd = useCallback(() => {
