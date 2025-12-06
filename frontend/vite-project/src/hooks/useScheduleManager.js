@@ -483,17 +483,25 @@ const useScheduleManager = (initialApplicants) => {
         });
     }, [scheduleData, getApplicantName, performUnassignAndToggle]);
 
-    // クリック割り当て処理 (変更なし)
+    // クリック割り当て処理
     const handleSlotClick = useCallback((rowIndex, colIndex, isAvailable) => {
         const currentSlot = { rowIndex, colIndex };
+        // 今クリックしたslot自身が既に選択されているかを判定
         const isCurrentSlotSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
 
-        // 利用不可面談枠でも選択解除は可能にする
-        if (!isAvailable && !isCurrentSlotSelected) {
+        // 自分自身か利用不可面談枠をクリックしたとき、今までの選択は解除される
+        if (isCurrentSlotSelected || !isAvailable) {
             setSelectedSlot(null);
             setClickedApplicantId(null);
             return;
         }
+
+        if(!clickedApplicantId){
+            setSelectedSlot(currentSlot);
+            //ここでavailabilityUtils.js処理を実行
+            return;
+        }
+
         if (clickedApplicantId && isAvailable) {
             // 児童が選択されており、面談枠が利用可能な場合
             // この処理は、既存の handleApplicantClick のロジックとほぼ同じ内容をインラインで実行します。
@@ -550,13 +558,6 @@ const useScheduleManager = (initialApplicants) => {
             setSelectedSlot(null);
             return;
         }
-        // --- 通常の選択/解除処理 ---
-
-        setSelectedSlot(prev =>
-            isCurrentSlotSelected
-                ? null
-                : currentSlot
-        );
     }, [selectedSlot, clickedApplicantId]);
 
     const handleApplicantClick = useCallback((applicantId) => {
