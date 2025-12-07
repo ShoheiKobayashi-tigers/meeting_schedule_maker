@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
 import { calculateTimeRange, getNextStartTime } from '../utils/timeUtils';
 import { sortTimeRows, sortDateCols } from '../utils/sortUtils';
-import {parseSlotId, createSlotId} from '../utils/slotUtils';
+import { parseSlotId, createSlotId } from '../utils/slotUtils';
+//import { getApplicantById, getUnregisteredApplicants } from '../utils/slotUtils';
 import { useManagerStyles } from '../styles/managerStyles.js';
 
 const useScheduleManager = (initialApplicants) => {

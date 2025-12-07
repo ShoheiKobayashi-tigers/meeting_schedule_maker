@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { getUnregisteredApplicants } from '../../utils/applicantUtils.js';
 
 const ApplicantListPanel = ({ manager }) => {
     const {
@@ -8,11 +9,10 @@ const ApplicantListPanel = ({ manager }) => {
         handleApplicantClick
     } = manager;
 
-    const assignedIds = useMemo(() =>
-        scheduleData.assignments.flat()
-            .filter(slot => slot !== null) // nullでない割り当てオブジェクトのみ
-            .map(slot => slot.applicantId) // オブジェクトからIDを抽出
-    , [scheduleData.assignments]);
+    const unregisteredApplicants = useMemo(() => {
+        // applicants と assignments を渡すだけで、未割り当てリストが取得できる
+        return getUnregisteredApplicants(applicants, scheduleData.assignments);
+    }, [applicants, scheduleData.assignments]);
 
     return (
         <div
@@ -32,8 +32,7 @@ const ApplicantListPanel = ({ manager }) => {
                 }
             </p>
             <div className="applicant-list" style={{ overflowY: 'auto', flex: 1 }}>
-                {applicants.map(applicant => (
-                    !assignedIds.includes(applicant.id) && (
+                {unregisteredApplicants.map(applicant => (
                         <div
                             key={applicant.id}
                             draggable="true"
@@ -53,9 +52,9 @@ const ApplicantListPanel = ({ manager }) => {
                         >
                             {applicant.name}
                         </div>
-                    )
+
                 ))}
-              {assignedIds.length === applicants.length && (
+              {unregisteredApplicants.length === 0 && applicants.length > 0 && (
                 <p style={{textAlign: 'center', marginTop: '2rem', color: '#48bb78', fontWeight: '700'}}>
                     全ての児童（生徒）が割り当てられました！
                 </p>
