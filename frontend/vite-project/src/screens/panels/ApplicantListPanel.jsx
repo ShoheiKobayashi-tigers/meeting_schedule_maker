@@ -4,7 +4,7 @@ const ApplicantListPanel = ({ manager }) => {
     const {
         applicants, scheduleData, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
-        selectedSlot, clickedApplicantId,
+        selectedSlot, selectedApplicantId,
         handleApplicantClick
     } = manager;
 
@@ -26,8 +26,8 @@ const ApplicantListPanel = ({ manager }) => {
             <p style={{ color: '#718096', marginBottom: '1rem', fontSize: '0.875rem' }}>
                 {selectedSlot
                     ? '面談枠が選択されています。児童（生徒）をクリックして割り当ててください。'
-                    : clickedApplicantId
-                    ? '面談枠をクリックして「' + manager.getApplicantName(clickedApplicantId) + '」さんを割り当ててください。'
+                    : selectedApplicantId
+                    ? '面談枠をクリックして「' + manager.getApplicantName(selectedApplicantId) + '」さんを割り当ててください。'
                     : '面談枠からここにドロップすると割り当て解除され、リストに戻ります'
                 }
             </p>
@@ -43,13 +43,13 @@ const ApplicantListPanel = ({ manager }) => {
                             style={{
                                 ...styles.baseItem,
                                 // 面談枠を選択中はクリック可能な要素であることを示唆する色に変更
-                                backgroundColor: selectedSlot || clickedApplicantId === applicant.id ? '#d1f1da' : '#ebf8ff',
-                                border: `1px solid ${selectedSlot || clickedApplicantId === applicant.id ? '#48bb78' : '#90cdf4'}`,
-                                cursor: selectedSlot || clickedApplicantId === applicant.id ? 'pointer' : 'grab',
+                                backgroundColor: selectedSlot || selectedApplicantId === applicant.id ? '#d1f1da' : '#ebf8ff',
+                                border: `1px solid ${selectedSlot || selectedApplicantId === applicant.id ? '#48bb78' : '#90cdf4'}`,
+                                cursor: selectedSlot || selectedApplicantId === applicant.id ? 'pointer' : 'grab',
                                 ...(draggingApplicantId === applicant.id ? {opacity: 0.4, boxShadow: 'none'} : {}),
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = selectedSlot || clickedApplicantId === applicant.id ? '#c4e0f5' : '#c4e0f5'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = selectedSlot || clickedApplicantId === applicant.id ? '#d1f1da' : '#ebf8ff'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = selectedSlot || selectedApplicantId === applicant.id ? '#c4e0f5' : '#c4e0f5'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = selectedSlot || selectedApplicantId === applicant.id ? '#d1f1da' : '#ebf8ff'}
                         >
                             {applicant.name}
                         </div>

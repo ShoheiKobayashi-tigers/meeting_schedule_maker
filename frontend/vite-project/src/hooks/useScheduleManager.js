@@ -25,7 +25,7 @@ const useScheduleManager = (initialApplicants) => {
         });
 
     // クリックで選択された児童のIDを保持する状態
-    const [clickedApplicantId, setClickedApplicantId] = useState(null);
+    const [selectedApplicantId, setSelectedApplicantId] = useState(null);
 
     const [modalState, setModalState] = useState({
         isOpen: false, title: '', message: '', onConfirm: () => {},
@@ -479,7 +479,7 @@ const useScheduleManager = (initialApplicants) => {
                     })
                     : row
             );
-            return { ...prevData, availability: newAvailability, selectedSlot: null, clickedApplicantId: null };
+            return { ...prevData, availability: newAvailability, selectedSlot: null, selectedApplicantId: null };
         });
     }, [scheduleData, getApplicantName, performUnassignAndToggle]);
 
@@ -492,17 +492,17 @@ const useScheduleManager = (initialApplicants) => {
         // 自分自身か利用不可面談枠をクリックしたとき、今までの選択は解除される
         if (isCurrentSlotSelected || !isAvailable) {
             setSelectedSlot(null);
-            setClickedApplicantId(null);
+            setSelectedApplicantId(null);
             return;
         }
 
-        if(!clickedApplicantId){
+        if(!selectedApplicantId){
             setSelectedSlot(currentSlot);
             //ここでavailabilityUtils.js処理を実行
             return;
         }
 
-        if (clickedApplicantId && isAvailable) {
+        if (selectedApplicantId && isAvailable) {
             // 児童が選択されており、面談枠が利用可能な場合
             // この処理は、既存の handleApplicantClick のロジックとほぼ同じ内容をインラインで実行します。
 
@@ -513,8 +513,8 @@ const useScheduleManager = (initialApplicants) => {
                 let foundSource = false;
                 for (let r = 0; r < newAssignments.length; r++) {
                     for (let c = 0; c < newAssignments[r].length; c++) {
-                        // clickedApplicantIdが既に割り当てられている面談枠を探す
-                        if (newAssignments[r][c] && newAssignments[r][c].applicantId === clickedApplicantId) {
+                        // selectedApplicantIdが既に割り当てられている面談枠を探す
+                        if (newAssignments[r][c] && newAssignments[r][c].applicantId === selectedApplicantId) {
                             newAssignments[r][c] = null;
                             foundSource = true;
                             // 見つかっても、スワップではないので処理を続行
@@ -523,17 +523,17 @@ const useScheduleManager = (initialApplicants) => {
                 }
 
                 // 2. ターゲットスロットに割り当てる
-                newAssignments[rowIndex][colIndex] = { applicantId: clickedApplicantId, type: 'neutral' };
+                newAssignments[rowIndex][colIndex] = { applicantId: selectedApplicantId, type: 'neutral' };
 
                 // 3. ターゲットスロットに元々いた児童をリストに戻す（上書きの場合）
                 // (元のロジックでは、handleApplicantClick内でtargetApplicantIdの解除処理がありましたが、
-                // 上の for ループがclickedApplicantIdの移動に集中しているため、ここでは単純な上書きとして実装します)
+                // 上の for ループがselectedApplicantIdの移動に集中しているため、ここでは単純な上書きとして実装します)
 
                 return { ...prevData, assignments: newAssignments };
             });
 
             // 割り当て完了後、児童の選択とスロットの選択を解除
-            setClickedApplicantId(null);
+            setSelectedApplicantId(null);
             setSelectedSlot(null);
             return;
         }
@@ -558,11 +558,11 @@ const useScheduleManager = (initialApplicants) => {
             setSelectedSlot(null);
             return;
         }
-    }, [selectedSlot, clickedApplicantId]);
+    }, [selectedSlot, selectedApplicantId]);
 
     const handleApplicantClick = useCallback((applicantId) => {
         if (!selectedSlot) {
-            setClickedApplicantId(prevId => {
+            setSelectedApplicantId(prevId => {
                 // prevId と applicantId が同じなら null (解除)、異なるなら applicantId (選択)
                 const newId = prevId === applicantId ? null : applicantId;
                 // newId が null でない場合のみ、後続メソッドを実行する
@@ -620,7 +620,7 @@ const useScheduleManager = (initialApplicants) => {
 //        }
 //
 //        // 児童IDが既に選択されている場合は解除、そうでなければ選択
-//        setClickedApplicantId(prevId =>
+//        setSelectedApplicantId(prevId =>
 //            prevId === applicantId ? null : applicantId
 //        );
 //    }, [selectedSlot, handleApplicantClick]);
@@ -789,7 +789,7 @@ const useScheduleManager = (initialApplicants) => {
         selectedDate, setSelectedDate,
         selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
         draggingApplicantId, isAddButtonActive, setIsAddButtonActive,
-        selectedSlot,clickedApplicantId,
+        selectedSlot,selectedApplicantId,
 
         // 関数
         getApplicantName,
