@@ -2,147 +2,136 @@
 import { getApplicantById } from './applicantUtils.js';
 
 // -------------------------------------------------------------------------
-// ヘルパー関数: スロットが児童の希望日程に含まれているかを判定
+// 1. 基本パーツ（変更なし）
 // -------------------------------------------------------------------------
 export const isPreferred = (applicant, slotName) => {
-    // 児童データや希望日程がない場合は false を返す
     if (!applicant || !applicant.preferred_dates) {
         return false;
     }
-    // preferred_dates（配列）が slotName（文字列）を含むかをチェック
     return applicant.preferred_dates.includes(slotName);
 };
 
-// -------------------------------------------------------------------------
-// ヘルパー関数: 新しい availability 配列を元の admin_block の状態を保持しつつ作成
-// -------------------------------------------------------------------------
 const createNewAvailability = (oldAvailability, rowsLength, colsLength) => {
-    const newAvailability = Array(rowsLength).fill(null).map((_, r) =>
+    return Array(rowsLength).fill(null).map((_, r) =>
         Array(colsLength).fill(null).map((_, c) => {
-            const status = oldAvailability[r][c];
-
-            if (status === 'admin_block') {
-                return 'admin_block';
-            }
-            return 'available';
+            return oldAvailability[r][c] === 'admin_block' ? 'admin_block' : 'available';
         })
     );
+};
+
+// -------------------------------------------------------------------------
+// 2. 【新機能】 共通ループ処理（イテレーター）
+// -------------------------------------------------------------------------
+/**
+ * スケジュールの全マスを走査し、コールバック関数の判定結果を適用する高階関数
+ * @param {object} scheduleData - スケジュールデータ
+ * @param {function} logicCallback - 各マスの判定ロジック ({ r, c, targetAssignment, targetSlotName }) => status文字列
+ * @returns {Array} 新しい availability 配列
+ */
+const mapScheduleSlots = (scheduleData, logicCallback) => {
+    const { rows, cols, assignments, availability: oldAvailability } = scheduleData;
+    const rowsLength = rows.length;
+    const colsLength = cols.length;
+
+    // ベースの作成
+    const newAvailability = createNewAvailability(oldAvailability, rowsLength, colsLength);
+
+    // 全マスをループ
+    for (let r = 0; r < rowsLength; r++) {
+        for (let c = 0; c < colsLength; c++) {
+            // admin_block は判定スキップ
+            if (newAvailability[r][c] === 'admin_block') {
+                continue;
+            }
+
+            // 判定に必要な情報をまとめる
+            const context = {
+                r,
+                c,
+                targetAssignment: assignments[r][c], // そのマスの現在の割り当て
+                targetSlotName: `${cols[c]} ${rows[r]}` // そのマスの名前 ("月 10:00"など)
+            };
+
+            // コールバック（中身のロジック）を実行してステータスを取得
+            const status = logicCallback(context);
+
+            // ステータスが返ってきたら適用
+            if (status) {
+                newAvailability[r][c] = status;
+            }
+        }
+    }
     return newAvailability;
 };
 
 // -------------------------------------------------------------------------
-// メイン関数: 利用可能性計算
+// 3. 具体的な計算関数（スッキリ版）
 // -------------------------------------------------------------------------
-export const calculateSlotAvailabilityById = (applicantId,  applicants ,scheduleData) => {
-    const { rows, cols, assignments, availability: oldAvailability } = scheduleData;
 
-    const rowsLength = rows.length;
-    const colsLength = cols.length;
-    const newAvailability = createNewAvailability(oldAvailability, rowsLength, colsLength);
+// A. ID指定で「配置可能か」を計算
+export const calculateSlotAvailabilityById = (applicantId, applicants, scheduleData) => {
     const applicant = getApplicantById(applicantId, applicants);
 
-    for (let r = 0; r < rowsLength; r++) {
-        for (let c = 0; c < colsLength; c++) {
-            // トグルでoffにしている場所はoffのまま
-            if (newAvailability[r][c] === 'admin_block') {
-                continue;
-            }
+    // 共通ループ関数を使用
+    return mapScheduleSlots(scheduleData, ({ targetAssignment, targetSlotName }) => {
+        // --- ここだけ書けばOKになります ---
 
-            let targetSlotName = `${cols[c]} ${rows[r]}`;
-
-            // 適合性 (Preferred) の判断
-            if(isPreferred(applicant, targetSlotName)){
-                //検索対象Slotに児童がいるかいないかで、availabilityを分ける
-                if (assignments[r][c] === null){
-                    newAvailability[r][c] = 'settable';
-                    continue;
-                } else {
-                    newAvailability[r][c] = 'switchable';
-                    continue;
-                }
-            }
-            newAvailability[r][c] = 'unAvailable';
+        // 1. 希望していないなら 'unAvailable'
+        if (!isPreferred(applicant, targetSlotName)) {
+            return 'unAvailable';
         }
-    }
 
-    return newAvailability;
+        // 2. 空き枠なら 'settable'、誰かいれば 'switchable'
+        return targetAssignment === null ? 'settable' : 'switchable';
+    });
 };
-export const calculateSlotAvailabilityByIndex = (selectedSlot,  applicants ,scheduleData) => {
-    const { rows, cols, assignments, availability: oldAvailability } = scheduleData;
 
-    const rowsLength = rows.length;
-    const colsLength = cols.length;
-    const newAvailability = createNewAvailability(oldAvailability, rowsLength, colsLength);
-    // selectedSlot が無効か、割り当てが存在しないかチェック
-    const assignment = assignments[selectedSlot.rowIndex][selectedSlot.colIndex];
-    const slotName = `${cols[selectedSlot.colIndex]} ${rows[selectedSlot.rowIndex]}`;
-    let applicant = null;
-    if (assignment) {
-        applicant = getApplicantById(assignment.applicantId, applicants)
+// B. 選択スロットから「移動・交換可能か」を計算
+export const calculateSlotAvailabilityByIndex = (selectedSlot, applicants, scheduleData) => {
+    const { assignments, rows, cols } = scheduleData;
+
+    // --- 前準備: 移動元（主役）の情報を取得 ---
+    const sourceAssignment = assignments[selectedSlot.rowIndex][selectedSlot.colIndex];
+    const sourceSlotName = `${cols[selectedSlot.colIndex]} ${rows[selectedSlot.rowIndex]}`;
+
+    let sourceApplicant = null;
+    if (sourceAssignment) {
+        sourceApplicant = getApplicantById(sourceAssignment.applicantId, applicants);
     }
 
-    if (!applicant && assignment) {
-        // assignment はあるが applicant データが見つからない場合（エラーケース）
-        return newAvailability;
-    }
-    if (!assignment) {
-        // 選択スロットに割り当てがない場合 (空き枠への移動判定)
-        // この後のロジックは、ターゲットスロットに児童がいる場合にのみ 'movable' を設定する
+    // エラーケース: 割り当てがあるのに児童データがない場合は何もしない（初期状態を返す）
+    if (sourceAssignment && !sourceApplicant) {
+        return createNewAvailability(scheduleData.availability, scheduleData.rows.length, scheduleData.cols.length);
     }
 
-    for (let r = 0; r < rowsLength; r++) {
-        for (let c = 0; c < colsLength; c++) {
-            // トグルでoffにしている場所はoffのまま
-            if (newAvailability[r][c] === 'admin_block') {
-                continue;
-            }
+    // 共通ループ関数を使用
+    return mapScheduleSlots(scheduleData, ({ targetAssignment, targetSlotName }) => {
+        // --- ここだけ書けばOKになります ---
 
-            let targetAssignment = assignments[r][c];
-            let targetSlotName = `${cols[c]} ${rows[r]}`;
-
-            let targetApplicant = null;
-            if (targetAssignment) {
-                targetApplicant = getApplicantById(targetAssignment.applicantId, applicants);
-            }
-
-            // --- A. 選択スロットが空き枠の場合 (!assignment) ---
-            if (!assignment) {
-                // ターゲットも空き枠なら unAvailable
-                if (!targetAssignment) {
-                    newAvailability[r][c] = 'unAvailable';
-                    continue;
-                }
-                // ターゲットが空き枠を希望していれば movable
-                if (isPreferred(targetApplicant, slotName)) {
-                    newAvailability[r][c] = 'movable';
-                    continue;
-                }
-                // 希望していなければ unAvailable
-                newAvailability[r][c] = 'unAvailable';
-                continue;
-            }
-
-            // --- B. 選択スロットに児童がいる場合 (assignment が true) ---
-
-            // ターゲットスロットに児童がいるか？
-            if (targetAssignment) {
-                // 交換 (switchable) の判定
-                if (isPreferred(targetApplicant, slotName) && isPreferred(applicant, targetSlotName)) {
-                    newAvailability[r][c] = 'switchable';
-                    continue;
-                }
-                newAvailability[r][c] = 'unAvailable';
-                continue;
-            }
-            // ターゲットスロットが空き枠の場合 (移動判定)
-            // 移動 (movable) の判定
-            if (isPreferred(applicant, targetSlotName)) {
-                newAvailability[r][c] = 'movable';
-                continue;
-            }
-            newAvailability[r][c] = 'unAvailable';
-            continue;
+        // ターゲットにいる児童を取得（いれば）
+        let targetApplicant = null;
+        if (targetAssignment) {
+            targetApplicant = getApplicantById(targetAssignment.applicantId, applicants);
         }
-    }
-    return newAvailability;
+
+        // ケース1: 元が「空き枠」の場合 (誰もいないところからの移動?)
+        if (!sourceAssignment) {
+            // 相手も空き枠ならNG
+            if (!targetAssignment) return 'unAvailable';
+            // 相手がこちらの枠(sourceSlotName)を希望していれば movable
+            return isPreferred(targetApplicant, sourceSlotName) ? 'movable' : 'unAvailable';
+        }
+
+        // ケース2: 元に「児童(sourceApplicant)」がいる場合
+
+        // 相手がいる場合 (交換判定)
+        if (targetAssignment) {
+            // 相互に希望しているか？
+            const match = isPreferred(targetApplicant, sourceSlotName) && isPreferred(sourceApplicant, targetSlotName);
+            return match ? 'switchable' : 'unAvailable';
+        }
+
+        // 相手が空き枠の場合 (移動判定)
+        return isPreferred(sourceApplicant, targetSlotName) ? 'movable' : 'unAvailable';
+    });
 };
