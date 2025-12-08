@@ -640,7 +640,7 @@ const useScheduleManager = (initialApplicants) => {
         });
 
         setSelectedSlot(null); // 割り当て完了後、選択解除
-    }, [selectedSlot]);
+    }, [selectedSlot, scheduleData, applicants]);
 
 //    const handleApplicantListClick = useCallback((applicantId) => {
 //        // 面談枠が選択されている場合は、既存の割り当てロジックを優先
