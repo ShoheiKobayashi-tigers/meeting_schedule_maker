@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { calculateTimeRange, getNextStartTime } from '../utils/timeUtils';
 import { sortTimeRows, sortDateCols } from '../utils/sortUtils';
 import { parseSlotId, createSlotId } from '../utils/slotUtils';
+import { assignApplicantToSlot, deleteAssignmentFromSlot } from '../utils/assignmentUtils';
 import { calculateSlotAvailabilityById, calculateSlotAvailabilityByIndex, getInitialAvailability } from '../utils/availabilityUtils';
 //import { getApplicantById, getUnregisteredApplicants } from '../utils/slotUtils';
 import { useManagerStyles } from '../styles/managerStyles.js';
@@ -69,7 +70,7 @@ const useScheduleManager = (initialApplicants) => {
         const initialCols = sortDateCols(['12/01 (月)', '11/30 (日)']);
 
         const initialAssignments = Array(initialRows.length).fill(null).map(() => Array(initialCols.length).fill(null));
-        initialAssignments[0][0] = { applicantId: 'app-1', type: 'neutral' };
+        initialAssignments[2][0] = { applicantId: 'app-1', type: 'neutral' };
 
         const initialAvailability = Array(initialRows.length).fill('available').map(() => Array(initialCols.length).fill('available'));
 
@@ -486,13 +487,14 @@ const useScheduleManager = (initialApplicants) => {
     }, [scheduleData, getApplicantName, performUnassignAndToggle]);
 
     // クリック割り当て処理
-    const handleSlotClick = useCallback((rowIndex, colIndex, isAvailable) => {
+    const handleSlotClick = useCallback((rowIndex, colIndex) => {
         const currentSlot = { rowIndex, colIndex };
+        const currentAvailability = scheduleData.availability[currentSlot.rowIndex][currentSlot.colIndex];
         // 今クリックしたslot自身が既に選択されているかを判定
         const isCurrentSlotSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
 
         // 自分自身か利用不可面談枠をクリックしたとき、今までの選択は解除される
-        if (isCurrentSlotSelected || !isAvailable) {
+        if (isCurrentSlotSelected || currentAvailability === 'admin_block' || currentAvailability === 'unAvailable') {
             setSelectedSlot(null);
             setSelectedApplicantId(null);
             const resetAvailability = getInitialAvailability(scheduleData);
@@ -500,7 +502,9 @@ const useScheduleManager = (initialApplicants) => {
             return;
         }
 
-        if(!selectedApplicantId){
+        // if(selectedApplicantId && selectedSlot)も異常系の認識　予期せぬエラーが発生しました。みたいな
+
+        if(!selectedApplicantId && !selectedSlot){
             setSelectedSlot(currentSlot);
             //ここでavailabilityUtils.js処理を実行
             const newAvailability = calculateSlotAvailabilityByIndex(currentSlot, applicants, scheduleData);
@@ -511,73 +515,65 @@ const useScheduleManager = (initialApplicants) => {
             return;
         }
 
-        if (selectedApplicantId && isAvailable) {
-            // 児童が選択されており、面談枠が利用可能な場合
-            // この処理は、既存の handleApplicantClick のロジックとほぼ同じ内容をインラインで実行します。
+        //以下、割当ロジック
+        const selectedAssignment = selectedSlot? scheduleData.assignments[selectedSlot.rowIndex][selectedSlot.colIndex] : null;
+        const currentAssignment = currentSlot? scheduleData.assignments[currentSlot.rowIndex][currentSlot.colIndex] : null;
+        setScheduleData(prevData => {
+            let newAssignments = prevData.assignments;
 
-            setScheduleData(prevData => {
-                const newAssignments = prevData.assignments.map(row => [...row]);
-
-                // 1. 同じ児童が他の面談枠に割り当てられていれば、その面談枠を解除（移動）
-                let foundSource = false;
-                for (let r = 0; r < newAssignments.length; r++) {
-                    for (let c = 0; c < newAssignments[r].length; c++) {
-                        // selectedApplicantIdが既に割り当てられている面談枠を探す
-                        if (newAssignments[r][c] && newAssignments[r][c].applicantId === selectedApplicantId) {
-                            newAssignments[r][c] = null;
-                            foundSource = true;
-                            // 見つかっても、スワップではないので処理を続行
-                        }
-                    }
+            // ----------------------------------------------------
+            // 1. 新規割り当て/上書き (児童を選択している状態)
+            // ----------------------------------------------------
+            if (selectedApplicantId) {
+                if (currentAvailability === 'settable' || currentAvailability === 'switchable') {
+                    // 'settable' または 'switchable' (上書き) の場合、新規割り当てを実行
+                    newAssignments = assignApplicantToSlot(currentSlot, newAssignments, selectedApplicantId);
                 }
+            }
 
-                // 2. ターゲットスロットに割り当てる
-                newAssignments[rowIndex][colIndex] = { applicantId: selectedApplicantId, type: 'neutral' };
+            // ----------------------------------------------------
+            // 2. スロット操作 (selectedSlotを選択している状態)
+            // ----------------------------------------------------
+            else if (selectedSlot) {
+                // ここで、selectedApplicantIdがnullなので、交換/移動のロジックが実行される
+                switch(currentAvailability){
+                    // ★ availabilityUtils.jsの返り値に合わせて 'switchableSlots' ではなく 'switchable' を使用
+                    case 'switchable':
+                        // 交換 (両方から両方へ割り当て)
+                        newAssignments = assignApplicantToSlot(selectedSlot, newAssignments, currentAssignment.applicantId);
+                        newAssignments = assignApplicantToSlot(currentSlot, newAssignments, selectedAssignment.applicantId);
+                        break;
 
-                // 3. ターゲットスロットに元々いた児童をリストに戻す（上書きの場合）
-                // (元のロジックでは、handleApplicantClick内でtargetApplicantIdの解除処理がありましたが、
-                // 上の for ループがselectedApplicantIdの移動に集中しているため、ここでは単純な上書きとして実装します)
-                const resetAvailability = getInitialAvailability(prevData);
+                    case 'movableToOther':
+                        // selectedSlot → currentSlot へ移動
+                        newAssignments = assignApplicantToSlot(currentSlot, newAssignments, selectedAssignment.applicantId);
+                        newAssignments = deleteAssignmentFromSlot(selectedSlot, newAssignments);
+                        break;
 
-                return {
-                    ...prevData,
-                    assignments: newAssignments,
-                    availability: resetAvailability
-                };
-            });
+                    case 'movableFromOther':
+                        // currentSlot → selectedSlot へ移動
+                        newAssignments = assignApplicantToSlot(selectedSlot, newAssignments, currentAssignment.applicantId);
+                        newAssignments = deleteAssignmentFromSlot(currentSlot, newAssignments);
+                        break;
 
-            // 割り当て完了後、児童の選択とスロットの選択を解除
-            setSelectedApplicantId(null);
-            setSelectedSlot(null);
-            return;
-        }
-        // --- 面談枠間のスワップ処理 (Slot A が選択されている状態で Slot B がクリックされた場合) ---
-        if (selectedSlot && !isCurrentSlotSelected) {
-            const fromRowIndex = selectedSlot.rowIndex;
-            const fromColIndex = selectedSlot.colIndex;
+                    default:
+                        // その他の状態は変更なし
+                        break;
+                }
+            }
+            // ----------------------------------------------------
 
-            setScheduleData(prevData => {
-                const newAssignments = prevData.assignments.map(row => [...row]);
+            return{
+                ...prevData,
+                assignments: newAssignments,
+            }
+        });
+        setSelectedApplicantId(null);
+        setSelectedSlot(null);
+        const resetAvailability = getInitialAvailability(scheduleData); // availabilityをリセット
+        setScheduleData(prevData => ({...prevData, availability: resetAvailability}));
 
-                const slotA = newAssignments[fromRowIndex][fromColIndex]; // slotA はオブジェクトまたは null
-                const slotB = newAssignments[rowIndex][colIndex]; // slotB はオブジェクトまたは null
-
-                newAssignments[fromRowIndex][fromColIndex] = slotB;
-                newAssignments[rowIndex][colIndex] = slotA;
-
-                const resetAvailability = getInitialAvailability(prevData);
-                return {
-                    ...prevData,
-                    assignments: newAssignments,
-                    availability: resetAvailability
-                };
-            });
-
-            // スワップ後は選択を解除
-            setSelectedSlot(null);
-            return;
-        }
-    }, [selectedSlot, selectedApplicantId]);
+    }, [selectedSlot, selectedApplicantId, scheduleData, applicants]);
 
     const handleApplicantClick = useCallback((applicantId) => {
         if (!selectedSlot) {
@@ -591,6 +587,13 @@ const useScheduleManager = (initialApplicants) => {
                     setScheduleData(prevData => ({
                         ...prevData,
                         availability: newAvailability
+                    }));
+                }else {
+                    // 【解除時】 availabilityをリセットする処理
+                    const resetAvailability = getInitialAvailability(scheduleData);
+                    setScheduleData(prevData => ({
+                        ...prevData,
+                        availability: resetAvailability
                     }));
                 }
                 return newId;

@@ -65,9 +65,10 @@ const ScheduleTablePanel = ({ manager, siblingsManager}) => {
                                         const applicantId = assignmentSlot ? assignmentSlot.applicantId : null;
                                         const assignmentType = assignmentSlot ? assignmentSlot.type : null;
                                         const cellValue = scheduleData.availability[rowIndex][colIndex];
-                                        const isAvailable = cellValue !== 'admin_block' && cellValue !== 'unAvailable';
+                                        const isBlocked = cellValue === 'admin_block';
+                                        const isUnavailable = cellValue === 'unAvailable';
                                         const isSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
-                                        const hasAssignmentOnUnavailableSlot = applicantId && !isAvailable;
+                                        const hasAssignmentOnUnavailableSlot = applicantId && isBlocked;
                                         // SlotKeyの形式: '日付 時間帯' (例: '12/01 (月) 09:00 - 09:15')
                                         const slotKey = `${colHeader} ${rowHeader}`;
                                         const assignedSiblingsList = getAssignedSiblingsList(slotKey);
@@ -79,10 +80,10 @@ const ScheduleTablePanel = ({ manager, siblingsManager}) => {
                                                 onDragOver={handleDragOver}
                                                 onDragEnter={(e) => handleDragEnter(e, cellId)}
                                                 onDragLeave={handleDragLeave}
-                                                onDrop={isAvailable ? (e) => handleDrop(e, cellId) : null}
-                                                onClick={() => handleSlotClick(rowIndex, colIndex, isAvailable)}
+                                                onDrop={(!isBlocked && !isUnavailable) ? (e) => handleDrop(e, cellId) : null}
+                                                onClick={() => handleSlotClick(rowIndex, colIndex)}
                                             >
-                                                <div style={getSlotStyle(cellId, isAvailable, isSelected)}>
+                                                <div style={getSlotStyle(cellId, !isBlocked, isSelected)}>
                                                     {assignmentSlot ? (
                                                         <div
                                                             style={{
@@ -101,8 +102,8 @@ const ScheduleTablePanel = ({ manager, siblingsManager}) => {
                                                             {getApplicantName(applicantId)}
                                                         </div>
                                                     ) : (
-                                                        <span style={{ color: isAvailable ? (isSelected ? '#38a169' : '#a0aec0') : '#a0aec0', fontWeight: '700' }}>
-                                                            {isSelected ? '選択中' : (isAvailable ? 'ここにドロップ/選択' : '利用不可')}
+                                                        <span style={{ color: !isBlocked ? (isSelected ? '#38a169' : '#a0aec0') : '#a0aec0', fontWeight: '700' }}>
+                                                            {isSelected ? '選択中' : (!isBlocked ? 'ここにドロップ/選択' : '利用不可')}
                                                         </span>
                                                     )}
                                                     {hasAssignmentOnUnavailableSlot && (

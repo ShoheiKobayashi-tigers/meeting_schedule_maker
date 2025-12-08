@@ -74,8 +74,6 @@ export const calculateSlotAvailabilityById = (applicantId, applicants, scheduleD
 
     // 共通ループ関数を使用
     return mapScheduleSlots(scheduleData, ({ targetAssignment, targetSlotName }) => {
-        // --- ここだけ書けばOKになります ---
-
         // 1. 希望していないなら 'unAvailable'
         if (!isPreferred(applicant, targetSlotName)) {
             return 'unAvailable';
@@ -106,20 +104,20 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot, applicants, sched
 
     // 共通ループ関数を使用
     return mapScheduleSlots(scheduleData, ({ targetAssignment, targetSlotName }) => {
-        // --- ここだけ書けばOKになります ---
-
         // ターゲットにいる児童を取得（いれば）
         let targetApplicant = null;
         if (targetAssignment) {
             targetApplicant = getApplicantById(targetAssignment.applicantId, applicants);
         }
 
-        // ケース1: 元が「空き枠」の場合 (誰もいないところからの移動?)
+        // ケース1: 元が「空き枠」の場合 (誰もいないところからの移動)
         if (!sourceAssignment) {
             // 相手も空き枠ならNG
-            if (!targetAssignment) return 'unAvailable';
+            if (!targetAssignment) {
+              return 'unAvailable';
+            }
             // 相手がこちらの枠(sourceSlotName)を希望していれば movable
-            return isPreferred(targetApplicant, sourceSlotName) ? 'movable' : 'unAvailable';
+            return isPreferred(targetApplicant, sourceSlotName) ? 'movableFromOther' : 'unAvailable';
         }
 
         // ケース2: 元に「児童(sourceApplicant)」がいる場合
@@ -132,7 +130,7 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot, applicants, sched
         }
 
         // 相手が空き枠の場合 (移動判定)
-        return isPreferred(sourceApplicant, targetSlotName) ? 'movable' : 'unAvailable';
+        return isPreferred(sourceApplicant, targetSlotName) ? 'movableToOther' : 'unAvailable';
     });
 };
 
