@@ -64,7 +64,7 @@ const ScheduleTablePanel = ({ manager, siblingsManager}) => {
                                         const assignmentSlot = scheduleData.assignments[rowIndex][colIndex];
                                         const applicantId = assignmentSlot ? assignmentSlot.applicantId : null;
                                         const assignmentType = assignmentSlot ? assignmentSlot.type : null;
-                                        const sellValue = scheduleData.availability[rowIndex][colIndex];
+                                        const cellValue = scheduleData.availability[rowIndex][colIndex];
                                         const isAvailable = cellValue !== 'admin_block' && cellValue !== 'unAvailable';
                                         const isSelected = selectedSlot && selectedSlot.rowIndex === rowIndex && selectedSlot.colIndex === colIndex;
                                         const hasAssignmentOnUnavailableSlot = applicantId && !isAvailable;
