@@ -135,3 +135,18 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot, applicants, sched
         return isPreferred(sourceApplicant, targetSlotName) ? 'movable' : 'unAvailable';
     });
 };
+
+/**
+ * リセット用: 現在の管理者ブロックの状態を維持しつつ、
+ * 利用可能性の状態をすべて 'available' にリセットする配列を生成します。
+ * @param {object} scheduleData - スケジュールデータ（rows, cols, availabilityを含む）
+ * @returns {Array<Array<string>>} リセットされた availability 配列
+ */
+export const getInitialAvailability = (scheduleData) => {
+    const { rows, cols, availability: oldAvailability } = scheduleData;
+    const rowsLength = rows.length;
+    const colsLength = cols.length;
+
+    // createNewAvailability を利用して、admin_block 以外を 'available' に戻す
+    return createNewAvailability(oldAvailability, rowsLength, colsLength);
+};
