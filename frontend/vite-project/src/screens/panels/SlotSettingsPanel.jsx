@@ -21,10 +21,7 @@ const SlotSettingsPanel = ({ manager }) => {
                 ) : (
                     scheduleData.cols.map((colHeader, colIndex) => (
                         scheduleData.rows.map((rowHeader, rowIndex) => {
-                            let isAvailable = true;
-                            if(scheduleData.availability[rowIndex][colIndex]==='admin_block'){
-                                isAvailable = false;
-                            }
+                            const isAvailable = scheduleData.availability[rowIndex][colIndex]!=='admin_block';
                             const assignmentSlot = scheduleData.assignments[rowIndex][colIndex];
                             const assignmentId = assignmentSlot ? assignmentSlot.applicantId : null;
 
