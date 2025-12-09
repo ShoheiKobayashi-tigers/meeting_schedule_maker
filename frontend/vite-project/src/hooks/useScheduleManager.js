@@ -562,17 +562,15 @@ const useScheduleManager = (initialApplicants) => {
                 }
             }
             // ----------------------------------------------------
-
+            const resetAvailability = getInitialAvailability(prevData); // availabilityをリセット
             return{
                 ...prevData,
                 assignments: newAssignments,
+                availability: resetAvailability,
             }
         });
         setSelectedApplicantId(null);
         setSelectedSlot(null);
-        const resetAvailability = getInitialAvailability(scheduleData); // availabilityをリセット
-        setScheduleData(prevData => ({...prevData, availability: resetAvailability}));
-
     }, [selectedSlot, selectedApplicantId, scheduleData, applicants]);
 
     const handleApplicantClick = useCallback((applicantId) => {
@@ -638,7 +636,7 @@ const useScheduleManager = (initialApplicants) => {
                 availability: resetAvailability
             };
         });
-
+        setSelectedApplicantId(null);
         setSelectedSlot(null); // 割り当て完了後、選択解除
     }, [selectedSlot, scheduleData, applicants]);
 
