@@ -642,20 +642,6 @@ const useScheduleManager = (initialApplicants) => {
         setSelectedSlot(null); // 割り当て完了後、選択解除
     }, [selectedSlot, scheduleData, applicants]);
 
-//    const handleApplicantListClick = useCallback((applicantId) => {
-//        // 面談枠が選択されている場合は、既存の割り当てロジックを優先
-//        if (selectedSlot) {
-//            handleApplicantClick(applicantId); // 既存の割り当て処理を呼び出す
-//            return;
-//        }
-//
-//        // 児童IDが既に選択されている場合は解除、そうでなければ選択
-//        setSelectedApplicantId(prevId =>
-//            prevId === applicantId ? null : applicantId
-//        );
-//    }, [selectedSlot, handleApplicantClick]);
-
-
     // --- D&D ロジック ---
     const handleDragStart = useCallback((e, applicantId, sourceCellId = null) => {
         //sourceIdはドラッグされた児童がもともといた場所を示す文字列
