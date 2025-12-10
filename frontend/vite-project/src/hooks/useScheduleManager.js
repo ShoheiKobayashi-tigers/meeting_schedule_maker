@@ -784,7 +784,7 @@ const useScheduleManager = (initialApplicants) => {
             const targetApplicant = categorizedApplicants.find(
                                         applicant => applicant.id === targetId
                                     );
-            if(!targetApplicant.isAvailable || targetId === draggingApplicantId){
+            if(!sourceSlot || !targetApplicant.isAvailable || targetId === draggingApplicantId){
                 return;
             }
             setScheduleData(prevData => {
