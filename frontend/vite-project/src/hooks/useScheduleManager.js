@@ -3,7 +3,7 @@ import { calculateTimeRange, getNextStartTime } from '../utils/timeUtils';
 import { sortTimeRows, sortDateCols } from '../utils/sortUtils';
 import { parseSlotId, createSlotId } from '../utils/slotUtils';
 import { assignApplicantToSlot, deleteAssignmentFromSlot } from '../utils/assignmentUtils';
-import { calculateSlotAvailabilityById, calculateSlotAvailabilityByIndex, getInitialAvailability } from '../utils/availabilityUtils';
+import { calculateSlotAvailabilityById, calculateSlotAvailabilityByIndex, getInitialAvailability, isPreferred } from '../utils/availabilityUtils';
 import { getRegisteredIdsSet } from '../utils/applicantUtils';
 import { useManagerStyles } from '../styles/managerStyles.js';
 
@@ -132,7 +132,10 @@ const useScheduleManager = (initialApplicants) => {
 
         // 2. 【動的な状態の計算】選択/ドラッグスロットの特定
         // 選択スロットの処理
-        const activeSlotIndex = selectedSlot ?? draggingSlotIndex;
+        const dragTargetSlot = (draggingApplicantId && hoveredCellId)
+            ? parseSlotId(hoveredCellId) // parseSlotIdを使用して {rowIndex, colIndex} に変換
+            : null;
+        const activeSlotIndex = selectedSlot ?? dragTargetSlot ?? draggingSlotIndex;
 
         // ドラッグ元のスロット処理
         const activeSlotName = activeSlotIndex
@@ -156,7 +159,7 @@ const useScheduleManager = (initialApplicants) => {
                 isAvailable: isAvailable
             };
         });
-    }, [applicants, scheduleData.assignments]);
+    }, [applicants, scheduleData.assignments, scheduleData.cols, scheduleData.rows, selectedSlot, draggingSlotIndex, hoveredCellId]);
 
 
     /**
@@ -847,12 +850,13 @@ const useScheduleManager = (initialApplicants) => {
         handleSaveStudent,
         allScheduleSlots, // 全面談枠のリスト
         unBlockedSlots,
+        categorizedApplicants,
         // -----------------
         interviewDuration, DURATION_OPTIONS, setInterviewDuration,
         selectedDate, setSelectedDate,
         selectedStartTime, setSelectedStartTime, TIME_OPTIONS,
         draggingApplicantId, isAddButtonActive, setIsAddButtonActive,
-        selectedSlot,selectedApplicantId,
+        selectedSlot,selectedApplicantId,hoveredCellId,draggingSlotIndex,
 
         // 関数
         getApplicantName,

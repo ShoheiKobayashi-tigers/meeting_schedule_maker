@@ -12,29 +12,6 @@ export const getApplicantById = (id, applicants) => {
 };
 
 /**
- * 未割り当ての児童リストを生成します。
- * @param {Array<object>} applicants 全児童データの配列。
- * @param {Array<Array<object | null>>} assignments スケジュール全体の割り当てデータ。
- * @returns {Array<object>} 未割り当ての児童データの配列。
- */
-export const getUnregisteredApplicants = (applicants, assignments) => {
-    // 1. assignments から、割り当て済みの全ての applicantId を Set に抽出
-    const registeredIds = new Set();
-
-    // assignments は二次元配列なので、flatMap のような処理でIDsを平坦化
-    assignments.forEach(row => {
-        row.forEach(assignment => {
-            if (assignment && assignment.applicantId) {
-                registeredIds.add(assignment.applicantId);
-            }
-        });
-    });
-
-    // 2. applicants から、registeredIds に含まれない児童をフィルタリング
-    return applicants.filter(applicant => !registeredIds.has(applicant.id));
-};
-
-/**
  * 割り当て済みの児童IDのSetを生成します。
  * @param {Array<Array<object | null>>} assignments スケジュール全体の割り当てデータ。
  * @returns {Set<string | number>} 割り当て済みIDのSet

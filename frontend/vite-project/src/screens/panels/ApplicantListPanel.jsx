@@ -2,11 +2,25 @@ import React, { useCallback, useMemo } from 'react';
 
 const ApplicantListPanel = ({ manager }) => {
     const {
-        applicants, scheduleData, handleDragOver, handleDrop,
+        applicants, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
-        selectedSlot, selectedApplicantId, categorizedApplicants,
-        handleApplicantClick
+        selectedSlot, selectedApplicantId, categorizedApplicants,hoveredCellId,
+        handleApplicantClick, draggingSlotIndex // 活性判定のために追加
     } = manager;
+
+    // 1. 【最適解】useMemo を使って、表示対象の Applicant のみを抽出
+    const displayedApplicants = useMemo(() => {
+        if (!categorizedApplicants) return [];
+
+        return categorizedApplicants.filter(applicant => {
+            // 未割り当て (isRegistered: false) の Applicant のみを表示
+            return !applicant.isRegistered;
+        });
+    // categorizedApplicants (useScheduleManagerのuseMemo結果) の参照が変わったときのみ再計算
+    }, [categorizedApplicants]);
+
+    // 活性化判定用の変数（表示ロジックをシンプルにするため）
+    const activeSlot = selectedSlot || draggingSlotIndex || hoveredCellId;
 
     return (
         <div
@@ -26,7 +40,11 @@ const ApplicantListPanel = ({ manager }) => {
                 }
             </p>
             <div className="applicant-list" style={{ overflowY: 'auto', flex: 1 }}>
-                {unregisteredApplicants.map(applicant => (
+                {displayedApplicants.map(applicant => {
+                    const isAvailable = applicant.isAvailable; // Managerから渡されたフラグ
+                    const isActive = selectedApplicantId === applicant.id || (activeSlot && isAvailable);
+
+                    return (
                         <div
                             key={applicant.id}
                             draggable="true"
@@ -35,23 +53,30 @@ const ApplicantListPanel = ({ manager }) => {
                             onClick={() => handleApplicantClick(applicant.id)}
                             style={{
                                 ...styles.baseItem,
-                                // 面談枠を選択中はクリック可能な要素であることを示唆する色に変更
-                                backgroundColor: selectedSlot || selectedApplicantId === applicant.id ? '#d1f1da' : '#ebf8ff',
-                                border: `1px solid ${selectedSlot || selectedApplicantId === applicant.id ? '#48bb78' : '#90cdf4'}`,
-                                cursor: selectedSlot || selectedApplicantId === applicant.id ? 'pointer' : 'grab',
+                                // スロット活性時 かつ 利用可能な場合
+                                backgroundColor: isActive ? '#d1f1da' : (isAvailable ? '#ebf8ff' : '#f7fafc'), // 利用可能でない場合は薄い色
+                                border: `1px solid ${isActive ? '#48bb78' : '#90cdf4'}`,
+                                cursor: isActive ? 'pointer' : (activeSlot ? 'not-allowed' : 'grab'),
+                                opacity: (!isAvailable) ? 0.5 : 1, // 利用不可なら半透明
                                 ...(draggingApplicantId === applicant.id ? {opacity: 0.4, boxShadow: 'none'} : {}),
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = selectedSlot || selectedApplicantId === applicant.id ? '#c4e0f5' : '#c4e0f5'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = selectedSlot || selectedApplicantId === applicant.id ? '#d1f1da' : '#ebf8ff'}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = isActive ? '#c4e0f5' : (isAvailable ? '#ebf8ff' : '#f7fafc')}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isActive ? '#d1f1da' : (isAvailable ? '#ebf8ff' : '#f7fafc')}
                         >
                             {applicant.name}
+                            {!isAvailable && <span style={{marginLeft: '8px', color: '#e53e3e', fontSize: '0.8em'}}> (希望外)</span>}
                         </div>
-
-                ))}
-              {unregisteredApplicants.length === 0 && applicants.length > 0 && (
+                    );
+                })}
+              {displayedApplicants.length === 0 && applicants.length > 0 && (
                 <p style={{textAlign: 'center', marginTop: '2rem', color: '#48bb78', fontWeight: '700'}}>
                     全ての児童（生徒）が割り当てられました！
                 </p>
+              )}
+              {displayedApplicants.length === 0 && applicants.length > 0 && activeSlot && (
+                  <p style={{textAlign: 'center', marginTop: '2rem', color: '#e53e3e', fontWeight: '700'}}>
+                      この面談枠を希望する未割り当ての児童（生徒）はいません。
+                  </p>
               )}
             </div>
           </div>
