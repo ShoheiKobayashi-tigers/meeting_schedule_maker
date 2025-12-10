@@ -20,7 +20,7 @@ const ApplicantListPanel = ({ manager }) => {
     }, [categorizedApplicants]);
 
     // 活性化判定用の変数（表示ロジックをシンプルにするため）
-    const activeSlot = selectedSlot || draggingSlotIndex || hoveredCellId;
+    const activeSlot = selectedSlot || draggingSlotIndex;
     const applicantSelectedOnSlot = selectedSlot? scheduleData.assignments[selectedSlot.rowIndex][selectedSlot.colIndex] : null;
 
     return (

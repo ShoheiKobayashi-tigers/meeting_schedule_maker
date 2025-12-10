@@ -132,10 +132,7 @@ const useScheduleManager = (initialApplicants) => {
 
         // 2. 【動的な状態の計算】選択/ドラッグスロットの特定
         // 選択スロットの処理
-        const dragTargetSlot = (draggingApplicantId && hoveredCellId)
-            ? parseSlotId(hoveredCellId) // parseSlotIdを使用して {rowIndex, colIndex} に変換
-            : null;
-        const activeSlotIndex = selectedSlot ?? dragTargetSlot ?? draggingSlotIndex;
+        const activeSlotIndex = selectedSlot ??  draggingSlotIndex;
 
         // ドラッグ元のスロット処理
         const activeSlotName = activeSlotIndex
