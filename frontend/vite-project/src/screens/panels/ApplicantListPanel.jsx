@@ -50,6 +50,11 @@ const ApplicantListPanel = ({ manager }) => {
                             draggable="true"
                             onDragStart={(e) => handleDragStart(e, applicant.id)}
                             onDragEnd={handleDragEnd}
+                            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                            onDrop={(e) => {
+                                e.stopPropagation(); // パネル全体へのドロップイベントの発火を止める
+                                manager.handleDrop(e, applicant.id); // 固有のターゲットIDを渡す
+                            }}
                             onClick={() => handleApplicantClick(applicant.id)}
                             style={{
                                 ...styles.baseItem,

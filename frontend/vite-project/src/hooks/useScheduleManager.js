@@ -4,7 +4,7 @@ import { sortTimeRows, sortDateCols } from '../utils/sortUtils';
 import { parseSlotId, createSlotId } from '../utils/slotUtils';
 import { assignApplicantToSlot, deleteAssignmentFromSlot } from '../utils/assignmentUtils';
 import { calculateSlotAvailabilityById, calculateSlotAvailabilityByIndex, getInitialAvailability, isPreferred } from '../utils/availabilityUtils';
-import { getRegisteredIdsSet } from '../utils/applicantUtils';
+import { getApplicantById, getRegisteredIdsSet } from '../utils/applicantUtils';
 import { useManagerStyles } from '../styles/managerStyles.js';
 
 const useScheduleManager = (initialApplicants) => {
@@ -70,7 +70,7 @@ const useScheduleManager = (initialApplicants) => {
         const initialCols = sortDateCols(['12/01 (月)', '11/30 (日)']);
 
         const initialAssignments = Array(initialRows.length).fill(null).map(() => Array(initialCols.length).fill(null));
-        initialAssignments[2][0] = { applicantId: 'app-1', type: 'neutral' };
+        initialAssignments[0][1] = { applicantId: 'app-2', type: 'neutral' };
 
         const initialAvailability = Array(initialRows.length).fill('available').map(() => Array(initialCols.length).fill('available'));
 
@@ -740,9 +740,30 @@ const useScheduleManager = (initialApplicants) => {
             return;
         }
 
-        // 2. ターゲット/ソースの解析
-        const targetSlot = parseSlotId(targetId);
+        // 2. ソースの解析
         const sourceSlot = parseSlotId(sourceCellId);
+
+        if(targetId.startsWith('app-')){
+            const targetApplicant = categorizedApplicants.find(
+                                        applicant => applicant.id === targetId
+                                    );
+            if(!targetApplicant.isAvailable){
+                return;
+            }
+            setScheduleData(prevData => {
+                // ユーティリティ関数を使用 (※既存のコードに合わせて手動で書くなら以下)
+                const newAssignments = assignApplicantToSlot(sourceSlot, prevData.assignments, targetId);
+                const resetAvailability = getInitialAvailability({
+                    ...prevData,
+                    assignments: newAssignments
+                });
+                return { ...prevData, assignments: newAssignments, availability: resetAvailability, };
+            });
+            setDraggingSlotIndex(null);
+            setDraggingApplicantId(null);
+            return;
+        }
+
 
         // 3. ターゲットがリストの場合の処理 (割り当て解除)
         if (targetId === 'applicant-list') {
@@ -757,7 +778,7 @@ const useScheduleManager = (initialApplicants) => {
                     ...prevData,
                     assignments: newAssignments
                 });
-                return { ...prevData, assignments: newAssignments, availability: resetAvailability };
+                return { ...prevData, assignments: newAssignments, availability: resetAvailability, };
             });
             setDraggingSlotIndex(null);
             setDraggingApplicantId(null);
@@ -765,6 +786,7 @@ const useScheduleManager = (initialApplicants) => {
         }
 
         // 4. ターゲットがグリッド以外の場合の処理 (異常系 / ターゲットIDが不正)
+        const targetSlot = parseSlotId(targetId);
         // targetSlot が null の場合
         if (!targetSlot) {
             return;
@@ -776,7 +798,7 @@ const useScheduleManager = (initialApplicants) => {
             return;
         }
 
-        // 6. 状態更新
+        // 6. 状態更新(スロット→スロット/リスト→スロット)
         setScheduleData(prevData => {
             let newAssignments = prevData.assignments;
 
@@ -827,13 +849,13 @@ const useScheduleManager = (initialApplicants) => {
             return {
                 ...prevData,
                 assignments: newAssignments,
-                availability: resetAvailability
+                availability: resetAvailability,
             };
         });
         setDraggingApplicantId(null);
         setDraggingSlotIndex(null);
         return;
-    }, [scheduleData]);
+    }, [scheduleData, applicants]);
 
     // UIに公開するロジックと状態
     return {
