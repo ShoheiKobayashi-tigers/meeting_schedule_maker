@@ -1,18 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
-import { getUnregisteredApplicants } from '../../utils/applicantUtils.js';
 
 const ApplicantListPanel = ({ manager }) => {
     const {
         applicants, scheduleData, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
-        selectedSlot, selectedApplicantId,
+        selectedSlot, selectedApplicantId, categorizedApplicants,
         handleApplicantClick
     } = manager;
-
-    const unregisteredApplicants = useMemo(() => {
-        // applicants と assignments を渡すだけで、未割り当てリストが取得できる
-        return getUnregisteredApplicants(applicants, scheduleData.assignments);
-    }, [applicants, scheduleData.assignments]);
 
     return (
         <div

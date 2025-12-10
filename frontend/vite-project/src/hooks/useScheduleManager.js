@@ -4,7 +4,7 @@ import { sortTimeRows, sortDateCols } from '../utils/sortUtils';
 import { parseSlotId, createSlotId } from '../utils/slotUtils';
 import { assignApplicantToSlot, deleteAssignmentFromSlot } from '../utils/assignmentUtils';
 import { calculateSlotAvailabilityById, calculateSlotAvailabilityByIndex, getInitialAvailability } from '../utils/availabilityUtils';
-//import { getApplicantById, getUnregisteredApplicants } from '../utils/slotUtils';
+import { getRegisteredIdsSet } from '../utils/applicantUtils';
 import { useManagerStyles } from '../styles/managerStyles.js';
 
 const useScheduleManager = (initialApplicants) => {
@@ -125,6 +125,38 @@ const useScheduleManager = (initialApplicants) => {
     const getApplicantName = useCallback((applicantId) => {
         return applicants.find(app => app.id === applicantId)?.name || 'Unknown Applicant';
     }, [applicants]);
+
+    const categorizedApplicants = useMemo(() => {
+        // 全assignmentsから割り当て済みのIDをSetに抽出
+        const registeredIds = getRegisteredIdsSet(scheduleData.assignments);
+
+        // 2. 【動的な状態の計算】選択/ドラッグスロットの特定
+        // 選択スロットの処理
+        const activeSlotIndex = selectedSlot ?? draggingSlotIndex;
+
+        // ドラッグ元のスロット処理
+        const activeSlotName = activeSlotIndex
+            ? `${scheduleData.cols[activeSlotIndex.colIndex]} ${scheduleData.rows[activeSlotIndex.rowIndex]}`
+            : null;
+
+
+        // 【判定処理】applicants 配列をループし、Setで高速チェック
+        return applicants.map(applicant => {
+            const isRegistered = registeredIds.has(applicant.id);
+
+            // 動的フラグA: 選択スロットを希望しているか？
+            const isAvailable = activeSlotName
+                ? isPreferred(applicant, activeSlotName)
+                : true;
+
+
+            return {
+                ...applicant,
+                isRegistered: isRegistered,
+                isAvailable: isAvailable
+            };
+        });
+    }, [applicants, scheduleData.assignments]);
 
 
     /**

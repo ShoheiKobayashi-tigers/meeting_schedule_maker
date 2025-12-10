@@ -33,3 +33,20 @@ export const getUnregisteredApplicants = (applicants, assignments) => {
     // 2. applicants から、registeredIds に含まれない児童をフィルタリング
     return applicants.filter(applicant => !registeredIds.has(applicant.id));
 };
+
+/**
+ * 割り当て済みの児童IDのSetを生成します。
+ * @param {Array<Array<object | null>>} assignments スケジュール全体の割り当てデータ。
+ * @returns {Set<string | number>} 割り当て済みIDのSet
+ */
+export const getRegisteredIdsSet = (assignments) => {
+    const registeredIds = new Set();
+    assignments.forEach(row => {
+        row.forEach(assignment => {
+            if (assignment && assignment.applicantId) {
+                registeredIds.add(assignment.applicantId);
+            }
+        });
+    });
+    return registeredIds;
+};
