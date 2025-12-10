@@ -634,35 +634,45 @@ const useScheduleManager = (initialApplicants) => {
             return;
         }
 
+        //selectedSlotが存在している場合、割り当てロジック
         const { rowIndex, colIndex } = selectedSlot;
 
         setScheduleData(prevData => {
-            const newAssignments = prevData.assignments.map(row => [...row]);
-            const targetSlot = newAssignments[rowIndex][colIndex];
-            const targetApplicantId = targetSlot ? targetSlot.applicantId : null;
+            const targetApplicant = categorizedApplicants.find(
+                                           applicant => applicant.id === applicantId
+                                       );
 
-            // 既存の割り当て (targetApplicantId) があれば、それを解除 (nullにする)
-            // これにより、リストに戻る (assignedIdsから外れる)
-            if (targetApplicantId) {
-                newAssignments[rowIndex][colIndex] = null; // リストに戻すために一時的に解除
+            if(!targetApplicant.isAvailable){
+                const resetAvailability = getInitialAvailability(prevData);
+                return {
+                    ...prevData,
+                    availability: resetAvailability
+                };
             }
+            const newAssignments = assignApplicantToSlot(selectedSlot, prevData.assignments, applicantId);
 
-            // 面談枠から同じ児童（生徒）を解除する（他の面談枠から移動させるため）
-            // (targetApplicantIdとは別の、applicantIdが既に割り当てられている面談枠を探す)
-            let foundSource = false;
-            for (let r = 0; r < newAssignments.length; r++) {
-                for (let c = 0; c < newAssignments[r].length; c++) {
-                    if (newAssignments[r][c] && newAssignments[r][c].applicantId === applicantId) { // オブジェクトチェック
-                        newAssignments[r][c] = null;
-                        foundSource = true;
-                        break;
-                    }
-                }
-                if (foundSource) break;
-            }
-
-            // 選択された面談枠に割り当てる
-            newAssignments[rowIndex][colIndex] = { applicantId: applicantId, type: 'neutral' /* 他の初期情報 */ };
+//            // 既存の割り当て (targetApplicantId) があれば、それを解除 (nullにする)
+//            // これにより、リストに戻る (assignedIdsから外れる)
+//            if (targetApplicantId) {
+//                newAssignments[rowIndex][colIndex] = null; // リストに戻すために一時的に解除
+//            }
+//
+//            // 面談枠から同じ児童（生徒）を解除する（他の面談枠から移動させるため）
+//            // (targetApplicantIdとは別の、applicantIdが既に割り当てられている面談枠を探す)
+//            let foundSource = false;
+//            for (let r = 0; r < newAssignments.length; r++) {
+//                for (let c = 0; c < newAssignments[r].length; c++) {
+//                    if (newAssignments[r][c] && newAssignments[r][c].applicantId === applicantId) { // オブジェクトチェック
+//                        newAssignments[r][c] = null;
+//                        foundSource = true;
+//                        break;
+//                    }
+//                }
+//                if (foundSource) break;
+//            }
+//
+//            // 選択された面談枠に割り当てる
+//            newAssignments[rowIndex][colIndex] = { applicantId: applicantId, type: 'neutral' /* 他の初期情報 */ };
 
             const resetAvailability = getInitialAvailability(prevData);
             return {
@@ -673,7 +683,33 @@ const useScheduleManager = (initialApplicants) => {
         });
         setSelectedApplicantId(null);
         setSelectedSlot(null); // 割り当て完了後、選択解除
-    }, [selectedSlot, scheduleData, applicants]);
+    }, [selectedSlot, scheduleData, applicants, categorizedApplicants]);
+
+    const handleClickDeleteButton = useCallback(() => {
+        // selectedSlot が null の場合は何もしない（ボタン表示側で制御されるはずだが念のため）
+        if (!selectedSlot) {
+            return;
+        }
+
+        setScheduleData(prevData => {
+            // assignmentUtils.js の deleteAssignmentFromSlot を使用
+            const newAssignments = deleteAssignmentFromSlot(selectedSlot, prevData.assignments);
+
+            // availabilityをリセット
+            const resetAvailability = getInitialAvailability(prevData);
+
+            return {
+                ...prevData,
+                assignments: newAssignments,
+                availability: resetAvailability
+            };
+        });
+
+        // 割り当て解除後、選択状態をリセット
+        setSelectedApplicantId(null);
+        setSelectedSlot(null);
+
+    }, [selectedSlot, scheduleData]);
 
     // --- D&D ロジック ---
     const handleDragStart = useCallback((e, applicantId, sourceCellId = null) => {
@@ -743,11 +779,12 @@ const useScheduleManager = (initialApplicants) => {
         // 2. ソースの解析
         const sourceSlot = parseSlotId(sourceCellId);
 
+        //targetが割り当て可能なら入れ替える
         if(targetId.startsWith('app-')){
             const targetApplicant = categorizedApplicants.find(
                                         applicant => applicant.id === targetId
                                     );
-            if(!targetApplicant.isAvailable){
+            if(!targetApplicant.isAvailable || targetId === draggingApplicantId){
                 return;
             }
             setScheduleData(prevData => {
@@ -888,7 +925,7 @@ const useScheduleManager = (initialApplicants) => {
         handleDragStart, handleDragEnd, handleDragOver, handleDrop, handleDragEnter, handleDragLeave,
         handleSlotClick,
         handleApplicantClick,
-//        handleApplicantListClick,
+        handleClickDeleteButton,
         confirmDeleteStudent,
         getAssignmentDetails,
 

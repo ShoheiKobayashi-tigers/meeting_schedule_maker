@@ -2,10 +2,10 @@ import React, { useCallback, useMemo } from 'react';
 
 const ApplicantListPanel = ({ manager }) => {
     const {
-        applicants, handleDragOver, handleDrop,
+        applicants, scheduleData, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
         selectedSlot, selectedApplicantId, categorizedApplicants,hoveredCellId,
-        handleApplicantClick, draggingSlotIndex // 活性判定のために追加
+        handleApplicantClick, handleClickDeleteButton, draggingSlotIndex // 活性判定のために追加
     } = manager;
 
     // 1. 【最適解】useMemo を使って、表示対象の Applicant のみを抽出
@@ -21,6 +21,7 @@ const ApplicantListPanel = ({ manager }) => {
 
     // 活性化判定用の変数（表示ロジックをシンプルにするため）
     const activeSlot = selectedSlot || draggingSlotIndex || hoveredCellId;
+    const applicantSelectedOnSlot = selectedSlot? scheduleData.assignments[selectedSlot.rowIndex][selectedSlot.colIndex] : null;
 
     return (
         <div
@@ -31,6 +32,29 @@ const ApplicantListPanel = ({ manager }) => {
             <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem', color: '#2d3748' }}>
               未割り当ての児童（生徒）リスト
             </h2>
+            {/* 割り当て解除ボタン */}
+            {applicantSelectedOnSlot && (
+                <button
+                    onClick={handleClickDeleteButton}
+                    style={{
+                        padding: '0.5rem 1rem',
+                        marginBottom: '1rem',
+                        backgroundColor: '#5d5d63',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        width: '100%',
+                        transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#a1a3a6'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#5d5d63'}
+                >
+                    割り当て解除
+                </button>
+            )}
             <p style={{ color: '#718096', marginBottom: '1rem', fontSize: '0.875rem' }}>
                 {selectedSlot
                     ? '面談枠が選択されています。児童（生徒）をクリックして割り当ててください。'
