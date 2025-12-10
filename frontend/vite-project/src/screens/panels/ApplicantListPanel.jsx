@@ -4,7 +4,7 @@ const ApplicantListPanel = ({ manager }) => {
     const {
         applicants, scheduleData, handleDragOver, handleDrop,
         handleDragStart, handleDragEnd, draggingApplicantId, styles,
-        selectedSlot, selectedApplicantId, categorizedApplicants,hoveredCellId,
+        selectedSlot, selectedApplicantId, categorizedApplicants,
         handleApplicantClick, handleClickDeleteButton, draggingSlotIndex // 活性判定のために追加
     } = manager;
 
