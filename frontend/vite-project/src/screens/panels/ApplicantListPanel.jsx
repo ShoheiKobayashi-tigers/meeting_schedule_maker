@@ -32,29 +32,6 @@ const ApplicantListPanel = ({ manager }) => {
             <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem', color: '#2d3748' }}>
               未割り当ての児童（生徒）リスト
             </h2>
-            {/* 割り当て解除ボタン */}
-            {applicantSelectedOnSlot && (
-                <button
-                    onClick={handleClickDeleteButton}
-                    style={{
-                        padding: '0.5rem 1rem',
-                        marginBottom: '1rem',
-                        backgroundColor: '#5d5d63',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.25rem',
-                        cursor: 'pointer',
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        width: '100%',
-                        transition: 'background-color 0.2s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#a1a3a6'}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#5d5d63'}
-                >
-                    割り当て解除
-                </button>
-            )}
             <p style={{ color: '#718096', marginBottom: '1rem', fontSize: '0.875rem' }}>
                 {selectedSlot
                     ? '面談枠が選択されています。児童（生徒）をクリックして割り当ててください。'
@@ -97,18 +74,42 @@ const ApplicantListPanel = ({ manager }) => {
                         </div>
                     );
                 })}
-              {displayedApplicants.length === 0 && applicants.length > 0 && (
-                <p style={{textAlign: 'center', marginTop: '2rem', color: '#48bb78', fontWeight: '700'}}>
-                    全ての児童（生徒）が割り当てられました！
-                </p>
-              )}
-              {displayedApplicants.length === 0 && applicants.length > 0 && activeSlot && (
-                  <p style={{textAlign: 'center', marginTop: '2rem', color: '#e53e3e', fontWeight: '700'}}>
-                      この面談枠を希望する未割り当ての児童（生徒）はいません。
+                {/* 割り当て解除ボタン */}
+                {applicantSelectedOnSlot && (
+                    <button
+                        onClick={handleClickDeleteButton}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            marginBottom: '1rem',
+                            backgroundColor: '#5d5d63',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.25rem',
+                            cursor: 'pointer',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            width: '100%',
+                            transition: 'background-color 0.2s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#a1a3a6'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#5d5d63'}
+                    >
+                        割り当て解除
+                    </button>
+                )}
+
+                {displayedApplicants.length === 0 && applicants.length > 0 && (
+                  <p style={{textAlign: 'center', marginTop: '2rem', color: '#48bb78', fontWeight: '700'}}>
+                      全ての児童（生徒）が割り当てられました！
                   </p>
-              )}
+                )}
+                {displayedApplicants.length === 0 && applicants.length > 0 && activeSlot && (
+                    <p style={{textAlign: 'center', marginTop: '2rem', color: '#e53e3e', fontWeight: '700'}}>
+                        この面談枠を希望する未割り当ての児童（生徒）はいません。
+                    </p>
+                )}
             </div>
-          </div>
+        </div>
     );
 };
 export default ApplicantListPanel;
