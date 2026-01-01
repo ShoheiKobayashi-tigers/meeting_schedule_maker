@@ -1,7 +1,7 @@
 /**
  * 時刻文字列 (HH:mm) と分数から、HH:mm - HH:mm 形式の範囲文字列を生成する
  */
-export const calculateTimeRange = (startTimeStr, duration) => {
+export const calculateTimeRange = (startTimeStr: string, duration: number): string => {
     const [startH, startM] = startTimeStr.split(':').map(Number);
     let start = new Date(2000, 0, 1, startH, startM);
 
@@ -20,7 +20,7 @@ export const calculateTimeRange = (startTimeStr, duration) => {
 /**
  * 次に追加すべき時間帯の開始時間を計算する (ソート済みリストを前提とする)
  */
-export const getNextStartTime = (rows, defaultStart = '09:00') => {
+export const getNextStartTime = (rows: string[], defaultStart = '09:00'): string => {
     if (rows.length === 0) {
         return defaultStart;
     }

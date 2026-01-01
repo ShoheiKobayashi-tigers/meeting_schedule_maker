@@ -1,24 +1,28 @@
-// src/hooks/useSiblingManager.js
+import { useState, useCallback, useMemo } from 'react';
+import { Sibling } from '../types/Sibling';
+import { Applicant } from '../types/Applicant';
+import { SiblingsManagerResult } from '../types/SiblingsManager';
 
-import { useState, useCallback ,useMemo } from 'react';
+const useSiblingManager = (initialSiblings: Sibling[]): SiblingsManagerResult => {
+    // 兄弟リストを管理
+    const [siblings, setSiblings] = useState<Sibling[]>(initialSiblings);
 
-const useSiblingManager = (initialSiblings) => {
-    // 兄弟リストをuseStateで管理
-    const [siblings, setSiblings] = useState(initialSiblings);
-
-    // 兄弟を追加するCRUD関数 (例: Create)
-    const addSibling = useCallback((newSiblingData) => {
-        // ID生成ロジックなどを適用
-        const newSibling = { id: Date.now().toString(), ...newSiblingData };
+    // 兄弟を追加 (IDは自動生成)
+    const addSibling = useCallback((newSiblingData: Omit<Sibling, 'id'>) => {
+        const newSibling: Sibling = { 
+            ...newSiblingData,
+            id: `sib-${Date.now()}`, 
+        };
         setSiblings(prevSiblings => [...prevSiblings, newSibling]);
     }, []);
 
-    // 兄弟を削除するCRUD関数 (例: Delete)
-    const deleteSibling = useCallback((siblingId) => {
+    // 兄弟を削除
+    const deleteSibling = useCallback((siblingId: string) => {
         setSiblings(prevSiblings => prevSiblings.filter(s => s.id !== siblingId));
     }, []);
 
-    const updateSibling = useCallback((updatedSiblingData) => {
+    // 兄弟を更新
+    const updateSibling = useCallback((updatedSiblingData: Sibling) => {
         setSiblings(prevSiblings => prevSiblings.map(s =>
             s.id === updatedSiblingData.id ? { ...s, ...updatedSiblingData } : s
         ));
@@ -26,9 +30,8 @@ const useSiblingManager = (initialSiblings) => {
 
     // 兄弟の割り当て情報をSlotKeyで検索可能なMapとして生成
     const siblingAssignmentsMap = useMemo(() => {
-        const map = {};
+        const map: Record<string, Sibling[]> = {};
         siblings.forEach(sibling => {
-            // assigned_slot（面談枠の文字列）をキーとして使用
             if (sibling.assigned_slot) {
                 if (!map[sibling.assigned_slot]) {
                     map[sibling.assigned_slot] = [];
@@ -37,55 +40,38 @@ const useSiblingManager = (initialSiblings) => {
             }
         });
         return map;
-    }, [siblings]); // 兄弟リストが更新されたときのみ再計算される
+    }, [siblings]);
 
-    // ユーザーの要望に応じた文字列リスト生成関数を定義
-    const getAssignedSiblingsList = useCallback((slotKey) => {
-        //  Mapから該当スロットに割り当てられた兄弟のリストを取得（O(1)アクセス）
+    // 「クラス / 名前」形式の文字列リストを生成
+    const getAssignedSiblingsList = useCallback((slotKey: string): string[] => {
         const assignedSiblings = siblingAssignmentsMap[slotKey];
 
         if (!assignedSiblings || assignedSiblings.length === 0) {
             return [];
         }
 
-        // 「クラス / 名前」形式の文字列リストを生成
         return assignedSiblings.map(sibling => {
             const className = sibling.class || 'クラス未設定';
             return `${className} / ${sibling.name}`;
         });
     }, [siblingAssignmentsMap]);
 
-    const getSiblingsForStudent = useCallback((student) => {
-            if (!student || !student.family_id) return [];
+    // 指定された生徒の family_id に基づいて兄弟リストを取得
+    const getSiblingsForStudent = useCallback((student: Applicant | null): Sibling[] => {
+        if (!student || !student.family_id) return [];
 
-            //  兄弟の検索対象を siblings のみに絞る
-            const familySiblings = siblings.filter(
-                (member) => member.family_id === student.family_id
-            );
-
-            // 各兄弟に対して詳細情報を付加して整形
-            return familySiblings.map(sibling => {
-                // 前提に基づき、割り当ては常に null
-                const assignment = null;
-
-                return {
-                    id: sibling.id,
-                    name: sibling.name,
-                    class: sibling.class,
-                    assigned_slot: sibling.assigned_slot,
-                };
-            });
+        return siblings.filter(
+            (member) => member.family_id === student.family_id
+        );
     }, [siblings]);
 
-    // CRUD関数と状態を公開
     return {
         siblings,
-        getSiblingsForStudent,
         addSibling,
         deleteSibling,
         updateSibling,
+        getSiblingsForStudent,
         getAssignedSiblingsList,
-        // ... (getSiblingById などの関数)
     };
 };
 

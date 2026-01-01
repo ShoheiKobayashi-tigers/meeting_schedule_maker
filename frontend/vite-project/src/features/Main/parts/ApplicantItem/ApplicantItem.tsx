@@ -1,0 +1,50 @@
+import React from 'react';
+import * as s from './ApplicantItem.css';
+import { type Applicant } from '../../../../types/Students';
+
+interface ApplicantItemProps {
+  applicant: Applicant; // any を Applicant に変更
+  isActive: boolean;
+  isAvailable: boolean;
+  isDragging: boolean;
+  onDragStart: (e: React.DragEvent, id: string) => void;
+  onDragEnd: () => void;
+  onDrop: (e: React.DragEvent) => void;
+  onClick: () => void;
+}
+
+export const ApplicantItem: React.FC<ApplicantItemProps> = React.memo(({
+  applicant, isActive, isAvailable, isDragging, onDragStart, onDragEnd, onDrop, onClick
+}) => {
+  // 状態の判定
+  let status: 'normal' | 'active' | 'notAllowed' | 'isDragging' = 'normal';
+  if (isDragging) status = 'isDragging';
+  else if (isActive) status = 'active';
+  else if (!isAvailable) status = 'notAllowed';
+
+  // 名前を連結（データ構造に合わせる）
+  const fullName = `${applicant.last_name} ${applicant.first_name}`.trim();
+
+  // ドラッグ開始のハンドラー（IDの存在を保証する）
+const handleDragStart = (e: React.DragEvent) => {
+    if (applicant.id) {
+      // applicant.id が string であることが確定した状態で呼び出す
+      onDragStart(e, applicant.id);
+    }
+  };
+
+  return (
+    <div
+      draggable="true"
+      onDragStart={handleDragStart} // 直接渡さず、ラップした関数を使う
+      onDragEnd={onDragEnd}
+      onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      onDrop={onDrop}
+      onClick={onClick}
+      className={s.item({ status })}
+    >
+      {`${applicant.last_name} ${applicant.first_name}`}
+      {!isAvailable && <span className={s.badge}>(希望外)</span>}
+    </div>
+  );
+});

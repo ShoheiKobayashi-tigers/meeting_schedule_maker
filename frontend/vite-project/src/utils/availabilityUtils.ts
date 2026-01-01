@@ -1,17 +1,19 @@
 // availabilityUtils.js
-import { getApplicantById } from './applicantUtils.js';
+import { ScheduleData, SlotIndex } from '../types/ScheduleManager.ts';
+import { Applicant } from '../types/Applicant.ts';
+import { getApplicantById } from './applicantUtils.ts';
 
 // -------------------------------------------------------------------------
 // 1. 基本パーツ（変更なし）
 // -------------------------------------------------------------------------
-export const isPreferred = (applicant, slotName) => {
+export const isPreferred = (applicant: Applicant, slotName: string): boolean => {
     if (!applicant || !applicant.preferred_dates) {
         return false;
     }
     return applicant.preferred_dates.includes(slotName);
 };
 
-const createNewAvailability = (oldAvailability, rowsLength, colsLength) => {
+const createNewAvailability = (oldAvailability: ScheduleData['availability'], rowsLength: number, colsLength: number): ScheduleData['availability'] => {
     return Array(rowsLength).fill(null).map((_, r) =>
         Array(colsLength).fill(null).map((_, c) => {
             return oldAvailability[r][c] === 'admin_block' ? 'admin_block' : 'available';
@@ -28,7 +30,7 @@ const createNewAvailability = (oldAvailability, rowsLength, colsLength) => {
  * @param {function} logicCallback - 各マスの判定ロジック ({ r, c, targetAssignment, targetSlotName }) => status文字列
  * @returns {Array} 新しい availability 配列
  */
-const mapScheduleSlots = (scheduleData, logicCallback) => {
+const mapScheduleSlots = (scheduleData: ScheduleData, logicCallback) => {
     const { rows, cols, assignments, availability: oldAvailability } = scheduleData;
     const rowsLength = rows.length;
     const colsLength = cols.length;
@@ -85,7 +87,7 @@ export const calculateSlotAvailabilityById = (applicantId, applicants, scheduleD
 };
 
 // B. 選択スロットから「移動・交換可能か」を計算
-export const calculateSlotAvailabilityByIndex = (selectedSlot, applicants, scheduleData) => {
+export const calculateSlotAvailabilityByIndex = (selectedSlot: SlotIndex, applicants: Applicant[], scheduleData: ScheduleData) => {
     const { assignments, rows, cols } = scheduleData;
 
     // --- 前準備: 移動元（主役）の情報を取得 ---
@@ -94,7 +96,7 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot, applicants, sched
 
     let sourceApplicant = null;
     if (sourceAssignment) {
-        sourceApplicant = getApplicantById(sourceAssignment.applicantId, applicants);
+        sourceApplicant = getApplicantById(sourceAssignment, applicants);
     }
 
     // エラーケース: 割り当てがあるのに児童データがない場合は何もしない（初期状態を返す）
@@ -107,7 +109,7 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot, applicants, sched
         // ターゲットにいる児童を取得（いれば）
         let targetApplicant = null;
         if (targetAssignment) {
-            targetApplicant = getApplicantById(targetAssignment.applicantId, applicants);
+            targetApplicant = getApplicantById(targetAssignment, applicants);
         }
 
         // ケース1: 元が「空き枠」の場合 (誰もいないところからの移動)

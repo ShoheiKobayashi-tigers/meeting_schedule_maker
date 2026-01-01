@@ -1,0 +1,122 @@
+import { useCallback, useState } from 'react';
+import { useAppStore } from '../../../store/useAppStore';
+import { parseSlotId } from '../../../utils/slotUtils';
+import { 
+    getInitialAvailability,
+    calculateSlotAvailabilityById,
+    calculateSlotAvailabilityByIndex
+} from '../../../utils/availabilityUtils';
+
+export const useDnD = () => {
+    // Data & UI States
+    const { applicants, scheduleData } = useAppStore((state) => state.db);
+    const { draggingApplicantId } = useAppStore((state) => state.ui);
+
+    // Actions
+    const { 
+        setScheduleData,
+        setSelectedSlot,
+        setSelectedApplicantId,
+        setDraggingApplicantId,
+        setDraggingSlotIndex,
+        assignApplicant,
+        deleteAssignmentFromSlot
+    } = useAppStore();
+
+    const [hoveredCellId, setHoveredCellId] = useState<string | null>(null);
+
+    // --- ドラッグ開始 ---
+    const handleDragStart = useCallback((e: React.DragEvent, applicantId: string, sourceCellId: string | null = null) => {
+        const sourceId = sourceCellId || 'applicant-list';
+        e.dataTransfer.setData('applicantId', applicantId);
+        e.dataTransfer.setData('sourceCellId', sourceId);
+        e.dataTransfer.effectAllowed = "move";
+        
+        setDraggingApplicantId(applicantId);
+        
+        const slotIndex = sourceId !== 'applicant-list' ? parseSlotId(sourceId) : null;
+        setDraggingSlotIndex(slotIndex);
+
+        // 選択状態をクリア
+        setSelectedSlot(null);
+        setSelectedApplicantId(null);
+
+        // 配置可能エリアのハイライト計算
+        const newAvailability = (slotIndex === null)
+            ? calculateSlotAvailabilityById(applicantId, applicants, scheduleData)
+            : calculateSlotAvailabilityByIndex(slotIndex, applicants, scheduleData);
+            
+        setScheduleData({ ...scheduleData, availability: newAvailability });
+    }, [scheduleData, applicants, setDraggingApplicantId, setDraggingSlotIndex, setSelectedSlot, setSelectedApplicantId, setScheduleData]);
+
+    // --- ドラッグ終了（リセット） ---
+    const handleDragEnd = useCallback(() => {
+        const resetAvailability = getInitialAvailability(scheduleData);
+        setScheduleData({ ...scheduleData, availability: resetAvailability });
+        
+        setDraggingApplicantId(null);
+        setDraggingSlotIndex(null);
+        setHoveredCellId(null);
+    }, [scheduleData, setScheduleData, setDraggingApplicantId, setDraggingSlotIndex]);
+
+    // --- ドラッグ中/通過のイベント ---
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+    }, []);
+
+    const handleDragEnter = useCallback((e: React.DragEvent, cellId: string) => {
+        e.preventDefault();
+        setHoveredCellId(cellId);
+    }, []);
+
+    const handleDragLeave = useCallback(() => {
+        setHoveredCellId(null);
+    }, []);
+
+    // --- ドロップ実行 ---
+    const handleDrop = useCallback((e: React.DragEvent, targetId: string) => {
+        e.preventDefault();
+        setHoveredCellId(null);
+
+        const applicantId = e.dataTransfer.getData('applicantId');
+        const sourceCellId = e.dataTransfer.getData('sourceCellId');
+
+        if (!applicantId || targetId === sourceCellId) return;
+
+        const sourceSlot = parseSlotId(sourceCellId);
+
+        // A. リスト（解除エリア）へのドロップ
+        if (targetId === 'applicant-list') {
+            if (sourceSlot) {
+                deleteAssignmentFromSlot(sourceSlot);
+            }
+        } 
+        // B. 面談スロットへのドロップ
+        else {
+            const targetSlot = parseSlotId(targetId);
+            if (targetSlot) {
+                const targetStatus = scheduleData.availability[targetSlot.rowIndex][targetSlot.colIndex];
+                // 配置不可（ブロック中など）な場所は無視
+                if (targetStatus === 'admin_block' || targetStatus === 'unAvailable') return;
+
+                // Storeアクションを呼ぶだけで、移動や交換の内部ロジックはアクション側で完結
+                assignApplicant(applicantId, targetSlot);
+            }
+        }
+
+        // 共通：ハイライト解除とドラッグ状態リセット
+        handleDragEnd();
+    }, [scheduleData.availability, deleteAssignmentFromSlot, assignApplicant, handleDragEnd]);
+
+    return {
+        handleDragStart,
+        handleDragEnd,
+        handleDragOver,
+        handleDragEnter,
+        handleDragLeave,
+        handleDrop,
+        hoveredCellId,
+        draggingApplicantId
+    };
+};

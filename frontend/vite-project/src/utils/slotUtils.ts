@@ -3,7 +3,7 @@
  * @param {string} slotId - スケジュールスロットの一意なID (例: 'slot-0-1')
  * @returns {{rowIndex: number, colIndex: number} | null} インデックスオブジェクト、または無効なIDの場合は null
  */
-export const parseSlotId = (slotId) => {
+export const parseSlotId = (slotId: string) => {
     // 'slot-R-C' を '-' で分割
     const parts = slotId.split('-');
 

@@ -1,4 +1,7 @@
 // applicantUtils.js
+// import { number } from 'zod';
+import { Applicant } from '../types/Applicant';
+import { ScheduleData, SlotIndex } from '../types/ScheduleManager';
 
 /**
  * IDに基づいて児童データを検索します。
@@ -6,9 +9,10 @@
  * @param {Array<object>} applicants 全児童データの配列。
  * @returns {object | undefined} 一致する児童データ、または見つからなかった場合は undefined。
  */
-export const getApplicantById = (id, applicants) => {
+export const getApplicantById = (id: string, applicants: Applicant[]): Applicant | undefined => {
     // Array.find() を利用して、効率的に目的の applicant を検索
-    return applicants.find(applicant => applicant.id === id);
+    const applicant = applicants.find(applicant => applicant.id === id);
+    return applicant;
 };
 
 /**
@@ -16,14 +20,16 @@ export const getApplicantById = (id, applicants) => {
  * @param {Array<Array<object | null>>} assignments スケジュール全体の割り当てデータ。
  * @returns {Set<string | number>} 割り当て済みIDのSet
  */
-export const getRegisteredIdsSet = (assignments) => {
-    const registeredIds = new Set();
-    assignments.forEach(row => {
-        row.forEach(assignment => {
-            if (assignment && assignment.applicantId) {
-                registeredIds.add(assignment.applicantId);
+export const getCurrentAssignment = (applicantId: string, scheduleData: ScheduleData): SlotIndex | null => {
+    const rowsLength: number = scheduleData['rows'].length;
+    const colsLength: number = scheduleData['cols'].length;
+    const assignments: ScheduleData['assignments'] = scheduleData['assignments'];
+    for (let r = 0; r < rowsLength; r++){
+        for (let c = 0; c < colsLength; c++){
+            if(assignments[r][c] === applicantId){
+                return {rowIndex: r, colIndex: c};
             }
-        });
-    });
-    return registeredIds;
+        }
+    }
+    return null;
 };

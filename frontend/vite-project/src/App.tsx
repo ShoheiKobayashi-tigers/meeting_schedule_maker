@@ -1,163 +1,82 @@
-import React, { useState } from 'react';
-// カスタムフックをインポート
-import useScheduleManager from './hooks/useScheduleManager.js';
-import useSiblingsManager from './hooks/useSiblingsManager.js';
+import React from 'react';
+// Store をインポート
+import { useAppStore, VIEWS } from './store/useAppStore'; 
 
-// 共通コンポーネントをインポート
-import ConfirmationModal from './components/modals/ConfirmationModal.jsx';
-import StudentDetailsModal from './components/modals/StudentDetailsModal.jsx';
-import UpsertStudentModal from './components/modals/UpsertStudentModal.jsx';
+// コンポーネントのインポート
+import ConfirmationModal from './components/modals/ConfirmationModal';
+import StudentDetailsModal from './components/modals/StudentDetailsModal';
+import UpsertStudentModal from './features/Students/components/modals/UpsertStudentModal';
+import Main from './features/Main/Main';
+import ScheduleSetting from './features/Schedule/ScheduleSetting';
+import StudentSetting from './features/Students/StudentSetting';
+import Navigation from './components/Navigation';
 
-// 画面コンポーネントをインポート
-import StudentSettingsPanel from './screens/panels/StudentSettingsPanel.jsx';
-import ScheduleSettingsPanel from './screens/panels/ScheduleSettingsPanel.jsx';
-import ScheduleTablePanel from './screens/panels/ScheduleTablePanel.jsx';
-import SlotSettingsPanel from './screens/panels/SlotSettingsPanel.jsx';
-import ApplicantListPanel from './screens/panels/ApplicantListPanel.jsx';
-
-import ScheduleScreen from './screens/ScheduleScreen.jsx';
-import SettingsScreen from './screens/SettingsScreen.jsx';
-import StudentSettingsScreen from './screens/StudentSettingsScreen.jsx';
-
-import Navigation from './components/Navigation.jsx';
-
-// 初期データはここで定義するか、別途ファイルに分離することも可能
-const initialApplicants = [
-    {
-        id: 'app-1',
-        name: '佐藤 太郎',
-        student_id: '1',
-        preferred_dates: ['12/01 (月) 09:15 - 09:30', '11/30 (日) 14:00 - 14:15'],
-        family_id: '1'
-    },
-    // 山田花子さんは兄弟なし
-    {
-        id: 'app-2',
-        name: '山田 花子',
-        student_id: '2',
-        preferred_dates: ['12/01 (月) 09:00 - 09:15', '12/01 (月) 14:00 - 14:15'],
-        family_id: '2'
-    },
-    {
-        id: 'app-3',
-        name: '田中 一郎',
-        student_id: '3',
-        preferred_dates: ['12/01 (月) 09:00 - 09:15', '11/30 (日) 09:00 - 09:15'],
-        family_id: '3'
-    },
-    // 鈴木美咲さんは希望日程なし
-    {
-        id: 'app-4',
-        name: '鈴木 美咲',
-        student_id: '4',
-        preferred_dates: [],
-        family_id: '4'
-    },
-];
-
-const initialSiblings = [
-    {
-      id: 'sib-1',
-      name: '佐藤 次郎',
-      class: '5年2組',
-      family_id: '1',
-      assigned_slot: "12/01 (月) 09:00 - 09:15",
-    },
-    {
-      id: 'sib-2',
-      name: '鈴木 ひとみ',
-      class: '6年2組',
-      family_id: '4',
-      assigned_slot: "12/01 (月) 09:00 - 09:15",
-    },
-    {
-      id:'sib-3',
-      name:'佐藤 輝明',
-      class: '1年2組',
-      family_id: '1',
-      assigned_slot: "11/30 (日) 09:00 - 09:15",
-    }
-];
-
-const VIEWS = {
-    SCHEDULE: 'schedule',
-    SETTINGS: 'settings',
-    STUDENTS: 'students',
+const containerStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100vh',
+  backgroundColor: '#f7fafc',
 };
 
-const App = () => {
-    const manager = useScheduleManager(initialApplicants);
-    const siblingsManager = useSiblingsManager(initialSiblings);
-    // useScheduleManagerから生徒保存関数を取得
-    const { handleSaveStudent, applicants } = manager;
-    // useSiblingsManagerから兄弟追加関数を取得
-    const { addSibling } = siblingsManager;
+const contentAreaStyle: React.CSSProperties = {
+  flex: 1,
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+};
 
-    const [currentView, setCurrentView] = useState(VIEWS.SCHEDULE);
+const App: React.FC = () => {
+    // 1. Store から最新のデータを取得
+    const db = useAppStore(state => state.db);
+    const ui = useAppStore(state => state.ui);
+    
+    
+    const { currentView } = ui;
 
-    const handleSaveStudentAndSiblings = useCallback((studentData) => {
-        // 1. スケジュールマネージャーを使って、まずメインの生徒情報を保存
-        const savedStudent = handleSaveStudent(studentData);
+    // 2. マネージャーの初期化
+    // ※今後、マネージャー内のロジックも Store アクションへ順次移行することを推奨します
 
-        // 2. フォームデータに兄弟の手動入力情報があるかチェック
-        const siblingNameManual = studentData.sibling_name_manual;
-
-        if (siblingNameManual && savedStudent && savedStudent.family_id) {
-            // 兄弟の手動入力情報が存在する場合、新しい兄弟として登録する
-            const newSiblingData = {
-                name: siblingNameManual,
-                family_id: savedStudent.family_id, // 保存された生徒のfamily_idを使用
-                is_manual: true,
-                // UpsertStudentModalで入力されたその他の兄弟情報もここに含める
-                class: studentData.sibling_class || '',
-                assigned_slot: studentData.sibling_coordination_slot || null,
-                // 他に必要なデフォルト値やフィールドがあれば追加
-            };
-
-            // SiblingsManagerの兄弟追加関数を呼び出す
-            addSibling(newSiblingData);
-        }
-
-        // 3. モーダルを閉じる
-        manager.closeUpsertStudentModal();
-
-    }, [handleSaveStudent, addSibling, manager]);
-
-    // 現在のビューに応じてレンダリングするメインコンポーネントを決定
+    // 3. ビューのレンダリング
     const renderCurrentView = () => {
         switch (currentView) {
             case VIEWS.SCHEDULE:
-                return <ScheduleScreen manager={manager} siblingsManager={siblingsManager}/>;
+                return <Main />; // Main 内で独自の Hook (useDnD等) を使うため manager 渡しを削減
             case VIEWS.SETTINGS:
-                return <SettingsScreen manager={manager} />;
+                return <ScheduleSetting />;
             case VIEWS.STUDENTS:
-                return <StudentSettingsScreen manager={manager}  siblingsManager={siblingsManager}/>;
+                return <StudentSetting/>;
             default:
-                return <ScheduleScreen manager={manager} siblingsManager={siblingsManager}/>;
+                return <Main />;
         }
     };
 
     return (
-        <div style={manager.styles.container}>
-            {/* 1. 画面切り替えナビゲーションボタンをここに配置 */}
-           <Navigation
-                       currentView={currentView}
-                       onViewChange={setCurrentView} // setCurrentView をそのまま渡す
-                       styles={manager.styles}       // スタイルオブジェクトを渡す
-                   />
-            {/* 2. メインの画面表示領域 */}
-            <div style={manager.styles.contentArea}>
+        <div style={containerStyle}>
+            {/* Navigation は内部で currentView を参照するため Props 不要 */}
+            <Navigation/>
+
+            <div style={contentAreaStyle}>
                 {renderCurrentView()}
             </div>
+            {/* --- モーダル群 --- */}
+            
+            {/* 確認モーダル */}
+            {/* <ConfirmationModal
+                isOpen={manager.confirmModalState.isOpen}
+                title={manager.confirmModalState.title}
+                message={manager.confirmModalState.message}
+                onConfirm={manager.confirmModalState.onConfirm}
+                onCancel={() => manager.setConfirmModalState({ 
+                    isOpen: false, 
+                    title: '', 
+                    message: '', 
+                    onConfirm: () => {}, 
+                    confirmText: null, 
+                    cancelText: null
+                })}
+            /> */}
 
-            {/* モーダル */}
-            <ConfirmationModal
-                isOpen={manager.modalState.isOpen}
-                title={manager.modalState.title}
-                message={manager.modalState.message}
-                onConfirm={manager.modalState.onConfirm}
-                onCancel={() => manager.setModalState({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
-            />
+            {/* 生徒詳細モーダル
             <StudentDetailsModal
                 isOpen={manager.studentDetailsModalState.isOpen}
                 student={manager.studentDetailsModalState.student}
@@ -165,15 +84,14 @@ const App = () => {
                 assignmentDetails={manager.getAssignmentDetails(manager.studentDetailsModalState.student?.id)}
                 siblingDetails={siblingsManager.getSiblingsForStudent(manager.studentDetailsModalState.student)}
             />
-            <UpsertStudentModal
+ */}
+            {/* 生徒追加・編集モーダル */}
+            {/* <UpsertStudentModal
                 isOpen={manager.upsertStudentModalState.isOpen}
-                student={manager.upsertStudentModalState.student}
-                allApplicants={manager.applicants}
+                applicantId={manager.upsertStudentModalState.student?.id ?? null}
                 allScheduleSlots={manager.allScheduleSlots}
-                unBlockedSlots={manager.unBlockedSlots}
-                onSave={handleSaveStudentAndSiblings}
                 onClose={manager.closeUpsertStudentModal}
-            />
+            /> */}
         </div>
     );
 };

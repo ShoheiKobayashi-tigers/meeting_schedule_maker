@@ -1,7 +1,7 @@
 /**
  * 時間帯ヘッダー ("HH:mm - HH:mm") を開始時刻でソートする
  */
-export const sortTimeRows = (rows) => {
+export const sortTimeRows = (rows: string[]): string[] => {
     return [...rows].sort((a, b) => {
         const startTimeA = a.split(' - ')[0];
         const startTimeB = b.split(' - ')[0];
@@ -13,7 +13,7 @@ export const sortTimeRows = (rows) => {
 /**
  * 日付ヘッダー ("MM/DD (曜日)") を MM/DD でソートする
  */
-export const sortDateCols = (cols) => {
+export const sortDateCols = (cols: string[]): string[] => {
     return [...cols].sort((a, b) => {
         // MM/DD (曜日) から MM/DD の部分のみを抽出
         const datePartA = a.substring(0, a.indexOf(' '));
@@ -28,7 +28,7 @@ export const sortDateCols = (cols) => {
  * @param {string[]} slots - スケジュールスロットの配列
  * @returns {string[]} ソートされたスケジュールスロットの配列
  */
-export const sortScheduleSlots = (slots) => {
+export const sortScheduleSlots = (slots: string[]): string[] => {
     return [...slots].sort((a, b) => {
         // スロットを日付部分と時刻部分に分割
         // 例: "12/04 (木) 09:00 - 09:15" -> ["12/04 (木", "09:00 - 09:15"]
