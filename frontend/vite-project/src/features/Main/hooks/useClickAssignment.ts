@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { 
-    getInitialAvailability, 
     calculateSlotAvailabilityById,
     calculateSlotAvailabilityByIndex
 } from '../../../utils/availabilityUtils';
@@ -18,13 +17,13 @@ export const useClickAssignment = () => {
         setSelectedSlot,
         setSelectedApplicantId,
         assignApplicant,
-        deleteAssignmentFromSlot
+        deleteAssignmentFromSlot,
+        resetAvailability
     } = useAppStore();
 
     // ハイライト状態をクリアする共通処理
     const clearHighlights = useCallback(() => {
-        const resetAvailability = getInitialAvailability(scheduleData);
-        setScheduleData({ ...scheduleData, availability: resetAvailability });
+        resetAvailability;
         setSelectedSlot(null);
         setSelectedApplicantId(null);
     }, [scheduleData, setScheduleData, setSelectedSlot, setSelectedApplicantId]);

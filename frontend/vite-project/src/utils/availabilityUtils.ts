@@ -1,6 +1,6 @@
 // availabilityUtils.js
 import { ScheduleData, SlotIndex } from '../types/ScheduleManager.ts';
-import { Applicant } from '../types/Applicant.ts';
+import { type Applicant } from '../types/Students.ts';
 import { getApplicantById } from './applicantUtils.ts';
 
 // -------------------------------------------------------------------------
@@ -30,7 +30,25 @@ const createNewAvailability = (oldAvailability: ScheduleData['availability'], ro
  * @param {function} logicCallback - 各マスの判定ロジック ({ r, c, targetAssignment, targetSlotName }) => status文字列
  * @returns {Array} 新しい availability 配列
  */
-const mapScheduleSlots = (scheduleData: ScheduleData, logicCallback) => {
+export type AvailabilityStatus = 
+  | 'available' 
+  | 'unAvailable' 
+  | 'settable' 
+  | 'switchable' 
+  | 'movableToOther' 
+  | 'movableFromOther' 
+  | 'admin_block';
+interface SlotContext {
+  r: number;
+  c: number;
+  targetAssignment: string | null; // ID文字列
+  targetSlotName: string;
+}
+
+// コールバック関数自体の型
+type LogicCallback = (context: SlotContext) => AvailabilityStatus;
+
+const mapScheduleSlots = (scheduleData: ScheduleData, logicCallback: LogicCallback) => {
     const { rows, cols, assignments, availability: oldAvailability } = scheduleData;
     const rowsLength = rows.length;
     const colsLength = cols.length;
@@ -71,7 +89,7 @@ const mapScheduleSlots = (scheduleData: ScheduleData, logicCallback) => {
 // -------------------------------------------------------------------------
 
 // A. ID指定で「配置可能か」を計算
-export const calculateSlotAvailabilityById = (applicantId, applicants, scheduleData) => {
+export const calculateSlotAvailabilityById = (applicantId: string, applicants: Applicant[], scheduleData: ScheduleData) => {
     const applicant = getApplicantById(applicantId, applicants);
 
     // 共通ループ関数を使用
@@ -142,11 +160,14 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot: SlotIndex, applic
  * @param {object} scheduleData - スケジュールデータ（rows, cols, availabilityを含む）
  * @returns {Array<Array<string>>} リセットされた availability 配列
  */
-export const getInitialAvailability = (scheduleData) => {
-    const { rows, cols, availability: oldAvailability } = scheduleData;
-    const rowsLength = rows.length;
-    const colsLength = cols.length;
-
-    // createNewAvailability を利用して、admin_block 以外を 'available' に戻す
-    return createNewAvailability(oldAvailability, rowsLength, colsLength);
+export const getInitialAvailability = (scheduleData: ScheduleData): string[][] => {
+    return scheduleData.availability.map((row) =>
+        row.map((cell) => {
+            if (cell === 'admin_block' || cell === 'admin_block') {
+                return cell;
+            }
+            // それ以外（ハイライトなど）は available に戻す
+            return 'available';
+        })
+    );
 };

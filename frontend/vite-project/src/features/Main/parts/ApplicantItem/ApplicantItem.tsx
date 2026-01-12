@@ -9,7 +9,7 @@ interface ApplicantItemProps {
   isDragging: boolean;
   onDragStart: (e: React.DragEvent, id: string) => void;
   onDragEnd: () => void;
-  onDrop: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, applicantId: string) => void;
   onClick: () => void;
 }
 
@@ -23,13 +23,23 @@ export const ApplicantItem: React.FC<ApplicantItemProps> = React.memo(({
   else if (!isAvailable) status = 'notAllowed';
 
   // 名前を連結（データ構造に合わせる）
-  const fullName = `${applicant.last_name} ${applicant.first_name}`.trim();
+  const fullName = `${applicant.first_name} ${applicant.last_name}`.trim();
 
   // ドラッグ開始のハンドラー（IDの存在を保証する）
-const handleDragStart = (e: React.DragEvent) => {
+  const handleDragStart = (e: React.DragEvent) => {
     if (applicant.id) {
       // applicant.id が string であることが確定した状態で呼び出す
       onDragStart(e, applicant.id);
+    }
+  };
+  const handleDropLocal = (e: React.DragEvent) => {
+    e.stopPropagation();
+    // もし配置不可(isAvailable: false)の児童の上にドロップされたら何もしない
+    if (!isAvailable) return;
+
+    // ドロップ先の児童IDをセットして親の onDrop を呼ぶ
+    if (applicant.id) {
+      onDrop(e, applicant.id);
     }
   };
 
@@ -39,12 +49,11 @@ const handleDragStart = (e: React.DragEvent) => {
       onDragStart={handleDragStart} // 直接渡さず、ラップした関数を使う
       onDragEnd={onDragEnd}
       onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-      onDrop={onDrop}
+      onDrop={handleDropLocal}
       onClick={onClick}
       className={s.item({ status })}
     >
-      {`${applicant.last_name} ${applicant.first_name}`}
-      {!isAvailable && <span className={s.badge}>(希望外)</span>}
+      {fullName}
     </div>
   );
 });

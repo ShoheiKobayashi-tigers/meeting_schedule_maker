@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppStore } from '../../../store/useAppStore';
-import * as s from '../StudentSetting.css';
+import * as s from './ApplicantSettingPanel.css';
 
 interface Props {
   selectedId: string | null;
@@ -20,7 +20,7 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
         {applicants.map((student) => (
           <div
             key={student.id}
-            className={`${s.studentRow} ${selectedId === student.id ? s.selectedRow : ''}`}
+            className={`${s.listRow} ${selectedId === student.id ? s.listRow : ''}`}
             onClick={() => onSelect(student.id!)}
           >
             <div style={{ fontWeight: 'bold' }}>{student.first_name} {student.last_name}</div>

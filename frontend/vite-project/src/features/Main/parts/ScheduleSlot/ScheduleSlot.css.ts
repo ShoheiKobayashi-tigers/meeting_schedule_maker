@@ -47,7 +47,7 @@ export const slotCell = recipe({
       normal: { backgroundColor: '#fff' },
       selected: { backgroundColor: '#f0fff4', outline: '2px solid #48bb78', outlineOffset: '-2px' },
       blocked: { backgroundColor: '#edf2f7', cursor: 'not-allowed' },
-      hovered: { backgroundColor: '#ebf8ff' },
+      hovered: { backgroundColor: '#2e88b8ff', boxShadow: 'none', opacity: 0.4,},
     }
   }
 });
@@ -66,7 +66,7 @@ export const applicantBadge = recipe({
     type: {
       normal: { backgroundColor: '#4299e1' },
       error: { backgroundColor: '#ed8936' }, // 利用不可なのに割当がある場合
-      dragging: { opacity: 0.4, boxShadow: 'none' }
+      dragging: { backgroundColor: '#72afe0ff', opacity: 1, boxShadow: 'none' }
     }
   }
 });

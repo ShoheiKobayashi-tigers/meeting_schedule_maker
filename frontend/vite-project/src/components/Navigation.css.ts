@@ -1,4 +1,6 @@
 import { style } from '@vanilla-extract/css';
+import { vars } from '../styles/vars.css';
+import { baseButton } from '../styles/layout.css.ts';
 
 export const navBar = style({
   display: 'flex',
@@ -35,4 +37,23 @@ export const navButtonActive = style({
 
 export const navButtonLabel = style({
   display: 'inline-block',
+});
+
+export const restoreButton = style([baseButton, {
+  backgroundColor: 'transparent',
+  color: vars.color.textMuted,
+  border: `1px solid ${vars.color.border}`,
+  fontSize: '0.8rem',
+  padding: '6px 12px',
+  ':hover': {
+    backgroundColor: vars.color.background,
+    color: vars.color.primary,
+    borderColor: vars.color.primary,
+  }
+}]);
+
+export const bottomActions = style({
+  padding: vars.space.medium,
+  marginTop: 'auto', // サイドバーの場合、下端に寄せる
+  borderTop: `1px solid ${vars.color.border}`,
 });

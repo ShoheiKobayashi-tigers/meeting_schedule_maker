@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { parseSlotId } from '../../../utils/slotUtils';
 import { 
-    getInitialAvailability,
     calculateSlotAvailabilityById,
     calculateSlotAvailabilityByIndex
 } from '../../../utils/availabilityUtils';
@@ -20,7 +19,8 @@ export const useDnD = () => {
         setDraggingApplicantId,
         setDraggingSlotIndex,
         assignApplicant,
-        deleteAssignmentFromSlot
+        deleteAssignmentFromSlot,
+        resetAvailability
     } = useAppStore();
 
     const [hoveredCellId, setHoveredCellId] = useState<string | null>(null);
@@ -51,9 +51,7 @@ export const useDnD = () => {
 
     // --- ドラッグ終了（リセット） ---
     const handleDragEnd = useCallback(() => {
-        const resetAvailability = getInitialAvailability(scheduleData);
-        setScheduleData({ ...scheduleData, availability: resetAvailability });
-        
+        resetAvailability();        
         setDraggingApplicantId(null);
         setDraggingSlotIndex(null);
         setHoveredCellId(null);
@@ -75,7 +73,7 @@ export const useDnD = () => {
     }, []);
 
     // --- ドロップ実行 ---
-    const handleDrop = useCallback((e: React.DragEvent, targetId: string) => {
+    const handleDrop = useCallback((e: React.DragEvent, targetId: string, droppedOnApplicantId: string | null) => {
         e.preventDefault();
         setHoveredCellId(null);
 
@@ -89,9 +87,16 @@ export const useDnD = () => {
         // A. リスト（解除エリア）へのドロップ
         if (targetId === 'applicant-list') {
             if (sourceSlot) {
-                deleteAssignmentFromSlot(sourceSlot);
+                if (droppedOnApplicantId) {
+                    // 1. 【入れ替え】特定の児童(かつisAvailable)の上にドロップされた場合
+                    // 元の枠に、リストにいた児童を上書き割り当て
+                    assignApplicant(droppedOnApplicantId, sourceSlot);
+                } else {
+                    // 2. 【解除】児童以外のリストエリアにドロップされた場合
+                    deleteAssignmentFromSlot(sourceSlot);
+                }
             }
-        } 
+        }
         // B. 面談スロットへのドロップ
         else {
             const targetSlot = parseSlotId(targetId);

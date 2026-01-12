@@ -53,7 +53,7 @@ export const ScheduleSlot: React.FC<ScheduleSlotProps> = ({
 
       {assignedSiblings.map((sibling, i) => (
         <span key={sibling.id || i} className={s.siblingText}>
-          {sibling.last_name} {sibling.first_name}
+          {sibling.first_name} {sibling.last_name}
         </span>
       ))}
     </td>

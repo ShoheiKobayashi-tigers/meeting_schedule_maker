@@ -26,7 +26,7 @@ const SlotSettingPanel: React.FC = () => {
                                 <td className={s.timeCell}>{row}</td>
                                 {scheduleData.cols.map((col, colIndex) => {
                                     const status = scheduleData.availability[rowIndex][colIndex];
-                                    const isBlocked = status === 'admin_blocked';
+                                    const isBlocked = status === 'admin_block';
 
                                     return (
                                         <td key={col} className={s.slotCell}>
@@ -36,7 +36,7 @@ const SlotSettingPanel: React.FC = () => {
                                                     onChange={() => toggleSlotBlock({rowIndex, colIndex})} 
                                                 />
                                                 <span className={isBlocked ? s.statusTextOff : s.statusTextOn}>
-                                                    {isBlocked ? '停止' : '公開'}
+                                                    {isBlocked ? '面談不可' : '面談可'}
                                                 </span>
                                             </div>
                                         </td>

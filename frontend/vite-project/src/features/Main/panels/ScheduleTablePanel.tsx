@@ -28,7 +28,7 @@ const ScheduleTablePanel: React.FC = () => {
   // 児童名を取得するロジック
   const getApplicantName = (id: string) => {
     const applicant = getApplicantById(id, applicants);
-    return applicant ? `${applicant.last_name} ${applicant.first_name}` : '';
+    return applicant ? `${applicant.first_name} ${applicant.last_name}` : '';
   };
 
   // スロットに紐づく兄弟姉妹リストを取得（表示用）
@@ -88,7 +88,7 @@ const ScheduleTablePanel: React.FC = () => {
                       }}
                       onDragEnd={handleDragEnd}
                       onDragEnter={(e) => handleDragEnter(e, cellId)}
-                      onDrop={(e) => handleDrop(e, cellId)}
+                      onDrop={(e) => handleDrop(e, cellId, null)}
                     />
                   );
                 })}
