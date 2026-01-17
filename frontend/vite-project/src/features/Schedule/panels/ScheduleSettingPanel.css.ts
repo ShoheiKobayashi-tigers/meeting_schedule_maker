@@ -5,146 +5,95 @@ export const panelContainer = style({
     backgroundColor: 'white',
     borderRadius: '12px',
     height: '100%',
+    overflowY: 'auto'
 });
 
-export const panelTitle = style({
-    fontSize: '1.2rem',
-    fontWeight: 700,
-    marginBottom: '1.5rem',
+export const mainTitle = style({
+    fontSize: '1.5rem',
+    fontWeight: 800,
     color: '#2d3748',
+    marginBottom: '0.5rem',
 });
 
-export const settingSection = style({
+export const description = style({
+    color: '#718096',
+    fontSize: '0.9rem',
+    marginBottom: '2rem',
+});
+
+export const section = style({
     marginBottom: '2.5rem',
     paddingBottom: '1.5rem',
     borderBottom: '1px solid #edf2f7',
-    ':last-child': {
-        borderBottom: 'none',
-    }
+    ':last-child': { borderBottom: 'none' }
 });
 
-export const label = style({
-    display: 'block',
-    fontSize: '0.9rem',
-    fontWeight: 600,
-    marginBottom: '0.75rem',
+export const sectionTitle = style({
+    fontSize: '1.1rem',
+    fontWeight: 700,
     color: '#4a5568',
+    marginBottom: '1rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
 });
 
-export const inputGroup = style({
+export const controlRow = style({
     display: 'flex',
-    gap: '0.5rem',
+    gap: '0.75rem',
+    alignItems: 'center',
+    marginBottom: '1rem'
 });
 
 export const input = style({
-    flex: 1,
-    padding: '0.6rem 0.8rem',
+    padding: '0.5rem 0.75rem',
     borderRadius: '6px',
     border: '1px solid #cbd5e0',
     fontSize: '1rem',
-    transition: 'border-color 0.2s',
-    ':focus': {
-        outline: 'none',
-        borderColor: '#3182ce',
-    }
+    flex: 1
 });
 
+export const select = style([input, { flex: 'none', minWidth: '120px' }]);
+
 export const addButton = style({
-    padding: '0.6rem 1.25rem',
+    padding: '0.6rem 1rem',
     backgroundColor: '#3182ce',
     color: 'white',
     fontWeight: 600,
     border: 'none',
     borderRadius: '6px',
     cursor: 'pointer',
-    transition: 'background-color 0.2s',
-    ':hover': {
-        backgroundColor: '#2b6cb0',
-    },
-    ':active': {
-        transform: 'translateY(1px)',
-    }
+    whiteSpace: 'nowrap',
+    ':hover': { backgroundColor: '#2b6cb0' }
 });
 
-export const mainTitle = style({
-  fontSize: '1.875rem',
-  fontWeight: '800',
-  color: '#2d3748',
-  marginBottom: '0.5rem',
-});
-
-export const sectionTitle = style({
-  fontSize: '1.25rem',
-  fontWeight: '700',
-  color: '#2d3748',
-  borderBottom: '2px solid #edf2f7',
-  paddingBottom: '0.5rem',
-  marginTop: '2rem',
-});
-
-export const inputRow = style({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1rem',
-  marginTop: '1rem',
-});
-
-export const listArea = style({
-  marginTop: '1rem',
-  border: '1px solid #edf2f7',
-  borderRadius: '0.5rem',
-  maxHeight: '200px',
-  overflowY: 'auto',
+export const listContainer = style({
+    border: '1px solid #edf2f7',
+    borderRadius: '8px',
+    backgroundColor: '#f8fafc'
 });
 
 export const listItem = style({
-  display: 'flex',
-  alignItems: 'center',
-  padding: '0.5rem',
-  borderBottom: '1px solid #edf2f7',
-  ':last-child': { borderBottom: 'none' },
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0.75rem 1rem',
+    borderBottom: '1px solid #edf2f7',
+    ':last-child': { borderBottom: 'none' }
+});
+
+export const listText = style({
+    fontSize: '0.95rem',
+    fontWeight: 500,
+    color: '#2d3748',
+    flex: 1
 });
 
 export const deleteButton = style({
-  color: '#e53e3e',
-  border: 'none',
-  background: 'none',
-  cursor: 'pointer',
-  marginLeft: 'auto',
-  ':hover': { color: '#c53030' },
-});
-
-// description: 説明文のスタイル
-export const description = style({
-  color: '#718096',
-  marginBottom: '1.5rem',
-});
-
-// section: 各設定項目を囲む枠
-export const section = style({
-  marginBottom: '3rem',
-});
-
-// select: プルダウンメニューのスタイル
-export const select = style({
-  padding: '0.5rem',
-  borderRadius: '0.375rem',
-  border: '1px solid #e2e8f0',
-  backgroundColor: '#fff',
-  fontSize: '1rem',
-  minWidth: '120px',
-});
-
-// listIndex: リストの番号 (1. 2. ...)
-export const listIndex = style({
-  fontWeight: '700',
-  color: '#718096',
-  minWidth: '30px',
-});
-
-// listText: ヘッダー名 (日付や時刻)
-export const listText = style({
-  fontWeight: '600',
-  color: '#2d3748',
-  flexGrow: 1,
+    color: '#e53e3e',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    ':hover': { textDecoration: 'underline' }
 });
