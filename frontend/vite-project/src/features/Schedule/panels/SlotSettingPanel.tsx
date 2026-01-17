@@ -1,11 +1,12 @@
 import React from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import ToggleSwitch from '../../../components/ui/ToggleSwitch/ToggleSwitch';
+import { useSlotSettings } from '../hooks/useSlotSettings';
 import * as s from './SlotSettingPanel.css';
 
 const SlotSettingPanel: React.FC = () => {
     const { scheduleData } = useAppStore((state) => state.db);
-    const { toggleSlotBlock } = useAppStore();
+    const { handleToggleBlock } = useSlotSettings();
 
     return (
         <div className={s.panelContainer}>
@@ -33,7 +34,7 @@ const SlotSettingPanel: React.FC = () => {
                                             <div className={s.toggleWrapper}>
                                                 <ToggleSwitch 
                                                     isChecked={!isBlocked} // Blockでない = 公開中(checked)
-                                                    onChange={() => toggleSlotBlock({rowIndex, colIndex})} 
+                                                    onChange={() => handleToggleBlock(rowIndex, colIndex)} 
                                                 />
                                                 <span className={isBlocked ? s.statusTextOff : s.statusTextOn}>
                                                     {isBlocked ? '面談不可' : '面談可'}

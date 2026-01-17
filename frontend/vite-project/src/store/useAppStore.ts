@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 import { type Applicant, type Sibling, type StudentFormValues, applicantInputSchema, siblingInputSchema, studentFormSchema } from '../types/Students';
 import { ScheduleData, SlotIndex } from '../types/ScheduleManager';
+import { ConfirmationModalState } from '../types/Modal';
 import { 
     assignApplicantToSlot, 
     deleteAssignmentFromSlot 
@@ -115,6 +116,7 @@ interface UiState {
     selectedApplicantId: string | null;
     draggingApplicantId: string | null;
     draggingSlotIndex: SlotIndex | null;
+    confirmationModal: ConfirmationModalState;
 }
 
 interface AppState {
@@ -153,6 +155,8 @@ interface AppState {
     resetAvailability: () => void;
     resetAll: () => void;
     getFamilyIdByApplicantId: (id: string) => string | undefined;
+    openConfirmationModal: (config: Omit<ConfirmationModalState, 'isOpen'>) => void;
+    closeConfirmationModal: () => void;
 
     restorePreviousData: () => void;
 }
@@ -178,6 +182,14 @@ export const useAppStore = create<AppState>()(
                 selectedApplicantId: null,
                 draggingApplicantId: null,
                 draggingSlotIndex: null,
+                confirmationModal: {
+                    isOpen: false,
+                    title: '',
+                    message: '',
+                    onConfirm: () => {},
+                    confirmText: 'OK',
+                    cancelText: 'キャンセル',
+                },                
             },
 
             // --- Actions ---
@@ -421,9 +433,8 @@ export const useAppStore = create<AppState>()(
                 const { rowIndex, colIndex } = slot;
                 const newAvailability = state.db.scheduleData.availability.map(row => [...row]);
                 const currentStatus = newAvailability[rowIndex][colIndex];
-                
-                newAvailability[rowIndex][colIndex] = 
-                    currentStatus === 'admin_block' ? 'normal' : 'admin_block';
+
+                newAvailability[rowIndex][colIndex] = currentStatus === 'admin_block' ? 'normal' : 'admin_block';
 
                 return {
                     db: {
@@ -446,8 +457,43 @@ export const useAppStore = create<AppState>()(
 
             resetAll: () => set({ 
                 db: { applicants: INITIAL_APPLICANTS, siblings: INITIAL_SIBLINGS, scheduleData: INITIAL_SCHEDULE },
-                ui: { currentView: VIEWS.SCHEDULE, interviewDuration: 15,selectedSlot: null, selectedApplicantId: null, draggingApplicantId: null, draggingSlotIndex: null }
+                ui: { 
+                    currentView: VIEWS.SCHEDULE,
+                    interviewDuration: 15,
+                    selectedSlot: null,
+                    selectedApplicantId: null,
+                    draggingApplicantId: null,
+                    draggingSlotIndex: null,
+                    confirmationModal: {
+                        isOpen: false, title: '', 
+                        message: '', onConfirm: () => {}, 
+                        confirmText: null, cancelText: null 
+                    }
+                }
             }),
+
+            // 汎用確認モーダルを開くアクション
+            openConfirmationModal: (config: Omit<ConfirmationModalState, 'isOpen'>) => {
+                set((state) => ({
+                    ui: {
+                        ...state.ui,
+                        confirmationModal: {
+                            ...state.ui.confirmationModal,
+                            ...config,
+                            isOpen: true,
+                        }
+                    }
+                }));
+            },
+
+            closeConfirmationModal: () => {
+                set((state) => ({
+                    ui: {
+                        ...state.ui,
+                        confirmationModal: { ...state.ui.confirmationModal, isOpen: false }
+                    }
+                }));
+            },
         }),
         { 
             name: 'student-app-storage',

@@ -1,5 +1,5 @@
 // src/types/Modal.ts
-import { Applicant } from './Applicant'; // Applicant 型に依存
+import { Applicant } from './Students'; // Applicant 型に依存
 
 /**
  * 確認モーダルの状態 (ConfirmationModal)
