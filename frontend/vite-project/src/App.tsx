@@ -58,24 +58,9 @@ const App: React.FC = () => {
             <div style={contentAreaStyle}>
                 {renderCurrentView()}
             </div>
+            <ConfirmationModal />
             {/* --- モーダル群 --- */}
             
-            {/* 確認モーダル */}
-            {/* <ConfirmationModal
-                isOpen={manager.confirmModalState.isOpen}
-                title={manager.confirmModalState.title}
-                message={manager.confirmModalState.message}
-                onConfirm={manager.confirmModalState.onConfirm}
-                onCancel={() => manager.setConfirmModalState({ 
-                    isOpen: false, 
-                    title: '', 
-                    message: '', 
-                    onConfirm: () => {}, 
-                    confirmText: null, 
-                    cancelText: null
-                })}
-            /> */}
-
             {/* 生徒詳細モーダル
             <StudentDetailsModal
                 isOpen={manager.studentDetailsModalState.isOpen}
