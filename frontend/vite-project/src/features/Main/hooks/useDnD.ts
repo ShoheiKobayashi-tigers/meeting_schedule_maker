@@ -75,7 +75,8 @@ export const useDnD = () => {
     // --- ドロップ実行 ---
     const handleDrop = useCallback((e: React.DragEvent, targetId: string, droppedOnApplicantId: string | null) => {
         e.preventDefault();
-        setHoveredCellId(null);
+        // 共通：ハイライト解除とドラッグ状態リセット
+        handleDragEnd();        
 
         //ドラッグ中のApplicant
         const applicantId = e.dataTransfer.getData('applicantId');
@@ -124,8 +125,6 @@ export const useDnD = () => {
             }
         }
 
-        // 共通：ハイライト解除とドラッグ状態リセット
-        handleDragEnd();
     }, [scheduleData.availability, deleteAssignmentFromSlot, assignApplicant, handleDragEnd]);
 
     return {
