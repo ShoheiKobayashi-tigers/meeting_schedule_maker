@@ -46,6 +46,14 @@ const INITIAL_APPLICANTS: Applicant[] = [
         preferred_dates: [],
         family_id: '4'
     }, 
+    {
+        id: 'app-5',
+        first_name: '王',
+        last_name: '貞治',
+        student_id: '5',
+        preferred_dates: ['12/01 (月) 09:15 - 09:30', '11/30 (日) 14:00 - 14:15', '11/30 (日) 09:15 - 09:30', '11/30 (日) 09:00 - 09:15', '12/01 (月) 09:00 - 09:15', '12/01 (月) 14:00 - 14:15'],
+        family_id: '5'
+    },    
 ];
 
 const INITIAL_SIBLINGS: Sibling[] = [
@@ -81,7 +89,7 @@ const INITIAL_SCHEDULE: ScheduleData = {
     rows: ["09:00 - 09:15", "09:15 - 09:30", "14:00 - 14:15"], 
     cols: ["11/30 (日)", "12/01 (月)"],
     assignments: [[null, null], [null, null], [null, null]],
-    availability: [['available', 'available'], ['available', 'available'], ['available', 'available']]
+    availability: [['normal', 'normal'], ['normal', 'normal'], ['normal', 'normal']]
 };
 
 export const VIEWS = {
@@ -192,7 +200,7 @@ export const useAppStore = create<AppState>()(
                     scheduleData: {
                     ...currentData,
                     cols: [...currentData.cols, formattedDate].sort(), // 必要ならソート
-                    availability: currentData.availability.map(row => [...row, 'available']),
+                    availability: currentData.availability.map(row => [...row, 'normal']),
                     assignments: currentData.assignments.map(row => [...row, null]),
                     }
                 }
@@ -219,7 +227,7 @@ export const useAppStore = create<AppState>()(
                             scheduleData: {
                                 ...currentData,
                                 rows: [...currentData.rows, timeRange], // 必要ならここで .sort()
-                                availability: [...currentData.availability, Array(colCount).fill('available')],
+                                availability: [...currentData.availability, Array(colCount).fill('normal')],
                                 assignments: [...currentData.assignments, Array(colCount).fill(null)],
                             }
                         }
@@ -415,7 +423,7 @@ export const useAppStore = create<AppState>()(
                 const currentStatus = newAvailability[rowIndex][colIndex];
                 
                 newAvailability[rowIndex][colIndex] = 
-                    currentStatus === 'admin_block' ? 'available' : 'admin_block';
+                    currentStatus === 'admin_block' ? 'normal' : 'admin_block';
 
                 return {
                     db: {

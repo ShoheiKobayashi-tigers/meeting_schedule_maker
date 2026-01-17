@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
+import { type Sibling } from '../../../types/Students';
 import { useDnD } from '../hooks/useDnD';
 import { useClickAssignment } from '../hooks/useClickAssignment';
 import { ScheduleSlot } from '../parts/ScheduleSlot/ScheduleSlot';
@@ -12,7 +13,7 @@ const ScheduleTablePanel: React.FC = () => {
   const ui = useAppStore((state) => state.ui);
   
   const { scheduleData, applicants, siblings } = db;
-  const { selectedSlot, draggingApplicantId } = ui;
+  const { draggingApplicantId } = ui;
 
   // === カスタムフックの呼び出し ===
   const { 
@@ -31,15 +32,20 @@ const ScheduleTablePanel: React.FC = () => {
     return applicant ? `${applicant.first_name} ${applicant.last_name}` : '';
   };
 
-  // スロットに紐づく兄弟姉妹リストを取得（表示用）
-  const getAssignedSiblingsForSlot = (date: string, time: string) => {
-    const slotKey = `${date} ${time}`;
-    return siblings.filter(s => s.assigned_slot === slotKey);
-  };
-
   if (scheduleData.rows.length === 0 || scheduleData.cols.length === 0) {
     return <div className={s.container}>枠が設定されていません。</div>;
   }
+
+  const siblingMap = useMemo(() => {
+  const map: Record<string, Sibling[]> = {};
+  siblings.forEach(s => {
+    if (s.assigned_slot) {
+      if (!map[s.assigned_slot]) map[s.assigned_slot] = [];
+      map[s.assigned_slot].push(s);
+    }
+  });
+  return map;
+}, [siblings]);
 
   return (
     <div className={s.container}>
@@ -63,25 +69,20 @@ const ScheduleTablePanel: React.FC = () => {
                   const cellId = `slot-${rowIndex}-${colIndex}`;
                   const applicantId = scheduleData.assignments[rowIndex][colIndex];
                   const status = scheduleData.availability[rowIndex][colIndex];
-                  
-                  const isBlocked = status === 'admin_block';
-                  const isSelected = selectedSlot?.rowIndex === rowIndex && selectedSlot?.colIndex === colIndex;
-                  
+                                    
                   // スロット情報の取得
-                  const assignedSiblings = getAssignedSiblingsForSlot(colHeader, rowHeader);
+                  const assignedSiblings = siblingMap[`${colHeader} ${rowHeader}`] || [];
 
                   return (
                     <ScheduleSlot
                       key={colIndex}
                       applicantId={applicantId}
                       applicantName={applicantId ? getApplicantName(applicantId) : ''}
-                      isBlocked={isBlocked}
-                      isSelected={isSelected}
                       isDragging={draggingApplicantId === applicantId && !!applicantId}
                       assignedSiblings={assignedSiblings}
                       // 状態に基づいた色分けや表示制御
                       status={status} 
-                      hasError={!!(applicantId && isBlocked)}
+                      hasError={!!(applicantId && status === 'admin_block')}
                       onClick={() => handleSlotClick({ rowIndex, colIndex })}
                       onDragStart={(e) => {
                         if (applicantId) handleDragStart(e, applicantId, cellId);

@@ -23,7 +23,7 @@ export const useClickAssignment = () => {
 
     // ハイライト状態をクリアする共通処理
     const clearHighlights = useCallback(() => {
-        resetAvailability;
+        resetAvailability();
         setSelectedSlot(null);
         setSelectedApplicantId(null);
     }, [scheduleData, setScheduleData, setSelectedSlot, setSelectedApplicantId]);
@@ -39,17 +39,19 @@ export const useClickAssignment = () => {
 
         // スロット未選択の場合 -> 児童を選択/解除
         const isAlreadySelected = selectedApplicantId === applicantId;
-        const newId = isAlreadySelected ? null : applicantId;
         
-        setSelectedApplicantId(newId);
-
-        if (newId) {
-            const newAvailability = calculateSlotAvailabilityById(newId, applicants, scheduleData);
-            setScheduleData({ ...scheduleData, availability: newAvailability });
-        } else {
+        if (isAlreadySelected) {
+            // すでに選択されている児童をクリック -> 選択解除
             clearHighlights();
+        } else {
+            // 新しく児童を選択 -> 他の選択（スロット選択など）を解除してから選択
+            setSelectedSlot(null); 
+            setSelectedApplicantId(applicantId);
+            
+            const newAvailability = calculateSlotAvailabilityById(applicantId, applicants, scheduleData);
+            setScheduleData({ ...scheduleData, availability: newAvailability });
         }
-    }, [selectedSlot, selectedApplicantId, applicants, scheduleData, assignApplicant, clearHighlights, setSelectedApplicantId, setScheduleData]);
+    }, [selectedSlot, selectedApplicantId, applicants, scheduleData, assignApplicant, clearHighlights, setSelectedApplicantId, setSelectedSlot, setScheduleData]);
 
     // --- 面談スロットをクリックしたとき ---
     const handleSlotClick = useCallback((clickedSlot: SlotIndex) => {
@@ -63,7 +65,7 @@ export const useClickAssignment = () => {
             return;
         }
 
-        // 2. 児童が選択されている状態でのクリック -> 割り当て実行
+        // 2. Applicantが選択されている状態でのクリック -> 割り当て実行
         if (selectedApplicantId) {
             assignApplicant(selectedApplicantId, clickedSlot);
             clearHighlights();
@@ -81,8 +83,18 @@ export const useClickAssignment = () => {
         // 4. 他のスロットが選択されている状態でのクリック -> 移動/交換
         // Storeの assignApplicant 内で「元の場所を消す」ロジックがあるため、これでOK
         const selectedApplicantIdInSlot = scheduleData.assignments[selectedSlot.rowIndex][selectedSlot.colIndex];
-        if (selectedApplicantIdInSlot) {
-            assignApplicant(selectedApplicantIdInSlot, clickedSlot);
+        const clickedApplicantId = scheduleData.assignments[clickedSlot.rowIndex][clickedSlot.colIndex];
+        switch(scheduleData.availability[clickedSlot.rowIndex][clickedSlot.colIndex]){
+            case 'switchable':
+                assignApplicant(selectedApplicantIdInSlot!, clickedSlot);
+                assignApplicant(clickedApplicantId!, selectedSlot);
+                break;
+            case 'movableToOther':
+                 assignApplicant(selectedApplicantIdInSlot!, clickedSlot);
+               break;
+            case 'movableFromOther':
+                assignApplicant(clickedApplicantId!, selectedSlot);
+                break;   
         }
         clearHighlights();
 

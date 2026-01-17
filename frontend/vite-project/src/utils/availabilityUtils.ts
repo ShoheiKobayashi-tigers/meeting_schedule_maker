@@ -16,7 +16,7 @@ export const isPreferred = (applicant: Applicant, slotName: string): boolean => 
 const createNewAvailability = (oldAvailability: ScheduleData['availability'], rowsLength: number, colsLength: number): ScheduleData['availability'] => {
     return Array(rowsLength).fill(null).map((_, r) =>
         Array(colsLength).fill(null).map((_, c) => {
-            return oldAvailability[r][c] === 'admin_block' ? 'admin_block' : 'available';
+            return oldAvailability[r][c] === 'admin_block' ? 'admin_block' : 'normal';
         })
     );
 };
@@ -31,7 +31,8 @@ const createNewAvailability = (oldAvailability: ScheduleData['availability'], ro
  * @returns {Array} 新しい availability 配列
  */
 export type AvailabilityStatus = 
-  | 'available' 
+  | 'normal' 
+  | 'selected'
   | 'unAvailable' 
   | 'settable' 
   | 'switchable' 
@@ -123,8 +124,11 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot: SlotIndex, applic
     }
 
     // 共通ループ関数を使用
-    return mapScheduleSlots(scheduleData, ({ targetAssignment, targetSlotName }) => {
+    return mapScheduleSlots(scheduleData, ({ r, c, targetAssignment, targetSlotName }) => {
         // ターゲットにいる児童を取得（いれば）
+        if (r === selectedSlot.rowIndex && c === selectedSlot.colIndex) {
+            return 'selected';
+        }
         let targetApplicant = null;
         if (targetAssignment) {
             targetApplicant = getApplicantById(targetAssignment, applicants);
@@ -134,7 +138,7 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot: SlotIndex, applic
         if (!sourceAssignment) {
             // 相手も空き枠ならNG
             if (!targetAssignment) {
-              return 'unAvailable';
+              return 'normal';
             }
             // 相手がこちらの枠(sourceSlotName)を希望していれば movable
             return isPreferred(targetApplicant, sourceSlotName) ? 'movableFromOther' : 'unAvailable';
@@ -156,7 +160,7 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot: SlotIndex, applic
 
 /**
  * リセット用: 現在の管理者ブロックの状態を維持しつつ、
- * 利用可能性の状態をすべて 'available' にリセットする配列を生成します。
+ * 利用可能性の状態をすべて 'normal' にリセットする配列を生成します。
  * @param {object} scheduleData - スケジュールデータ（rows, cols, availabilityを含む）
  * @returns {Array<Array<string>>} リセットされた availability 配列
  */
@@ -167,7 +171,7 @@ export const getInitialAvailability = (scheduleData: ScheduleData): string[][] =
                 return cell;
             }
             // それ以外（ハイライトなど）は available に戻す
-            return 'available';
+            return 'normal';
         })
     );
 };

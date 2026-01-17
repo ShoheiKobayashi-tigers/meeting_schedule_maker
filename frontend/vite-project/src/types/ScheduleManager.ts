@@ -26,7 +26,7 @@ export interface ScheduleData {
     rows: string[];
     cols: string[];
     assignments: (string | null)[][]; //assingmentsにはapplicantIdのみが入る
-    availability: string[][]; // 例: 'available', 'admin_block', 'unAvailable', 'settable', etc.
+    availability: string[][];
 }
 
 /**

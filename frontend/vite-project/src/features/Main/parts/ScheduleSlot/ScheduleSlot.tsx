@@ -5,12 +5,10 @@ import { Sibling } from '../../../../types/Students';
 interface ScheduleSlotProps {
   applicantId: string | null | undefined;
   applicantName: string;
-  isBlocked: boolean;
-  isSelected: boolean;
   isDragging: boolean;
   assignedSiblings: Sibling[];
   hasError: boolean;
-  status?: string;
+  status: string;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: () => void;
   onDrop: (e: React.DragEvent) => void;
@@ -18,19 +16,18 @@ interface ScheduleSlotProps {
   onDragEnter: (e: React.DragEvent) => void;
 }
 
-export const ScheduleSlot: React.FC<ScheduleSlotProps> = ({
-  applicantId, applicantName, isBlocked, isSelected, isDragging,
-  assignedSiblings, hasError, onDragStart, onDragEnd, onDrop, onClick, onDragEnter
+export const ScheduleSlot: React.FC<ScheduleSlotProps> = React.memo(({
+  applicantId, applicantName, isDragging, assignedSiblings, hasError, status, 
+  onDragStart, onDragEnd, onDrop, onClick, onDragEnter
 }) => {
-  const status = isBlocked ? 'blocked' : isSelected ? 'selected' : 'normal';
 
   return (
     <td
-      className={s.slotCell({ status })}
+      className={s.slotCell({ status: status as any })}
       onClick={onClick}
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={onDragEnter}
-      onDrop={!isBlocked ? onDrop : undefined}
+      onDrop={(status !== 'admin_block' && status !== 'unAvailable') ? onDrop : undefined}
     >
       {applicantId ? (
         <div
@@ -45,7 +42,7 @@ export const ScheduleSlot: React.FC<ScheduleSlotProps> = ({
         </div>
       ) : (
         <div style={{ textAlign: 'center', color: '#a0aec0', fontSize: '0.75rem', fontWeight: 'bold' }}>
-          {isSelected ? '選択中' : (!isBlocked ? '空き' : '不可')}
+          {status === 'selected' ? '選択中' : (status === 'admin_block' ? '不可' :'空き')}
         </div>
       )}
 
@@ -58,4 +55,4 @@ export const ScheduleSlot: React.FC<ScheduleSlotProps> = ({
       ))}
     </td>
   );
-};
+});

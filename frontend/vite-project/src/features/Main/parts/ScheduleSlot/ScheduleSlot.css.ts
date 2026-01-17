@@ -33,6 +33,13 @@ export const timeCell = style({
   width: '100px',
 });
 
+const availableSlot = {
+  backgroundColor: '#f0fff4', // 薄い青
+  cursor: 'swap',
+  outline: '0.5px solid #48bb78',
+  outlineOffset:'-2px'
+};
+
 // スロットの状態管理
 export const slotCell = recipe({
   base: {
@@ -45,8 +52,16 @@ export const slotCell = recipe({
   variants: {
     status: {
       normal: { backgroundColor: '#fff' },
-      selected: { backgroundColor: '#f0fff4', outline: '2px solid #48bb78', outlineOffset: '-2px' },
-      blocked: { backgroundColor: '#edf2f7', cursor: 'not-allowed' },
+      selected: { backgroundColor: '#ebf8ff', outline: '0.5px solid #4299e1', outlineOffset:'-2px' },
+      admin_block: { backgroundColor: '#f1f1f1', cursor: 'not-allowed' },
+      settable: availableSlot,
+      switchable: availableSlot,
+      movableToOther: availableSlot,
+      movableFromOther: availableSlot,
+      unAvailable: {
+        backgroundColor: '#fff', // 薄い赤
+        cursor: 'not-allowed'
+      },
       hovered: { backgroundColor: '#2e88b8ff', boxShadow: 'none', opacity: 0.4,},
     }
   }

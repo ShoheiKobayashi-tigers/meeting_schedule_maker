@@ -77,11 +77,14 @@ export const useDnD = () => {
         e.preventDefault();
         setHoveredCellId(null);
 
+        //ドラッグ中のApplicant
         const applicantId = e.dataTransfer.getData('applicantId');
+        //ドラッグ元のソースID(applicant-list, slot)
         const sourceCellId = e.dataTransfer.getData('sourceCellId');
 
         if (!applicantId || targetId === sourceCellId) return;
 
+        //ドラッグ元のスロットID　ドラッグ元がapplicant-listの場合はnullで返ってくる
         const sourceSlot = parseSlotId(sourceCellId);
 
         // A. リスト（解除エリア）へのドロップ
@@ -99,14 +102,25 @@ export const useDnD = () => {
         }
         // B. 面談スロットへのドロップ
         else {
+            //ドロップ先のスロットID
             const targetSlot = parseSlotId(targetId);
+            //万が一、parseしてnullが返ってきたときのため、ブロックを組む
             if (targetSlot) {
                 const targetStatus = scheduleData.availability[targetSlot.rowIndex][targetSlot.colIndex];
+                const targetApplicant = scheduleData.assignments[targetSlot.rowIndex][targetSlot.colIndex];
+
                 // 配置不可（ブロック中など）な場所は無視
                 if (targetStatus === 'admin_block' || targetStatus === 'unAvailable') return;
-
-                // Storeアクションを呼ぶだけで、移動や交換の内部ロジックはアクション側で完結
-                assignApplicant(applicantId, targetSlot);
+                switch(targetStatus){
+                    case 'switchable':
+                        assignApplicant(applicantId, targetSlot);
+                        assignApplicant(targetApplicant!, sourceSlot!);
+                        break;
+                    case 'movableToOther':
+                    case 'settable':
+                        assignApplicant(applicantId, targetSlot);
+                        break;
+                }
             }
         }
 
