@@ -1,6 +1,6 @@
 // applicantUtils.js
 // import { number } from 'zod';
-import { Applicant } from '../types/Applicant';
+import { Applicant } from '../types/Students';
 import { ScheduleData, SlotIndex } from '../types/ScheduleManager';
 
 /**
