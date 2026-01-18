@@ -12,7 +12,7 @@ const ScheduleTablePanel: React.FC = () => {
   // === Storeからデータ(db)と状態(ui)を取得 ===
   const { db, ui } = useAppStore();
   
-  const { grid, sortedCols } = useProcessedSchedule();
+  const { grid } = useProcessedSchedule();
 
   // === カスタムフックの呼び出し ===
   const { 

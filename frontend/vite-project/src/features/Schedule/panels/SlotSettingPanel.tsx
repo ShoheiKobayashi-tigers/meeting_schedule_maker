@@ -6,7 +6,7 @@ import * as s from './SlotSettingPanel.css';
 
 const SlotSettingPanel: React.FC = () => {
   const { handleToggleBlock } = useSlotSettings();
-  const { sortedCols, grid } = useProcessedSchedule();
+  const { grid } = useProcessedSchedule();
 
   return (
     <div className={s.panelContainer}>
