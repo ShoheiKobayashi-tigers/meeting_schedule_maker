@@ -18,7 +18,7 @@ const INITIAL_APPLICANTS: Applicant[] = [
         first_name: '佐藤',
         last_name: '太郎',
         student_id: '1',
-        preferred_dates: ['12/01 (月) 09:15 - 09:30', '11/30 (日) 14:00 - 14:15'],
+        preferred_dates: ['2025-12-01 09:15 - 09:30', '2025-11-30 14:00 - 14:15'],
         family_id: '1'
     },
     // 山田花子さんは兄弟なし
@@ -27,7 +27,7 @@ const INITIAL_APPLICANTS: Applicant[] = [
         first_name: '山田',        
         last_name: '花子',
         student_id: '2',
-        preferred_dates: ['12/01 (月) 09:00 - 09:15', '12/01 (月) 14:00 - 14:15'],
+        preferred_dates: ['2025-12-01 09:00 - 09:15', '2025-12-01 14:00 - 14:15'],
         family_id: '2'
     },
     {
@@ -35,7 +35,7 @@ const INITIAL_APPLICANTS: Applicant[] = [
         first_name: '田中',
         last_name: '一郎',
         student_id: '3',
-        preferred_dates: ['12/01 (月) 09:00 - 09:15', '11/30 (日) 09:00 - 09:15'],
+        preferred_dates: ['2025-12-01 09:00 - 09:15', '2025-11-30 09:00 - 09:15'],
         family_id: '3'
     },
     // 鈴木美咲さんは希望日程なし
@@ -52,7 +52,7 @@ const INITIAL_APPLICANTS: Applicant[] = [
         first_name: '王',
         last_name: '貞治',
         student_id: '5',
-        preferred_dates: ['12/01 (月) 09:15 - 09:30', '11/30 (日) 14:00 - 14:15', '11/30 (日) 09:15 - 09:30', '11/30 (日) 09:00 - 09:15', '12/01 (月) 09:00 - 09:15', '12/01 (月) 14:00 - 14:15'],
+        preferred_dates: ['2025-12-01 09:15 - 09:30', '2025-11-30 14:00 - 14:15', '2025-11-30 09:15 - 09:30', '2025-11-30 09:00 - 09:15', '2025-12-01 09:00 - 09:15', '2025-12-01 14:00 - 14:15'],
         family_id: '5'
     },    
 ];
@@ -65,7 +65,7 @@ const INITIAL_SIBLINGS: Sibling[] = [
       grade: '5',
       class: '2',
       family_id: '1',
-      assigned_slot: "12/01 (月) 09:00 - 09:15",
+      assigned_slot: "2025-12-01 09:00 - 09:15",
     },
     {
       id: 'sib-2',
@@ -74,7 +74,7 @@ const INITIAL_SIBLINGS: Sibling[] = [
       grade: '6',
       class: '2',
       family_id: '4',
-      assigned_slot: "12/01 (月) 09:00 - 09:15",
+      assigned_slot: "2025-12-01 09:00 - 09:15",
     },
     {
       id:'sib-3',
@@ -83,12 +83,12 @@ const INITIAL_SIBLINGS: Sibling[] = [
       grade: '1',
       class: '2',
       family_id: '1',
-      assigned_slot: "11/30 (日) 09:00 - 09:15",
+      assigned_slot: "2025-11-30 09:00 - 09:15",
     } 
 ];
 const INITIAL_SCHEDULE: ScheduleData = { 
     rows: ["09:00 - 09:15", "09:15 - 09:30", "14:00 - 14:15"], 
-    cols: ["11/30 (日)", "12/01 (月)"],
+    cols: ["2025-11-30", "2025-12-01"],
     assignments: [[null, null], [null, null], [null, null]],
     availability: [['normal', 'normal'], ['normal', 'normal'], ['normal', 'normal']]
 };
@@ -198,24 +198,22 @@ export const useAppStore = create<AppState>()(
 
             // 日付の追加 (Pickerからの値を 12/02 (火) 形式に変換するロジックを想定)
             handleAddColFromPicker: (dateString: string) => set((state) => {
-                const date = new Date(dateString);
-                const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
-                const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')} (${dayOfWeek})`;
+                if (!dateString) return state;
                 
-                // 重複チェック
-                if (state.db.scheduleData.cols.includes(formattedDate)) return state;
+                // dateString は "2026-01-01" のまま重複チェック
+                if (state.db.scheduleData.cols.includes(dateString)) return state;
 
                 const currentData = state.db.scheduleData;
                 return {
-                db: {
-                    ...state.db,
-                    scheduleData: {
-                    ...currentData,
-                    cols: [...currentData.cols, formattedDate].sort(), // 必要ならソート
-                    availability: currentData.availability.map(row => [...row, 'normal']),
-                    assignments: currentData.assignments.map(row => [...row, null]),
+                    db: {
+                        ...state.db,
+                        scheduleData: {
+                            ...currentData,
+                            cols: [...currentData.cols, dateString], // YYYY-MM-DD で保存
+                            availability: currentData.availability.map(row => [...row, 'normal']),
+                            assignments: currentData.assignments.map(row => [...row, null]),
+                        }
                     }
-                }
                 };
             }),
             // 2. 時間の追加（行）

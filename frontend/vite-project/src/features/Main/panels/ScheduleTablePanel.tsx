@@ -50,8 +50,10 @@ const ScheduleTablePanel: React.FC = () => {
           <thead>
             <tr>
               <th className={s.timeCell}>時間帯</th>
-              {sortedCols.map((col, i) => (
-                <th key={i} className={s.headerCell}>{col}</th>
+              {grid[0]?.cells.map((cell) => (
+                <th key={cell.colLabel} className={s.headerCell}>
+                  {cell.displayColLabel} {/* 01/01 (木) と表示される */}
+                </th>
               ))}
             </tr>
           </thead>

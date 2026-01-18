@@ -16,8 +16,10 @@ const SlotSettingPanel: React.FC = () => {
           <thead>
             <tr>
               <th className={s.stickyHeader}>時刻</th>
-              {sortedCols.map(col => (
-                <th key={col} className={s.stickyHeader}>{col}</th>
+              {grid[0]?.cells.map((cell) => (
+                <th key={cell.colLabel} className={s.stickyHeader}>
+                  {cell.displayColLabel} {/* 01/01 (木) と表示される */}
+                </th>
               ))}
             </tr>
           </thead>
@@ -28,7 +30,7 @@ const SlotSettingPanel: React.FC = () => {
                 {row.cells.map((cell) => {
                   const isBlocked = cell.status === 'admin_block';
                   return (
-                    <td key={cell.colLabel} className={s.slotCell}>
+                    <td key={cell.displayColLabel} className={s.slotCell}>
                       <div className={s.toggleWrapper}>
                         <ToggleSwitch 
                           isChecked={!isBlocked} 

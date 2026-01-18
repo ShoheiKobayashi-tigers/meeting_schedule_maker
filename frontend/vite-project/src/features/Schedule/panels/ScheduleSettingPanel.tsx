@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppStore } from '../../../store/useAppStore';
-import { useProcessedSchedule } from '../../../hooks/useProcessedSchedule';
+import { useProcessedSchedule, formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import { useScheduleSettings } from '../hooks/useScheduleSettings';
 import { generateTimeSlots } from '../../../utils/timeUtils';
 import * as s from './ScheduleSettingPanel.css';
@@ -62,7 +62,7 @@ const ScheduleSettingPanel: React.FC = () => {
         <div className={s.listContainer}>
           {sortedCols.map((col, idx) => (
             <div key={col} className={s.listItem}>
-              <span className={s.listText}>{idx + 1}. {col}</span>
+              <span className={s.listText}>{idx + 1}. {formatDisplayDate(col)}</span>
               <button className={s.deleteButton} onClick={() => confirmDeleteCol(idx)}>削除</button>
             </div>
           ))}

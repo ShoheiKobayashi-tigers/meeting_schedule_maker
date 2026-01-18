@@ -11,15 +11,10 @@ export const sortTimeRows = (rows: string[]): string[] => {
 };
 
 /**
- * 日付ヘッダー ("MM/DD (曜日)") を MM/DD でソートする
+ * 日付ヘッダーをソートする
  */
 export const sortDateCols = (cols: string[]): string[] => {
-    return [...cols].sort((a, b) => {
-        // MM/DD (曜日) から MM/DD の部分のみを抽出
-        const datePartA = a.substring(0, a.indexOf(' '));
-        const datePartB = b.substring(0, b.indexOf(' '));
-        return datePartA.localeCompare(datePartB);
-    });
+    return [...cols].sort((a, b) => a.localeCompare(b));
 };
 
 /**
@@ -31,7 +26,7 @@ export const sortDateCols = (cols: string[]): string[] => {
 export const sortScheduleSlots = (slots: string[]): string[] => {
     return [...slots].sort((a, b) => {
         // スロットを日付部分と時刻部分に分割
-        // 例: "12/04 (木) 09:00 - 09:15" -> ["12/04 (木", "09:00 - 09:15"]
+        // 例: "12/04 (木) 09:00 - 09:15" -> ["12/04 (木)", "09:00 - 09:15"]
         const partsA = a.split(') ');
         const partsB = b.split(') ');
 
