@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppStore } from '../../../store/useAppStore';
+import { useProcessedSchedule } from '../../../hooks/useProcessedSchedule';
 import { useScheduleSettings } from '../hooks/useScheduleSettings';
 import { generateTimeSlots } from '../../../utils/timeUtils';
 import * as s from './ScheduleSettingPanel.css';
@@ -7,7 +8,6 @@ import * as s from './ScheduleSettingPanel.css';
 const DURATION_OPTIONS = [5, 10, 15, 20, 25, 30, 45, 60];
 
 const ScheduleSettingPanel: React.FC = () => {
-  const scheduleData = useAppStore((state) => state.db.scheduleData);
   const interviewDuration = useAppStore((state) => state.ui.interviewDuration);
   
   const {
@@ -17,6 +17,8 @@ const ScheduleSettingPanel: React.FC = () => {
     confirmDeleteCol, confirmDeleteRow,
     setInterviewDuration
   } = useScheduleSettings();
+
+  const { sortedRows, sortedCols } = useProcessedSchedule();
 
   const TIME_OPTIONS = generateTimeSlots(interviewDuration);
 
@@ -58,7 +60,7 @@ const ScheduleSettingPanel: React.FC = () => {
           <button className={s.addButton} onClick={onAddDate} disabled={!selectedDate}>追加</button>
         </div>
         <div className={s.listContainer}>
-          {scheduleData.cols.map((col, idx) => (
+          {sortedCols.map((col, idx) => (
             <div key={col} className={s.listItem}>
               <span className={s.listText}>{idx + 1}. {col}</span>
               <button className={s.deleteButton} onClick={() => confirmDeleteCol(idx)}>削除</button>
@@ -77,7 +79,7 @@ const ScheduleSettingPanel: React.FC = () => {
           <button className={s.addButton} onClick={onAddRowClick}>＋ {interviewDuration}分枠を追加</button>
         </div>
         <div className={s.listContainer}>
-          {scheduleData.rows.map((row, idx) => (
+          {sortedRows.map((row, idx) => (
             <div key={row + idx} className={s.listItem}>
               <span className={s.listText}>{idx + 1}. {row}</span>
               <button className={s.deleteButton} onClick={() => confirmDeleteRow(idx)}>削除</button>
