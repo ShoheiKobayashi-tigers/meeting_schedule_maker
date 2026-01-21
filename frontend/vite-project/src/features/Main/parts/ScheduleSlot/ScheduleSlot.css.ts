@@ -45,8 +45,9 @@ export const slotCell = recipe({
   base: {
     border: '1px solid #e2e8f0',
     verticalAlign: 'top',
-    padding: '0.5rem',
-    minHeight: '80px',
+    padding: '0.25rem',
+    height: '80%',
+    minHeight: '40px',
     transition: 'all 0.2s',
   },
   variants: {
@@ -89,7 +90,7 @@ export const applicantBadge = recipe({
 export const siblingText = style({
   fontSize: '0.65rem',
   color: '#718096',
-  marginTop: '0.5rem',
+  marginTop: '0.1rem',
   textAlign: 'center',
   display: 'block',
 });

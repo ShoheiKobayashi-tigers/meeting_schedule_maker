@@ -22,7 +22,7 @@ export const ScheduleSlot: React.FC<ScheduleSlotProps> = React.memo(({
 }) => {
 
   return (
-    <td
+    <div
       className={s.slotCell({ status: status as any })}
       onClick={onClick}
       onDragOver={(e) => e.preventDefault()}
@@ -53,6 +53,6 @@ export const ScheduleSlot: React.FC<ScheduleSlotProps> = React.memo(({
           {sibling.first_name} {sibling.last_name}
         </span>
       ))}
-    </td>
+    </div>
   );
 });

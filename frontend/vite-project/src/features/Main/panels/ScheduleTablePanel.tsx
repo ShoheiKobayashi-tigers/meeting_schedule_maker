@@ -6,6 +6,7 @@ import { useDnD } from '../hooks/useDnD';
 import { useClickAssignment } from '../hooks/useClickAssignment';
 import { ScheduleSlot } from '../parts/ScheduleSlot/ScheduleSlot';
 import { getApplicantById } from '../../../utils/applicantUtils';
+import ScheduleBaseTable from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import * as s from './ScheduleTablePanel.css';
 
 const ScheduleTablePanel: React.FC = () => {
@@ -45,49 +46,31 @@ const ScheduleTablePanel: React.FC = () => {
   return (
     <div className={s.container}>
       <h1 className={s.title}>スケジュールボード</h1>      
-      <div className={s.tableWrapper}>
-        <table className={s.table}>
-          <thead>
-            <tr>
-              <th className={s.timeCell}>時間帯</th>
-              {grid[0]?.cells.map((cell) => (
-                <th key={cell.colLabel} className={s.headerCell}>
-                  {cell.displayColLabel} {/* 01/01 (木) と表示される */}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {grid.map((row) => (
-              <tr key={row.rowLabel}>
-                <td className={s.timeCell}>{row.rowLabel}</td>
-                {row.cells.map((cell) => {
-                  const cellId = `slot-${cell.rowIndex}-${cell.colIndex}`;
-                  const assignedSiblings = siblingMap[`${cell.colLabel} ${cell.rowLabel}`] || [];
-                  const applicant = cell.assignment ? getApplicantById(cell.assignment, db.applicants) : undefined;
+      <ScheduleBaseTable 
+        grid={grid}
+        renderCell={(cell, cellId) => {
+          const assignedSiblings = siblingMap[`${cell.colLabel} ${cell.rowLabel}`] || [];
+          const applicant = cell.assignment ? getApplicantById(cell.assignment, db.applicants) : undefined;
 
-                  return (
-                    <ScheduleSlot
-                      key={cell.colLabel}
-                      applicantId={cell.assignment}
-                      applicantName={applicant ? `${applicant.first_name} ${applicant.last_name}`: ''}
-                      isDragging={ui.draggingApplicantId === cell.assignment && !!cell.assignment}
-                      assignedSiblings={assignedSiblings}
-                      status={cell.status} 
-                      hasError={!!(cell.assignment && cell.status === 'admin_block')}
-                      onClick={() => handleSlotClick({ rowIndex: cell.rowIndex, colIndex: cell.colIndex })}
-                      onDragStart={(e) => cell.assignment && handleDragStart(e, cell.assignment, cellId)}
-                      onDragEnd={handleDragEnd}
-                      onDragEnter={(e) => handleDragEnter(e, cellId)}
-                      onDrop={(e) => handleDrop(e, cellId, null)}
-                    />
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          return (
+            <ScheduleSlot
+              applicantId={cell.assignment}
+              applicantName={applicant ? `${applicant.first_name} ${applicant.last_name}` : ''}
+              isDragging={ui.draggingApplicantId === cell.assignment && !!cell.assignment}
+              assignedSiblings={assignedSiblings}
+              // useProcessedSchedule の string 型を ScheduleSlot の期待する型へ安全にキャスト
+              status={cell.status as any} 
+              hasError={!!(cell.assignment && cell.status === 'admin_block')}
+              onClick={() => handleSlotClick({ rowIndex: cell.rowIndex, colIndex: cell.colIndex })}
+              onDragStart={(e) => cell.assignment && handleDragStart(e, cell.assignment, cellId)}
+              onDragEnd={handleDragEnd}
+              onDragEnter={(e) => handleDragEnter(e, cellId)}
+              // useDnD.ts の定義に合わせて 3引数 (e, targetId, droppedOnId) で渡す
+              onDrop={(e) => handleDrop(e, cellId, null)}
+            />
+          );
+        }}
+      />
     </div>
   );
 };
