@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useProcessedApplicants } from '../../../hooks/useProcessedApplicants';
-import { useProcessedSchedule, formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import ApplicantForm from '../components/parts/ApplicantForm';
 import ApplicantDetail from '../components/parts/ApplicantDetail';
 import Button from '../../../components/ui/Button/Button';
@@ -17,7 +16,6 @@ type PanelMode = 'list' | 'add' | 'edit'| 'detail';
 const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   // useProcessedApplicants を使用して加工済みデータを取得
   const processedApplicants = useProcessedApplicants();
-  const processedSchedule = useProcessedSchedule();
   const { openConfirmationModal, deleteApplicant } = useAppStore();
 
   const [mode, setMode] = useState<PanelMode>('list');
@@ -74,9 +72,6 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   }
 
   if (mode === 'detail' && selectedApplicant) {
-    const assignmentText = selectedApplicant.currentAssignment
-      ? `${formatDisplayDate(processedSchedule.sortedCols[selectedApplicant.currentAssignment.colIndex])} ${processedSchedule.sortedRows[selectedApplicant.currentAssignment.rowIndex]}`
-      : '未割り当て';
 
     return (
       <div className={s.container}>
@@ -87,7 +82,7 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
         <div className={s.scrollArea}>
           <ApplicantDetail 
             applicant={selectedApplicant} 
-            assignmentText={assignmentText}
+            assignmentText={selectedApplicant.assignmentText}
             onEdit={() => setMode('edit')}
             onDelete={() => handleDelete(selectedApplicant.id!, `${selectedApplicant.last_name} ${selectedApplicant.first_name}`)}
           />
@@ -108,8 +103,6 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
       <div className={s.scrollArea}>
         {processedApplicants.map((student) => {
           const fullName = `${student.first_name} ${student.last_name}`;
-          const assignmentDetail = student.currentAssignment?
-            `${formatDisplayDate(processedSchedule.sortedCols[student.currentAssignment.colIndex])} ${processedSchedule.sortedRows[student.currentAssignment.rowIndex]}`:'';
           return (
             <div key={student.id} className={s.listRow} onClick={() => handleDetailStart(student.id!)}>
               <div key={student.id}>
@@ -124,13 +117,11 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
                   )}
                 </div>
                 {/* 割当情報の詳細表示 */}
-                {student.currentAssignment ? (
+                {
                   <div className={s.assignmentDetail}>
-                    {assignmentDetail}
+                    {student.assignmentText}
                   </div>
-                ) : (
-                  <div className={s.noAssignment}>未割り当て</div>
-                )}
+                }
               </div>
               <div className={s.actionButtonGroup}>
                 <Button 
