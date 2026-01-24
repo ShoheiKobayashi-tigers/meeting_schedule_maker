@@ -54,7 +54,6 @@ export const cell = style({
   padding: '0.5rem',
   minHeight: '80px',
   position: 'relative',
-  
   alignItems: 'center',    
   justifyContent: 'center',
 });

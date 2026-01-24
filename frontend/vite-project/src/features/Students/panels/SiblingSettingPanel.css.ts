@@ -1,12 +1,12 @@
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../../styles/vars.css.ts';
-import { panelTitle, panelScrollArea, baseListHeader, baseListRow } from '../../../styles/layout.css.ts';
+import * as s from '../../../styles/layout.css.ts';
 
-export const title = style([panelTitle, { marginBottom: vars.space.medium }]);
+export const title = s.basePanelTitle;
 
-export const section = style({
-  marginBottom: vars.space.large,
-});
+export const section = style([s.baseScrollArea,{
+  margin: vars.space.large,
+}]);
 
 export const sectionTitle = style({
   fontSize: '1rem',
@@ -15,9 +15,33 @@ export const sectionTitle = style({
   color: vars.color.textMain,
 });
 
-export const content = style([panelScrollArea]);
+export const container = style({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  padding: vars.space.large,
+});
 
-export const listHeader = style([baseListHeader]);
+export const scrollArea = style([s.baseScrollArea]);
 
-export const listRow = style([baseListRow]);
+export const listHeader = style([s.baseListHeader, {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: vars.space.medium,
+}]);
+
+export const listRow = style([s.baseListRow, {
+  display: 'flex',
+  border: '1px solid #edf2f7',
+  borderRadius: '8px',
+  backgroundColor: '#f8fafc',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '12.5px',
+  cursor: 'default', // クリック廃止
+  ':hover': {
+    backgroundColor: 'transparent', // ホバー時の背景色変更も無効化（必要に応じて）
+  }
+}]);
 

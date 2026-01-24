@@ -2,11 +2,15 @@
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { SelectField } from '../../../components/ui/SelectField/SelectField';
+import Button from '../../../components/ui/Button/Button'
 import * as s from './SiblingSettingPanel.css';
+
+type PanelMode = 'list' | 'add' | 'edit'| 'detail';
 
 const SiblingSettingPanel: React.FC = () => {
   const { applicants, siblings } = useAppStore((state) => state.db);
   const [selectedApplicantId, setSelectedApplicantId] = useState('');
+  const [mode, setMode] = useState<PanelMode>('list');
 
   // 1. プルダウン用の選択肢（フルネーム）を作成
   const applicantOptions = useMemo(() => 
@@ -33,22 +37,26 @@ const SiblingSettingPanel: React.FC = () => {
   }, [selectedApplicantId, applicants, siblings]);
 
   return (
-    <div className={s.content}>
-      <section className={s.section}>
-        <h3 className={s.sectionTitle}>生徒を選択して兄弟を絞り込む</h3>
+    <div className={s.container}>
+      <div className={s.listHeader}>
+        <h2 className={s.title}>兄弟一覧</h2>
+        <Button variant="add" onClick={() => setMode('add')}>
+          + 新規登録
+        </Button>
+      </div>
+      <div>
         <SelectField 
           options={applicantOptions}
           value={selectedApplicantId}
           onChange={setSelectedApplicantId}
-          placeholder="すべての兄弟を表示中（生徒を選択して絞り込み）"
+          placeholder="一覧（選択すると兄弟を絞り込めます）"
         />
-      </section>
-
-      <section className={s.section}>
+      </div>
+      <div className={s.scrollArea}>
         <h3 className={s.sectionTitle}>
           {selectedApplicantId ? "紐付いている兄弟" : "登録されている兄弟一覧"}
         </h3>
-        <div className={s.content}>
+        <div>
           {displayedSiblings.length > 0 ? (
             displayedSiblings.map(sib => (
               <div key={sib.id} className={s.listRow}>
@@ -67,7 +75,7 @@ const SiblingSettingPanel: React.FC = () => {
             </p>
           )}
         </div>
-      </section>
+      </div>
     </div>
   );
 };

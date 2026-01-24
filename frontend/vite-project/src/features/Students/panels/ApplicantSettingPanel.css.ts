@@ -1,6 +1,6 @@
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../../styles/vars.css';
-import { basePanelTitle, baseScrollArea, baseListHeader, baseListRow } from '../../../styles/layout.css';
+import * as s from '../../../styles/layout.css';
 
 export const container = style({
   display: 'flex',
@@ -9,25 +9,25 @@ export const container = style({
   padding: vars.space.large,
 });
 
-export const title = style([basePanelTitle, { fontSize: '1.2rem' }]);
+export const title = s.basePanelTitle;
 
-export const scrollArea = style([baseScrollArea]);
+export const scrollArea = style([s.baseScrollArea]);
 
-export const listHeader = style([baseListHeader, {
+export const listHeader = style([s.baseListHeader, {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
   marginBottom: vars.space.medium,
 }]);
 
-export const listRow = style([baseListRow, {
+export const listRow = style([s.baseListRow, {
   display: 'flex',
   border: '1px solid #edf2f7',
   borderRadius: '8px',
   backgroundColor: '#f8fafc',
   justifyContent: 'space-between',
   alignItems: 'center',
-  padding: `${vars.space.medium} ${vars.space.large}`,
+  padding: '12.5px',
   cursor: 'default', // クリック廃止
   ':hover': {
     backgroundColor: 'transparent', // ホバー時の背景色変更も無効化（必要に応じて）

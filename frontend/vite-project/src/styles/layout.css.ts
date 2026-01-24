@@ -7,7 +7,7 @@ export const basePageContainer = style({
   width: '100vw',
   maxWidth: '100%',
   height: '100vh',
-  paddingTop: '5rem', 
+  paddingTop: '2rem', 
   paddingLeft: vars.space.large,
   paddingRight: vars.space.large,
   paddingBottom: vars.space.large,
@@ -27,7 +27,19 @@ export const basePanelCard = style({
   flexDirection: 'column',
   overflow: 'hidden', // 内部でスクロールさせるため
   boxSizing: 'border-box',
+  overflowY: 'auto',
 });
+
+export const baseLeftPanel = style([basePanelCard,{
+  flex: 1,
+  minWidth: 0,
+}]);
+
+export const baseRightPanel = style([basePanelCard,{
+  width: '25%', // ご要望通り 1/4 に設定
+  minWidth: '350px',
+  flexShrink: 0,
+}]);
 
 // 3. パネル内の共通パーツ
 export const panelHeader = style({
@@ -39,9 +51,12 @@ export const panelHeader = style({
 });
 
 export const panelTitle = style({
-  fontSize: '1.25rem',
-  fontWeight: 800,
-  color: vars.color.textMain,
+  fontSize: '1.5rem',
+  fontWeight: '800',
+  marginBottom: '1.5rem',
+  color: '#1a202c',
+  borderLeft: '4px solid #4299e1',
+  paddingLeft: '12px',
 });
 
 export const panelScrollArea = style({
@@ -50,23 +65,6 @@ export const panelScrollArea = style({
   padding: vars.space.large,
 });
 
-// 4. カラム比率
-export const baseLeftPanel = style({
-  flex: 1,
-  minWidth: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  overflowY: 'auto',
-});
-
-export const baseRightPanel = style({
-  width: '25%', // ご要望通り 1/4 に設定
-  minWidth: '350px',
-  flexShrink: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  overflowY: 'auto', 
-});
 
 // 【これが共通の listHeader】
 export const basePanelHeader = style({
@@ -81,9 +79,9 @@ export const basePanelHeader = style({
 
 // ヘッダー内のタイトル
 export const basePanelTitle = style({
-  fontSize: '1.2rem',
+  fontSize: '20px',
   fontWeight: 700,
-  margin: 0,
+  margin: '10px',
   color: vars.color.textMain,
 });
 

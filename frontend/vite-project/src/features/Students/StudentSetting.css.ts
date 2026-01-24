@@ -1,13 +1,10 @@
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../styles/vars.css.ts';
-import { 
-  basePageContainer, baseLeftPanel, baseRightPanel, basePanelCard, 
-  basePanelHeader, basePanelTitle, baseScrollArea, baseListHeader 
-} from '../../styles/layout.css.ts';
+import * as s from '../../styles/layout.css.ts';
 
-export const container = style([basePageContainer]);
-export const leftPanel = style([baseLeftPanel, basePanelCard]);
-export const rightPanel = style([baseRightPanel, basePanelCard]);
+export const container = s.basePageContainer;
+export const leftPanel = s.baseLeftPanel;
+export const rightPanel = s.baseRightPanel;
 
 // ApplicantSettingPanel.tsx で使うヘッダー
 
@@ -26,5 +23,5 @@ export const selectedRow = style({
 });
 
 // SiblingSettingPanel.tsx 側で使うタイトル
-export const siblingTitle = style([basePanelTitle, { padding: vars.space.large }]);
-export const scrollArea = style([baseScrollArea, { padding: vars.space.large }]);
+export const siblingTitle = style([s.basePanelTitle, { padding: vars.space.large }]);
+export const scrollArea = style([s.baseScrollArea, { padding: vars.space.large }]);

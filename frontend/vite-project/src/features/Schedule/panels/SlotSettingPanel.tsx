@@ -14,7 +14,6 @@ const SlotSettingPanel: React.FC = () => {
       <h3 className={s.panelTitle}>面談枠の公開設定</h3>
       <ScheduleBaseTable 
         grid={grid}
-        timeHeaderLabel="時刻" // ここを「時刻」に変えることで既存表示を維持
         renderCell={(cell) => {
           const isBlocked = cell.status === 'admin_block';
           return (

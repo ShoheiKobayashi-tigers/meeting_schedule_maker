@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
+import * as s from '../../../styles/layout.css'
 
 export const container = style({
   padding: '1.5rem',
@@ -14,14 +15,7 @@ export const table = style({
   tableLayout: 'fixed', // 列幅を安定させる
 });
 
-export const title = style({
-  fontSize: '1.5rem',
-  fontWeight: '800',
-  marginBottom: '1.5rem',
-  color: '#1a202c',
-  borderLeft: '4px solid #4299e1',
-  paddingLeft: '12px',
-});
+export const title = s.basePanelTitle;
 
 export const tableWrapper = style({
   overflowX: 'auto',

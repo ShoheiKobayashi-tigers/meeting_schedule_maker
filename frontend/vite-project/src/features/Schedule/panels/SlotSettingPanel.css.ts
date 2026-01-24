@@ -1,20 +1,13 @@
 import { style } from '@vanilla-extract/css';
+import * as s from '../../../styles/layout.css';
 
 export const panelContainer = style({
-    padding: '1.5rem',
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
+  padding: '1.5rem',
+  height: '100%',
+  overflowX: 'auto',
 });
 
-export const panelTitle = style({
-    fontSize: '1.2rem',
-    fontWeight: 700,
-    marginBottom: '1rem',
-    color: '#2d3748',
-});
+export const panelTitle = s.basePanelTitle;
 
 export const scrollWrapper = style({
     overflow: 'auto', // 縦横両方のスクロールに対応
