@@ -8,10 +8,10 @@ import * as s from './ApplicantSettingPanel.css';
 
 interface Props {
   selectedId: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (id: string | null) => void;
 }
 
-type PanelMode = 'list' | 'add' | 'edit'| 'detail';
+type PanelMode = 'list' | 'add' | 'edit' | 'detail';
 
 const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   // useProcessedApplicants を使用して加工済みデータを取得
@@ -20,22 +20,11 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
 
   const [mode, setMode] = useState<PanelMode>('list');
 
-  // 編集対象のデータ取得
-  const selectedApplicant = processedApplicants.find(a => a.id === selectedId);
-
-  const handleEditStart = (id: string) => {
-    onSelect(id);
-    setMode('edit');
-  };
-
-  const handleDetailStart = (id: string) => {
-    onSelect(id);
-    setMode('detail');
-  };
+  const selectedApplicant = processedApplicants.find(a => a.id === selectedId) || null;
 
   const handleBack = () => {
     setMode('list');
-    onSelect(''); // 編集が終わったら選択を解除
+    onSelect(null);
   };
 
   const handleDelete = (id: string, name: string) => {
@@ -44,29 +33,23 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
       message: `${name} さんの情報を削除してもよろしいですか？`,
       onConfirm: () => {
         deleteApplicant(id);
-        if (selectedId === id) onSelect('');
+        handleBack();
       },
       confirmText: '削除',
       cancelText: 'キャンセル'
     });
   };
 
-  // フォーム画面（追加・編集）
-  if (mode === 'add' || (mode === 'edit' && selectedApplicant)) {
+  // モードに応じたレンダリング
+  if (mode === 'add' || mode === 'edit') {
     return (
       <div className={s.container}>
-        <div className={s.listHeader}>
-          <h2 className={s.title}>
-            {mode === 'add' ? '生徒の新規登録' : '生徒情報の編集'}
-          </h2>
-        </div>
-        <div className={s.scrollArea}>
-          <ApplicantForm 
-            initialData={mode === 'edit' ? selectedApplicant : undefined} 
-            onSuccess={handleBack}
-            onCancel={handleBack}
-          />
-        </div>
+        <h3 className={s.title}>{mode === 'add' ? '生徒の追加' : '生徒の編集'}</h3>
+        <ApplicantForm 
+          initialData={mode === 'edit' ? selectedApplicant : null}
+          onSuccess={handleBack}
+          onCancel={handleBack}
+        />
       </div>
     );
   }
@@ -76,17 +59,15 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
     return (
       <div className={s.container}>
         <div className={s.listHeader}>
-          <h2 className={s.title}>生徒詳細</h2>
-          <Button variant="cancel" onClick={handleBack}>一覧へ戻る</Button>
+          <h3 className={s.title}>生徒詳細</h3>
+          <Button variant="cancel" onClick={handleBack}>戻る</Button>
         </div>
-        <div className={s.scrollArea}>
-          <ApplicantDetail 
-            applicant={selectedApplicant} 
-            assignmentText={selectedApplicant.assignmentText}
-            onEdit={() => setMode('edit')}
-            onDelete={() => handleDelete(selectedApplicant.id!, `${selectedApplicant.last_name} ${selectedApplicant.first_name}`)}
-          />
-        </div>
+        <ApplicantDetail 
+          applicant={selectedApplicant}
+          assignmentText={selectedApplicant.assignmentText}
+          onEdit={() => setMode('edit')}
+          onDelete={() => handleDelete(selectedApplicant.id!, `${selectedApplicant.last_name} ${selectedApplicant.first_name}`)}
+        />
       </div>
     );
   }
@@ -95,49 +76,43 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   return (
     <div className={s.container}>
       <div className={s.listHeader}>
-        <h2 className={s.title}>生徒一覧</h2>
-        <Button variant="add" onClick={() => setMode('add')}>
-          + 新規登録
-        </Button>
+        <h3 className={s.title}>生徒一覧</h3>
+        <Button variant="add" onClick={() => { onSelect(null); setMode('add'); }}>新規追加</Button>
       </div>
       <div className={s.scrollArea}>
         {processedApplicants.map((student) => {
+          const isSelected = student.id === selectedId;
           const fullName = `${student.first_name} ${student.last_name}`;
           return (
-            <div key={student.id} className={s.listRow} onClick={() => handleDetailStart(student.id!)}>
-              <div key={student.id}>
+            <div 
+              key={student.id} 
+              className={`${s.listRow} ${isSelected ? s.listRow : ''}`} 
+              onClick={() => { onSelect(student.id!); setMode('detail'); }}
+            >
+              <div className={s.studentInfo}>
                 <div className={s.studentName}>
-                  <span className={s.studentId}>{student.student_id}.　</span>                  
-                  {fullName}
-                  {/* 割当済みの場合にバッジを表示 */}
-                  {student.currentAssignment && (
-                    <span className={s.assignmentBadge}>
-                      割当済み
-                    </span>
-                  )}
+                  <span className={s.studentId}>{student.student_id}.</span> {fullName}
+                  {student.currentAssignment && <span className={s.assignmentBadge}>割当済み</span>}
                 </div>
-                {/* 割当情報の詳細表示 */}
-                {
-                  <div className={s.assignmentDetail}>
-                    {student.assignmentText}
-                  </div>
-                }
+                <div className={s.assignmentDetail}>{student.assignmentText}</div>
               </div>
-              <div className={s.actionButtonGroup}>
+              <div className={s.actionButtonGroup} onClick={(e) => e.stopPropagation()}>
+                <Button variant="edit" onClick={() => { onSelect(student.id!); setMode('edit'); }}>編集</Button>
                 <Button 
-                  variant="edit" 
-                  onClick={() => handleEditStart(student.id!)}
-                  style={{ padding: '4px 12px', fontSize: '0.8rem' }}
-                >
-                  編集
-                </Button>
-                <Button 
-                  variant="delete" 
-                  onClick={() => handleDelete(student.id!, fullName)}
-                  style={{ padding: '4px 12px', fontSize: '0.8rem' }}
-                >
-                  削除
-                </Button>
+                    variant="delete" 
+                    onClick={(e) => {
+                      e.stopPropagation(); // 行のクリックイベントを発生させない
+                      openConfirmationModal({
+                        title: '生徒の削除',
+                        message: `${student.first_name} ${student.last_name} さんのデータを削除してもよろしいですか？`,
+                        onConfirm: () => {handleDelete},
+                        confirmText: '削除',
+                        cancelText: 'キャンセル'
+                      });
+                    }}
+                  >
+                    削除
+                  </Button>
               </div>
             </div>
           );

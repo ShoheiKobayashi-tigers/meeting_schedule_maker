@@ -9,6 +9,7 @@ export const form = style({
   padding: vars.space.medium,
 });
 
+
 export const fieldGroup = style({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
@@ -27,17 +28,20 @@ export const label = style({
   color: vars.color.textMain,
 });
 
-export const input = style([baseInput]); // 共通スタイルを適用
 
-export const error = style({ // 新設
-  color: vars.color.danger,
-  fontSize: '0.75rem',
-  marginTop: '2px',
-});
 
 export const buttonGroup = style({
   display: 'flex',
   justifyContent: 'flex-end',
   gap: vars.space.medium,
   marginTop: vars.space.large,
+});
+
+export const input = style([baseInput]); // 既存の共通スタイルを継承
+
+export const error = style({
+  color: vars.color.danger, // varsの定義を使用
+  fontSize: '0.75rem',
+  marginTop: '2px',
+  fontWeight: 500,
 });

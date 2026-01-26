@@ -22,7 +22,7 @@ export const applicantInputSchema = z.object({
     first_name: z.string().min(1, '生徒の氏名は必須です'),
     last_name: z.string().min(1, '生徒の氏名は必須です'),
     student_id: z.string().min(1, '学籍番号を入力してください'),
-    preferred_dates: z.array(z.string()).default([]),
+    preferred_dates: z.array(z.string()),
     family_id: z.string().optional(),
 });
 

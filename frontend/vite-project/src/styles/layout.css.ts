@@ -138,3 +138,22 @@ export const baseButton = style({
     opacity: 0.5,
   },
 });
+
+export const baseInput = style({
+  width: '100%',
+  padding: '0.75rem',
+  borderRadius: '8px',
+  border: `1px solid ${vars.color.border}`,
+  backgroundColor: vars.color.white,
+  fontSize: '1rem',
+  color: vars.color.textMain,
+  boxSizing: 'border-box',
+  outline: 'none',
+  transition: 'border-color 0.2s',
+  ':focus': {
+    borderColor: vars.color.primary,
+  },
+  '::placeholder': {
+    color: vars.color.textMuted,
+  }
+});

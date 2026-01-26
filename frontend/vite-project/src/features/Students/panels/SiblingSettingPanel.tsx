@@ -3,78 +3,113 @@ import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { SelectField } from '../../../components/ui/SelectField/SelectField';
 import Button from '../../../components/ui/Button/Button'
+import SiblingForm from '../components/parts/SiblingForm'
+import { Sibling } from '../../../types/Students'; // 型をインポート
 import * as s from './SiblingSettingPanel.css';
 
-type PanelMode = 'list' | 'add' | 'edit'| 'detail';
+interface Props {
+  selectedId: string | null;
+  onSelect: (id: string | null) => void; // nullを許容
+}
 
-const SiblingSettingPanel: React.FC = () => {
+type PanelMode = 'list' | 'add' | 'edit';
+
+const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   const { applicants, siblings } = useAppStore((state) => state.db);
-  const [selectedApplicantId, setSelectedApplicantId] = useState('');
+  const { openConfirmationModal, deleteSibling, saveSibling } = useAppStore();
+  const [filterFamilyId, setFilterFamilyId] = useState(''); // 検索用
   const [mode, setMode] = useState<PanelMode>('list');
 
-  // 1. プルダウン用の選択肢（フルネーム）を作成
-  const applicantOptions = useMemo(() => 
-    applicants.map(app => ({
-      value: app.id!,
-      label: `${app.first_name} ${app.last_name}`
-    })), [applicants]
-  );
+  const selectedSibling = useMemo(() => 
+    siblings.find(s => s.id === selectedId) || null
+  , [siblings, selectedId]);
+
+  const handleEditStart = (id: string) => {
+    onSelect(id);
+    setMode('edit');
+  };
+
+  const handleAddStart = () => {
+    onSelect(null);
+    setMode('add');
+  };
+
+  const handleBack = () => {
+    setMode('list');
+    onSelect(null);
+  };
+
+  const onFormSubmit = (data: Sibling) => {
+    saveSibling(data); // ここでStoreに保存
+    handleBack(); // リストに戻る
+  };
 
   // 2. 表示する兄弟リストを計算（ここがポイント！）
   const displayedSiblings = useMemo(() => {
-    // 何も選択されていない場合は、全件を返す
-    if (!selectedApplicantId) {
-      return siblings;
-    }
+    if (!filterFamilyId) return siblings;
+    return siblings.filter(s => s.family_id === filterFamilyId);
+  }, [siblings, filterFamilyId]);
 
-    // 生徒が選択されている場合は、その生徒の family_id で絞り込む
-    const currentApplicant = applicants.find(a => a.id === selectedApplicantId);
-    if (!currentApplicant?.family_id) {
-      return []; // family_id が設定されていない場合は、紐付けなしとみなす
-    }
+  // フィルタ用オプション
+  const familyFilterOptions = useMemo(() => 
+    applicants.map(a => ({ value: a.family_id || '', label: `${a.first_name} ${a.last_name}` }))
+  , [applicants]);
 
-    return siblings.filter(sib => sib.family_id === currentApplicant.family_id);
-  }, [selectedApplicantId, applicants, siblings]);
+  if (mode === 'add' || mode === 'edit') {
+    return (
+      <div className={s.container}>
+        <h3 className={s.title}>{mode === 'add' ? '兄弟の追加' : '兄弟の編集'}</h3>
+        <SiblingForm 
+          initialData={selectedSibling}
+          onSubmit={onFormSubmit}
+          onCancel={handleBack}
+          submitLabel={mode === 'add' ? '登録する' : '更新する'}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={s.container}>
       <div className={s.listHeader}>
-        <h2 className={s.title}>兄弟一覧</h2>
-        <Button variant="add" onClick={() => setMode('add')}>
-          + 新規登録
-        </Button>
+        <h3 className={s.title}>兄弟設定</h3>
+        <Button variant="add" onClick={handleAddStart}>新規追加</Button>
       </div>
-      <div>
+      <div className = {s.listHeader}>
         <SelectField 
-          options={applicantOptions}
-          value={selectedApplicantId}
-          onChange={setSelectedApplicantId}
+          options={familyFilterOptions} 
+          value={filterFamilyId} 
+          onChange={setFilterFamilyId}
           placeholder="一覧（選択すると兄弟を絞り込めます）"
         />
       </div>
       <div className={s.scrollArea}>
-        <h3 className={s.sectionTitle}>
-          {selectedApplicantId ? "紐付いている兄弟" : "登録されている兄弟一覧"}
-        </h3>
-        <div>
-          {displayedSiblings.length > 0 ? (
-            displayedSiblings.map(sib => (
-              <div key={sib.id} className={s.listRow}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontWeight: 'bold' }}>{sib.first_name} {sib.last_name}</span>
-                  <span style={{ fontSize: '0.85rem', color: '#718096' }}>
-                    {sib.grade}年 {sib.class}組 (family_id: {sib.family_id})
-                  </span>
+        {displayedSiblings.length > 0 ? (
+          displayedSiblings.map(sib => (
+            <div key={sib.id} className={s.listRow}>
+              <div>
+                <div style={{ fontWeight: 'bold' }}>{sib.first_name} {sib.last_name}</div>
+                <div style={{ fontSize: '0.85rem', color: '#718096' }}>
+                  {sib.grade}年 {sib.class}組
                 </div>
-                {/* 選択時のみ解除ボタンを表示するなどの制御も可能 */}
               </div>
-            ))
-          ) : (
-            <p style={{ textAlign: 'center', color: '#a0aec0', padding: '2rem' }}>
-              該当する兄弟が見つかりません。
-            </p>
-          )}
-        </div>
+              <div className={s.actionButtonGroup}>
+                <Button variant="edit" onClick={() => handleEditStart(sib.id!)}>編集</Button>
+                <Button variant="delete" onClick={() => {
+                  openConfirmationModal({
+                    title: '兄弟の削除',
+                    message: `${sib.first_name} ${sib.last_name} を削除しますか？`,
+                    onConfirm: () => deleteSibling(sib.id!),
+                    confirmText: '削除',
+                    cancelText: 'キャンセル'
+                  });
+                }}>削除</Button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className={s.emptyMessage}>該当する兄弟がいません。</p>
+        )}
       </div>
     </div>
   );

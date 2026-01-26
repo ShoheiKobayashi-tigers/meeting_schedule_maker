@@ -45,3 +45,18 @@ export const listRow = style([s.baseListRow, {
   }
 }]);
 
+export const actionButtonGroup = style({
+  display: 'flex',
+  gap: vars.space.small,
+});
+
+export const emptyMessage = style({
+  textAlign: 'center',
+  color: vars.color.textMuted, // varsの定義を使用
+  padding: '2rem',
+  fontSize: '0.875rem',
+  backgroundColor: vars.color.white,
+  borderRadius: '8px',
+  border: `1px dashed ${vars.color.border}`,
+  marginTop: vars.space.medium,
+});
