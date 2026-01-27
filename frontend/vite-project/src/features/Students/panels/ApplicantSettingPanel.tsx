@@ -100,16 +100,7 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
                 <Button variant="edit" onClick={() => { onSelect(student.id!); setMode('edit'); }}>編集</Button>
                 <Button 
                     variant="delete" 
-                    onClick={(e) => {
-                      e.stopPropagation(); // 行のクリックイベントを発生させない
-                      openConfirmationModal({
-                        title: '生徒の削除',
-                        message: `${student.first_name} ${student.last_name} さんのデータを削除してもよろしいですか？`,
-                        onConfirm: () => {handleDelete},
-                        confirmText: '削除',
-                        cancelText: 'キャンセル'
-                      });
-                    }}
+                    onClick={() => { handleDelete(student.id!, `${student.first_name} ${student.last_name}`)}}
                   >
                     削除
                   </Button>
