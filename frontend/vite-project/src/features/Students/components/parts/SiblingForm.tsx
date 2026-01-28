@@ -6,6 +6,7 @@ import { type Sibling, siblingInputSchema } from '../../../../types/Students';
 import Button from '../../../../components/ui/Button/Button';
 import * as s from './SiblingForm.css';
 import { SelectField } from '../../../../components/ui/SelectField/SelectField';
+import UpsertStudentAssignmentModal from '../modals/UpsertStudentAssignmentModal';
 import { useAppStore } from '../../../../store/useAppStore';
 
 interface Props {
@@ -22,11 +23,13 @@ const SiblingForm: React.FC<Props> = ({
   submitLabel = '保存する'
 }) => {
   const { applicants } = useAppStore((state) => state.db);
-
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const {
     register,
     handleSubmit,
     reset,
+    setValue, 
+    watch,
     control, // Controller用
     formState: { errors, isSubmitting }
   } = useForm<Sibling>({
@@ -39,6 +42,8 @@ const SiblingForm: React.FC<Props> = ({
       family_id: '',
     }
   });
+
+  const assignedSlot = watch('assigned_slot');
 
   // initialDataが変わった時にフォームをリセット（編集モード対応）
   useEffect(() => {
@@ -102,6 +107,28 @@ const SiblingForm: React.FC<Props> = ({
         />
         {errors.family_id && <span className={s.error}>{errors.family_id.message}</span>}
       </div>
+      <div className={s.field}>
+        <label className={s.label}>割当枠 (単一選択)</label>
+        <div style={{ marginBottom: '8px' }}>
+          {assignedSlot ? (
+            <span style={{ fontWeight: 'bold', color: '#a0aec0' }}>{assignedSlot}</span>
+          ) : (
+            <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>未選択</span>
+          )}
+        </div>
+        <Button type="button" variant="edit" onClick={() => setIsModalOpen(true)}>
+          割当枠を選択する
+        </Button>
+      </div>
+
+      <UpsertStudentAssignmentModal
+        isOpen={isModalOpen}
+        title="割当枠の選択"
+        isMultiple={false}
+        initialSelected={assignedSlot ? [assignedSlot] : []}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={(slots) => setValue('assigned_slot', slots[0])}
+      />
 
       <div className={s.buttonGroup}>
         <Button variant="cancel" onClick={onCancel} type="button">キャンセル</Button>
