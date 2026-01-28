@@ -66,3 +66,49 @@ export const deleteSection = style({
   display: 'flex',
   justifyContent: 'flex-end',
 });
+
+export const preferredDatesList = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+  marginTop: '4px',
+});
+
+export const dateBadge = style({
+  fontSize: '0.85rem',
+  backgroundColor: '#edf2f7',
+  padding: '4px 8px',
+  borderRadius: '4px',
+  color: vars.color.textMain,
+  width: 'fit-content',
+});
+
+export const noData = style({
+  fontSize: '0.9rem',
+  color: vars.color.textMuted,
+  fontStyle: 'italic',
+});
+
+export const miniTableWrapper = style({
+  marginTop: vars.space.small,
+  height: '200px', // 高さを制限してコンパクトに
+  fontSize: '0.7rem', // 全体的に文字を小さく
+  overflowX: 'auto',
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: '4px',
+});
+
+export const miniCell = style({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: '20px',
+});
+
+export const selectedMiniCell = style({
+  backgroundColor: '#ebf8ff', // 薄い青
+  color: vars.color.primary,
+  fontWeight: 'bold',
+});

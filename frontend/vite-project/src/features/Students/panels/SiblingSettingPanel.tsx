@@ -1,6 +1,7 @@
 // src/features/Students/components/SiblingSettingPanel.tsx
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
+import { formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import { SelectField } from '../../../components/ui/SelectField/SelectField';
 import Button from '../../../components/ui/Button/Button'
 import SiblingForm from '../components/parts/SiblingForm'
@@ -55,6 +56,15 @@ const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
     applicants.map(a => ({ value: a.family_id || '', label: `${a.first_name} ${a.last_name}` }))
   , [applicants]);
 
+  const formatSlotText = (slot: string | undefined) => {
+    if (!slot) return '日程未定';
+    const parts = slot.split(' '); // 空白で分割
+    const datePart = parts[0];     // "2025-12-01"
+    const timePart = parts.slice(1).join(' '); // "09:15 - 09:30"
+    
+    return `${formatDisplayDate(datePart)} ${timePart}`;
+  };
+
   if (mode === 'add' || mode === 'edit') {
     return (
       <div className={s.container}>
@@ -90,7 +100,7 @@ const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
               <div>
                 <div style={{ fontWeight: 'bold' }}>{sib.first_name} {sib.last_name}</div>
                 <div style={{ fontSize: '0.85rem', color: '#718096' }}>
-                  {sib.grade}年 {sib.class}組
+                  {sib.grade}年 {sib.class}組 : {formatSlotText(sib.assigned_slot)}
                 </div>
               </div>
               <div className={s.actionButtonGroup}>
