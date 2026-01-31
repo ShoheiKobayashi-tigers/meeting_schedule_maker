@@ -14,6 +14,16 @@ export const formatDisplayDate = (dateStr: string): string => {
   return `${yy}/${mm}/${dd} (${day})`;
 };
 
+export const formatSlotText = (slot: string | undefined) => {
+  if (!slot) return '日程未定';
+  const parts = slot.split(' '); // 空白で分割
+  const datePart = parts[0];     // "2025-12-01"
+  const timePart = parts.slice(1).join(' '); // "09:15 - 09:30"
+  
+  return `${formatDisplayDate(datePart)} ${timePart}`;
+};
+
+
 export const useProcessedSchedule = () => {
   const { scheduleData } = useAppStore((state) => state.db);
 
