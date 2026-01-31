@@ -311,9 +311,13 @@ export const useAppStore = create<AppState>()(
                 const validated = applicantInputSchema.parse(data);
                 set((state) => {
                     const isUpdate = !!validated.id;
-                    const id = validated.id || `app-${Date.now()}`;
-                    const newApplicant = { ...validated, id };
-                    
+                    const id = validated.id || `app-${crypto.randomUUID()}`;
+                    const family_id = data.family_id || `fam-${crypto.randomUUID()}`;
+                    const newApplicant = { 
+                        ...validated, 
+                        id, 
+                        family_id 
+                    };                    
                     const newApplicants = isUpdate
                         ? state.db.applicants.map((a) => (a.id === id ? newApplicant : a))
                         : [...state.db.applicants, newApplicant];
@@ -326,7 +330,7 @@ export const useAppStore = create<AppState>()(
                 const validated = siblingInputSchema.parse(data);
                 set((state) => {
                     const isUpdate = !!validated.id;
-                    const id = validated.id || `sib-${Date.now()}`;
+                    const id = validated.id || `sib-${crypto.randomUUID()}`;
                     const newSibling = { ...validated, id };
 
                     const newSiblings = isUpdate
