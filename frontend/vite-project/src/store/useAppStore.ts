@@ -158,6 +158,9 @@ interface AppState {
     openConfirmationModal: (config: Omit<ConfirmationModalState, 'isOpen'>) => void;
     closeConfirmationModal: () => void;
 
+    isBulkSetupOpen: boolean; // 一括設定センターが開いているか
+    setBulkSetupOpen: (isOpen: boolean) => void;
+
     restorePreviousData: () => void;
 }
 
@@ -496,6 +499,9 @@ export const useAppStore = create<AppState>()(
                     }
                 }));
             },
+
+            isBulkSetupOpen: false,
+            setBulkSetupOpen: (isOpen) => set({ isBulkSetupOpen: isOpen }),
         }),
         { 
             name: 'student-app-storage',

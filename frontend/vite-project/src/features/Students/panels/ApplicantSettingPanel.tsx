@@ -16,7 +16,7 @@ type PanelMode = 'list' | 'add' | 'edit' | 'detail';
 const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   // useProcessedApplicants を使用して加工済みデータを取得
   const processedApplicants = useProcessedApplicants();
-  const { openConfirmationModal, deleteApplicant } = useAppStore();
+  const { openConfirmationModal, deleteApplicant, setBulkSetupOpen } = useAppStore();
 
   const [mode, setMode] = useState<PanelMode>('list');
 
@@ -38,6 +38,10 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
       confirmText: '削除',
       cancelText: 'キャンセル'
     });
+  };
+
+  const startBulkSetup = () => {
+    setBulkSetupOpen(true); // これだけで全画面が切り替わる
   };
 
   // モードに応じたレンダリング
@@ -77,7 +81,10 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
     <div className={s.container}>
       <div className={s.listHeader}>
         <h3 className={s.title}>生徒一覧</h3>
-        <Button variant="add" onClick={() => { onSelect(null); setMode('add'); }}>新規追加</Button>
+        <div className={s.actionButtonGroup}>
+          <Button variant='edit' onClick={() => { startBulkSetup(); }}>一括設定画面へ</Button>
+          <Button variant="add" onClick={() => { onSelect(null); setMode('add'); }}>新規追加</Button>
+        </div>
       </div>
       <div className={s.scrollArea}>
         {processedApplicants.map((student) => {

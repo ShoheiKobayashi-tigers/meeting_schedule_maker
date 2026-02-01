@@ -10,6 +10,7 @@ import Main from './features/Main/Main';
 import ScheduleSetting from './features/Schedule/ScheduleSetting';
 import StudentSetting from './features/Students/StudentSetting';
 import Navigation from './components/Navigation';
+import { BulkSetupHub } from './features/BulkSetup/BulkSetupHub';
 
 const containerStyle: React.CSSProperties = {
   display: 'flex',
@@ -58,6 +59,7 @@ const App: React.FC = () => {
             <div style={contentAreaStyle}>
                 {renderCurrentView()}
             </div>
+            <BulkSetupHub />
             <ConfirmationModal />
             {/* --- モーダル群 --- */}
             

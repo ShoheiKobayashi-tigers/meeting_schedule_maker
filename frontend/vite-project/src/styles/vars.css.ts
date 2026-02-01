@@ -12,6 +12,16 @@ export const vars = createGlobalTheme(':root', {
     textMain: '#4a5568',
     textMuted: '#a0aec0',
     hoverGray: '#e2e8f0',
+    // 背景色と重なり（レイヤー）の定義
+    surface: '#ffffff',          // カードやサイドバーの地の色
+    
+    // インタラクション（状態）の定義
+    backgroundHover: '#f5f7f9',  // マウスホバー時
+    backgroundActive: '#eff2f5', // クリック・選択中
+    
+    // テキストの優先度の定義
+    textPrimary: '#1a1a1a',      // 通常の文字
+    textSecondary: '#666666',    // 補足説明や注釈（少し薄め）
   },
   space: {
     none: '0',
