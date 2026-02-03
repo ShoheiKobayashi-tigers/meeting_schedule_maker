@@ -11,7 +11,10 @@ export const container = style({
 
 export const title = s.basePanelTitle;
 
-export const scrollArea = style([s.baseScrollArea]);
+export const scrollArea = style({
+  flex: 1,
+  paddingBottom: vars.space.large,
+});
 
 export const listHeader = style([s.baseListHeader, {
   display: 'flex',

@@ -53,7 +53,7 @@ const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
 
   // フィルタ用オプション
   const familyFilterOptions = useMemo(() => 
-    applicants.map(a => ({ value: a.family_id || '', label: `${a.first_name} ${a.last_name}` }))
+    applicants.map(a => ({ value: a.family_id || '', label: `${a.family_name} ${a.first_name}` }))
   , [applicants]);
 
 
@@ -90,7 +90,7 @@ const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
           displayedSiblings.map(sib => (
             <div key={sib.id} className={s.listRow}>
               <div>
-                <div style={{ fontWeight: 'bold' }}>{sib.first_name} {sib.last_name}</div>
+                <div style={{ fontWeight: 'bold' }}>{sib.family_name} {sib.first_name}</div>
                 <div style={{ fontSize: '0.85rem', color: '#718096' }}>
                   {sib.grade}年 {sib.class}組 : {formatSlotText(sib.assigned_slot)}
                 </div>
@@ -100,7 +100,7 @@ const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
                 <Button variant="delete" onClick={() => {
                   openConfirmationModal({
                     title: '兄弟の削除',
-                    message: `${sib.first_name} ${sib.last_name} を削除しますか？`,
+                    message: `${sib.family_name} ${sib.first_name} を削除しますか？`,
                     onConfirm: () => deleteSibling(sib.id!),
                     confirmText: '削除',
                     cancelText: 'キャンセル'

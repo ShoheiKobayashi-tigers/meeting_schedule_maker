@@ -5,8 +5,8 @@ import { z } from 'zod';
  */
 export const siblingInputSchema = z.object({
     id: z.string().optional(),
+    family_name: z.string().min(1, '兄弟の氏名は必須です'),
     first_name: z.string().min(1, '兄弟の氏名は必須です'),
-    last_name: z.string().min(1, '兄弟の氏名は必須です'),
     grade: z.string().min(1, '学年を入力してください'),
     class: z.string().min(1, '組を入力してください'),
     // チェックボックス等で複数選択されるスロット
@@ -19,8 +19,8 @@ export const siblingInputSchema = z.object({
  */
 export const applicantInputSchema = z.object({
     id: z.string().optional(), // 新規登録時は空
+    family_name: z.string().min(1, '生徒の氏名は必須です'),
     first_name: z.string().min(1, '生徒の氏名は必須です'),
-    last_name: z.string().min(1, '生徒の氏名は必須です'),
     student_id: z.string().min(1, '学籍番号を入力してください'),
     preferred_dates: z.array(z.string()),
     family_id: z.string().optional(),

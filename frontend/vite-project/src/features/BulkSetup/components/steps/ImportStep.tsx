@@ -35,7 +35,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({ onNext }) => {
         id: crypto.randomUUID(),           // システム内部用の一意なID
         family_id: crypto.randomUUID(),    // 以前の設計に基づきUUIDを付与
         student_id: String(row['出席番号'] || ''),
-        last_name: row['苗字'] || '',
+        family_name: row['苗字'] || '',
         first_name: row['名前'] || '',
         preferred_dates: [],               // 初期状態は空
         token: generateShortToken(4),      // お便り印字用の認証コード
@@ -97,7 +97,7 @@ return (
                 {previewData.map((student) => (
                     <tr key={student.id} style={{ borderTop: '1px solid #eee' }}>
                     <td style={{ padding: '12px' }}>{student.student_id}</td>
-                    <td style={{ padding: '12px' }}>{`${student.last_name} ${student.first_name}`}</td>
+                    <td style={{ padding: '12px' }}>{`${student.family_name} ${student.first_name}`}</td>
                     {/* <td style={{ padding: '12px' }}><code>{student.token}</code></td> */}
                     </tr>
                 ))}
@@ -105,7 +105,7 @@ return (
             </table>
             </div>
 
-            <Button variant='add' onClick={() => {handleConfirm}}>
+            <Button variant='add' onClick={() => {handleConfirm()}}>
                 この内容で登録して次へ
             </Button>
         </section>

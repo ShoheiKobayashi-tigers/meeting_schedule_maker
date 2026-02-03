@@ -55,7 +55,7 @@ const ScheduleTablePanel: React.FC = () => {
           return (
             <ScheduleSlot
               applicantId={cell.assignment}
-              applicantName={applicant ? `${applicant.first_name} ${applicant.last_name}` : ''}
+              applicantName={applicant ? `${applicant.family_name} ${applicant.first_name}` : ''}
               isDragging={ui.draggingApplicantId === cell.assignment && !!cell.assignment}
               assignedSiblings={assignedSiblings}
               // useProcessedSchedule の string 型を ScheduleSlot の期待する型へ安全にキャスト

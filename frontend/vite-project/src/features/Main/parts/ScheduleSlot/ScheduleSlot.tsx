@@ -50,7 +50,7 @@ export const ScheduleSlot: React.FC<ScheduleSlotProps> = React.memo(({
 
       {assignedSiblings.map((sibling, i) => (
         <span key={sibling.id || i} className={s.siblingText}>
-          {sibling.first_name} {sibling.last_name}
+          {sibling.family_name} {sibling.first_name}
         </span>
       ))}
     </div>

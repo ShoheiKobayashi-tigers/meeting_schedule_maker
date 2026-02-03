@@ -35,8 +35,8 @@ const SiblingForm: React.FC<Props> = ({
   } = useForm<Sibling>({
     resolver: zodResolver(siblingInputSchema),
     defaultValues: initialData || {
+      family_name: '',
       first_name: '',
-      last_name: '',
       grade: '',
       class: '',
       family_id: '',
@@ -59,7 +59,7 @@ const SiblingForm: React.FC<Props> = ({
       .filter(app => app.family_id) // family_idを持つ生徒のみ
       .map(app => ({
         value: app.family_id!,
-        label: `${app.first_name} ${app.last_name}`
+        label: `${app.family_name} ${app.first_name}`
       }));
   }, [applicants]);
 
@@ -68,13 +68,13 @@ const SiblingForm: React.FC<Props> = ({
       <div className={s.fieldGroup}>
         <div className={s.field}>
           <label className={s.label}>姓</label>
-          <input {...register('first_name')} className={s.input} /> {/* CSSクラスは適宜 */}
-          {errors.first_name && <span className={s.error}>{errors.first_name.message}</span>}
+          <input {...register('family_name')} className={s.input} /> {/* CSSクラスは適宜 */}
+          {errors.family_name && <span className={s.error}>{errors.family_name.message}</span>}
         </div>
         <div className={s.field}>
           <label className={s.label}>名</label>
-          <input {...register('last_name')} className={s.input} />
-          {errors.last_name && <span className={s.error}>{errors.last_name.message}</span>}
+          <input {...register('first_name')} className={s.input} />
+          {errors.first_name && <span className={s.error}>{errors.first_name.message}</span>}
         </div>
       </div>
 

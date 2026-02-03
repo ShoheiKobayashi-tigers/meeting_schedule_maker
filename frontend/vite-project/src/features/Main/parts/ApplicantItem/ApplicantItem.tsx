@@ -23,7 +23,7 @@ export const ApplicantItem: React.FC<ApplicantItemProps> = React.memo(({
   else if (!isAvailable) status = 'notAllowed';
 
   // 名前を連結（データ構造に合わせる）
-  const fullName = `${applicant.first_name} ${applicant.last_name}`.trim();
+  const fullName = `${applicant.family_name} ${applicant.first_name}`.trim();
 
   // ドラッグ開始のハンドラー（IDの存在を保証する）
   const handleDragStart = (e: React.DragEvent) => {

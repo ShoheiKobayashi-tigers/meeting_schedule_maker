@@ -39,8 +39,8 @@ const {
     defaultValues: {
         has_sibling: false,
         preferred_dates: [],
+        family_name: '',
         first_name: '',
-        last_name: '',
         student_id: '',
         sibling_data: undefined,
     } as StudentFormValues, // 型の不整合を解消
@@ -54,8 +54,8 @@ const {
         if (target) {
           reset({
             id: target.id,
+            family_name: target.family_name,
             first_name: target.first_name,
-            last_name: target.last_name,
             student_id: target.student_id,
             preferred_dates: target.preferred_dates || [],
             family_id: target.family_id,
@@ -65,8 +65,8 @@ const {
       } else {
         // 新規時はリセット
         reset({
+          family_name: '',
           first_name: '',
-          last_name: '',
           student_id: '',
           preferred_dates: [],
           has_sibling: false,
@@ -83,8 +83,8 @@ const {
         // 編集保存
         await saveApplicant({
             id: values.id,
+            family_name: values.family_name,
             first_name: values.first_name,
-            last_name: values.last_name,
             student_id: values.student_id,
             preferred_dates: values.preferred_dates,
             family_id: values.family_id,
@@ -122,18 +122,18 @@ const {
             <div className={s.field}>
               <label className={s.label}>氏名 <span className={s.required}>*</span></label>
               <input 
+                {...register('family_name')} 
+                className={s.input} 
+                placeholder="例：佐藤 太郎"
+              />
+              {errors.family_name && <p className={s.errorText}>{errors.family_name.message}</p>}
+              <label className={s.label}>氏名 <span className={s.required}>*</span></label>
+              <input 
                 {...register('first_name')} 
                 className={s.input} 
                 placeholder="例：佐藤 太郎"
               />
               {errors.first_name && <p className={s.errorText}>{errors.first_name.message}</p>}
-              <label className={s.label}>氏名 <span className={s.required}>*</span></label>
-              <input 
-                {...register('last_name')} 
-                className={s.input} 
-                placeholder="例：佐藤 太郎"
-              />
-              {errors.last_name && <p className={s.errorText}>{errors.last_name.message}</p>}
             </div>
 
             <div className={s.field}>
@@ -182,16 +182,16 @@ const {
                     <div className={s.field}>
                       <label className={s.label}>兄弟の氏名 <span className={s.required}>*</span></label>
                       <input 
+                        {...register('sibling_data.family_name')} 
+                        className={s.input} 
+                      />
+                      {errors.sibling_data?.family_name && <p className={s.errorText}>{errors.sibling_data.family_name.message}</p>}
+                      <label className={s.label}>兄弟の氏名 <span className={s.required}>*</span></label>
+                      <input 
                         {...register('sibling_data.first_name')} 
                         className={s.input} 
                       />
                       {errors.sibling_data?.first_name && <p className={s.errorText}>{errors.sibling_data.first_name.message}</p>}
-                      <label className={s.label}>兄弟の氏名 <span className={s.required}>*</span></label>
-                      <input 
-                        {...register('sibling_data.last_name')} 
-                        className={s.input} 
-                      />
-                      {errors.sibling_data?.last_name && <p className={s.errorText}>{errors.sibling_data.last_name.message}</p>}
                       
                     </div>
                     <div className={s.row}>

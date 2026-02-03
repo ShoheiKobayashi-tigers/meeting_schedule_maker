@@ -13,8 +13,8 @@ import { getInitialAvailability } from '../utils/availabilityUtils';
 const INITIAL_APPLICANTS: Applicant[] = [
     {
         id: 'app-1',
-        first_name: '佐藤',
-        last_name: '太郎',
+        family_name: '佐藤',
+        first_name: '太郎',
         student_id: '1',
         preferred_dates: ['2025-12-01 09:15 - 09:30', '2025-11-30 14:00 - 14:15'],
         family_id: '1'
@@ -22,16 +22,16 @@ const INITIAL_APPLICANTS: Applicant[] = [
     // 山田花子さんは兄弟なし
     {
         id: 'app-2',
-        first_name: '山田',        
-        last_name: '花子',
+        family_name: '山田',        
+        first_name: '花子',
         student_id: '2',
         preferred_dates: ['2025-12-01 09:00 - 09:15', '2025-12-01 14:00 - 14:15'],
         family_id: '2'
     },
     {
         id: 'app-3',
-        first_name: '田中',
-        last_name: '一郎',
+        family_name: '田中',
+        first_name: '一郎',
         student_id: '3',
         preferred_dates: ['2025-12-01 09:00 - 09:15', '2025-11-30 09:00 - 09:15'],
         family_id: '3'
@@ -39,16 +39,16 @@ const INITIAL_APPLICANTS: Applicant[] = [
     // 鈴木美咲さんは希望日程なし
     {
         id: 'app-4',
-        first_name: '鈴木',
-        last_name: '美咲',
+        family_name: '鈴木',
+        first_name: '美咲',
         student_id: '4',
         preferred_dates: [],
         family_id: '4'
     }, 
     {
         id: 'app-5',
-        first_name: '王',
-        last_name: '貞治',
+        family_name: '王',
+        first_name: '貞治',
         student_id: '5',
         preferred_dates: ['2025-12-01 09:15 - 09:30', '2025-11-30 14:00 - 14:15', '2025-11-30 09:15 - 09:30', '2025-11-30 09:00 - 09:15', '2025-12-01 09:00 - 09:15', '2025-12-01 14:00 - 14:15'],
         family_id: '5'
@@ -58,8 +58,8 @@ const INITIAL_APPLICANTS: Applicant[] = [
 const INITIAL_SIBLINGS: Sibling[] = [
     {
       id: 'sib-1',
-      first_name: '佐藤',
-      last_name: '次郎',
+      family_name: '佐藤',
+      first_name: '次郎',
       grade: '5',
       class: '2',
       family_id: '1',
@@ -67,8 +67,8 @@ const INITIAL_SIBLINGS: Sibling[] = [
     },
     {
       id: 'sib-2',
-      first_name: '鈴木',
-      last_name: 'ひとみ',
+      family_name: '鈴木',
+      first_name: 'ひとみ',
       grade: '6',
       class: '2',
       family_id: '4',
@@ -76,8 +76,8 @@ const INITIAL_SIBLINGS: Sibling[] = [
     },
     {
       id:'sib-3',
-      first_name: '佐藤',
-      last_name:'輝明',
+      family_name: '佐藤',
+      first_name:'輝明',
       grade: '1',
       class: '2',
       family_id: '1',
@@ -352,8 +352,8 @@ export const useAppStore = create<AppState>()(
                 set((state) => {
                     const newApplicant: Applicant = {
                         id: studentId,
+                        family_name: validated.family_name,
                         first_name: validated.first_name,
-                        last_name: validated.last_name,
                         student_id: validated.student_id,
                         family_id: sharedFamilyId,
                         preferred_dates: validated.preferred_dates,
@@ -363,8 +363,8 @@ export const useAppStore = create<AppState>()(
                     if (validated.has_sibling && validated.sibling_data) {
                         const newSibling: Sibling = {
                             id: `sib-${Date.now() + 1}`,
+                            family_name: validated.sibling_data.family_name,
                             first_name: validated.sibling_data.first_name,
-                            last_name: validated.sibling_data.last_name,
                             grade: validated.sibling_data.grade,
                             class: validated.sibling_data.class,
                             family_id: sharedFamilyId,

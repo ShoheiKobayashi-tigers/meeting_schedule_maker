@@ -41,7 +41,7 @@ const ApplicantListPanel: React.FC = () => {
         if (selectedSlot) return '面談枠が選択されています。リストの児童をクリックして割り当ててください。';
         if (selectedApplicantId) {
             const applicant = getApplicantById(selectedApplicantId, applicants);
-            const name = applicant ? `${applicant.last_name} ${applicant.first_name}` : '';
+            const name = applicant ? `${applicant.family_name} ${applicant.first_name}` : '';
             return `面談枠をクリックして「${name}」さんを割り当ててください。`;
         }
         return '面談枠からここにドロップすると割り当て解除されます';

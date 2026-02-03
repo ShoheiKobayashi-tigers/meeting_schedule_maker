@@ -70,7 +70,7 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
           applicant={selectedApplicant}
           assignmentText={selectedApplicant.assignmentText}
           onEdit={() => setMode('edit')}
-          onDelete={() => handleDelete(selectedApplicant.id!, `${selectedApplicant.last_name} ${selectedApplicant.first_name}`)}
+          onDelete={() => handleDelete(selectedApplicant.id!, `${selectedApplicant.family_name} ${selectedApplicant.first_name}`)}
         />
       </div>
     );
@@ -89,7 +89,7 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
       <div className={s.scrollArea}>
         {processedApplicants.map((student) => {
           const isSelected = student.id === selectedId;
-          const fullName = `${student.first_name} ${student.last_name}`;
+          const fullName = `${student.family_name} ${student.first_name}`;
           return (
             <div 
               key={student.id} 
@@ -107,7 +107,7 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
                 <Button variant="edit" onClick={() => { onSelect(student.id!); setMode('edit'); }}>編集</Button>
                 <Button 
                     variant="delete" 
-                    onClick={() => { handleDelete(student.id!, `${student.first_name} ${student.last_name}`)}}
+                    onClick={() => { handleDelete(student.id!, `${student.family_name} ${student.first_name}`)}}
                   >
                     削除
                   </Button>

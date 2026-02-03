@@ -19,8 +19,8 @@ const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) =>
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const getSafeDefaultValues = (data?: Applicant | null): Applicant => ({
     id: data?.id,
+    family_name: data?.family_name ?? '',
     first_name: data?.first_name ?? '',
-    last_name: data?.last_name ?? '',
     student_id: data?.student_id ?? '',
     preferred_dates: data?.preferred_dates ?? [],
     family_id: data?.family_id,
@@ -58,13 +58,13 @@ const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) =>
       <div className={s.fieldGroup}>
         <div className={s.field}>
           <label className={s.label}>姓</label>
-          <input {...register('first_name')} className={s.input} placeholder="例: 佐藤" />
-          {errors.first_name && <span className={s.error}>{errors.first_name.message}</span>}
+          <input {...register('family_name')} className={s.input} placeholder="例: 佐藤" />
+          {errors.family_name && <span className={s.error}>{errors.family_name.message}</span>}
         </div>
         <div className={s.field}>
           <label className={s.label}>名</label>
-          <input {...register('last_name')} className={s.input} placeholder="例: 太郎" />
-          {errors.last_name && <span className={s.error}>{errors.last_name.message}</span>}          
+          <input {...register('first_name')} className={s.input} placeholder="例: 太郎" />
+          {errors.first_name && <span className={s.error}>{errors.first_name.message}</span>}          
         </div>
       </div>
 

@@ -21,7 +21,7 @@ const ApplicantDetail: React.FC<Props> = ({ applicant, assignmentText, onEdit, o
       <section className={s.infoSection}>
         <label className={s.label}>氏名</label>
         <div className={s.nameValue}>
-          {applicant.first_name} {applicant.last_name}
+          {applicant.family_name} {applicant.first_name}
         </div>
       </section>
 
