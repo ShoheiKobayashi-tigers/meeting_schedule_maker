@@ -3,10 +3,8 @@ import { persist, devtools } from 'zustand/middleware';
 import { type Applicant, type Sibling, type StudentFormValues, applicantInputSchema, siblingInputSchema, studentFormSchema } from '../types/Students';
 import { ScheduleData, SlotIndex } from '../types/ScheduleManager';
 import { ConfirmationModalState } from '../types/Modal';
-import { 
-    assignApplicantToSlot, 
-    deleteAssignmentFromSlot 
-} from '../utils/assignmentUtils'; // 既存のutilsを利用
+import { assignApplicantToSlot, deleteAssignmentFromSlot } from '../utils/assignmentUtils';
+import { generateShortToken } from '../utils/tokenUtils';
 import { calculateTimeRange } from '../utils/timeUtils';
 import { getInitialAvailability } from '../utils/availabilityUtils';
 
@@ -143,6 +141,7 @@ interface AppState {
     deleteSibling: (id: string) => void;
     assignApplicant: (applicantId: string, slot: SlotIndex) => void;
     deleteAssignmentFromSlot: (slot: SlotIndex) => void;
+    bulkSaveApplicants: (newApplicants: Applicant[]) => void;
     
     // スケジュール操作
     toggleSlotBlock: (slot: SlotIndex) => void;
@@ -319,7 +318,8 @@ export const useAppStore = create<AppState>()(
                     const newApplicant = { 
                         ...validated, 
                         id, 
-                        family_id 
+                        family_id,
+                        token: validated.token || generateShortToken(4)
                     };                    
                     const newApplicants = isUpdate
                         ? state.db.applicants.map((a) => (a.id === id ? newApplicant : a))
@@ -393,6 +393,43 @@ export const useAppStore = create<AppState>()(
 
             getFamilyIdByApplicantId: (id) => {
                 return get().db.applicants.find((a) => a.id === id)?.family_id;
+            },
+
+            /**
+             * 一括保存用のロジック
+             */
+            bulkSaveApplicants: (newApplicantsData) => {
+                set((state) => {
+                    // 現在のリストをコピー
+                    const currentApplicants = [...state.db.applicants];
+
+                    newApplicantsData.forEach((input) => {
+                        // インポートデータも念のためZustand保存前にバリデーション
+                        const validated = applicantInputSchema.parse(input);
+                        
+                        // 出席番号(student_id)をキーに既存重複をチェック
+                        const existingIndex = currentApplicants.findIndex(
+                            (a) => a.student_id === validated.student_id
+                        );
+
+                        const studentToSave: Applicant = {
+                            ...validated,
+                            id: validated.id || `app-${crypto.randomUUID()}`,
+                            family_id: validated.family_id || `fam-${crypto.randomUUID()}`,
+                            token: validated.token || generateShortToken(4)
+                        };
+
+                        if (existingIndex !== -1) {
+                            // 重複があれば上書き（必要に応じて既存の希望日を維持するロジックに変更可能）
+                            currentApplicants[existingIndex] = studentToSave;
+                        } else {
+                            // 新規なら追加
+                            currentApplicants.push(studentToSave);
+                        }
+                    });
+
+                    return { db: { ...state.db, applicants: currentApplicants } };
+                });
             },
 
             // --- スケジュール関連 ---

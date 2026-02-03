@@ -24,6 +24,7 @@ export const applicantInputSchema = z.object({
     student_id: z.string().min(1, '学籍番号を入力してください'),
     preferred_dates: z.array(z.string()),
     family_id: z.string().optional(),
+    token: z.string().optional(),
 });
 
 /**

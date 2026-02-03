@@ -1,26 +1,33 @@
 // features/BulkSetup/BulkSetupHub.tsx
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
+import { ImportStep } from './components/steps/ImportStep';
+import { TemplateStep } from './components/steps/TemplateStep';
+import { HandoutStep } from './components/steps/HandoutStep';
+import { SyncStep } from './components/steps/SyncStep';
 import { BULK_STEPS, BulkStep } from './types';
 import * as s from './BulkSetupHub.css';
-
-// 後で各ステップの中身を別ファイルに切り出します
-const StepContent: React.FC<{ step: BulkStep }> = ({ step }) => {
-  switch (step) {
-    case 'import': return <div>Excelドロップエリア（実装予定）</div>;
-    case 'template': return <div>お便りテンプレート編集（実装予定）</div>;
-    case 'handout': return <div>docx一括生成・ダウンロード（実装予定）</div>;
-    case 'sync': return <div>クラウドDB同期（実装予定）</div>;
-    default: return null;
-  }
-};
-
+  
 export const BulkSetupHub: React.FC = () => {
   const isBulkSetupOpen = useAppStore((state) => state.isBulkSetupOpen);
   const setBulkSetupOpen = useAppStore((state) => state.setBulkSetupOpen);
   
   // 現在のステップを管理
   const [activeStep, setActiveStep] = useState<BulkStep>('import');
+
+  const handleNext = () => {
+    if (activeStep === 'import') setActiveStep('template');
+    else if (activeStep === 'template') setActiveStep('handout');
+    else if (activeStep === 'sync') setActiveStep('sync');
+  };
+
+  const StepComponents: Record<BulkStep, React.ReactElement> = {
+    import: <ImportStep onNext={handleNext} />,
+    template: <TemplateStep onNext={handleNext} />,
+    handout: <HandoutStep onNext={handleNext} />,
+    sync: <SyncStep />,
+  };
+
 
   if (!isBulkSetupOpen) return null;
 
@@ -56,8 +63,7 @@ export const BulkSetupHub: React.FC = () => {
         
         <main className={s.content}>
           <div className={s.contentInner}>
-             {/* 現在のステップに応じたコンテンツを表示 */}
-            <StepContent step={activeStep} />
+            {StepComponents[activeStep]}
           </div>
         </main>
       </div>
