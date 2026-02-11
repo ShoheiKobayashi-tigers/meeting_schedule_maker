@@ -17,7 +17,7 @@ app.use(express.json());
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // Render等のクラウドDB接続用
+  ssl: { rejectUnauthorized: false } // クラウドDB接続用
 });
 
 /**
