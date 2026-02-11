@@ -24,15 +24,6 @@ const Navigation: React.FC = () => {
           <span className={s.navButtonLabel}>{item.label}</span>
         </button>
       ))}
-      <div className={s.bottomActions}>
-        <button 
-          onClick={restorePreviousData}
-          className={s.restoreButton}
-          title="ブラウザから前回のデータを読み込みます"
-        >
-          🔄 前回データを復元
-        </button>
-      </div>
     </nav>
   );
 };
