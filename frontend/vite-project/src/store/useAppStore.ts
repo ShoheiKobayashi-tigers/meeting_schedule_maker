@@ -128,6 +128,9 @@ interface AppState {
     // === Group 2: 一時的なUI状態 (UI) ===
     ui: UiState;
 
+    isSessionActive: boolean;     // スタート画面の制御フラグ
+    setSessionActive: () => void; // 「続きから」ボタン用
+
     // === Actions (操作) ===
     // UI操作
     setCurrentView: (view: ViewValues) => void;
@@ -209,6 +212,10 @@ export const useAppStore = create<AppState>()(
                     cancelText: 'キャンセル',
                 },                
             },
+
+            isSessionActive: false,
+
+            setSessionActive: () => set({ isSessionActive: true }),
 
             // --- Actions ---
             setInterviewDuration: (duration: number) => 
@@ -527,7 +534,8 @@ export const useAppStore = create<AppState>()(
                         message: '', onConfirm: () => {}, 
                         confirmText: null, cancelText: null 
                     }
-                }
+                },
+                isSessionActive: true
             }),
 
             // 汎用確認モーダルを開くアクション
@@ -560,7 +568,6 @@ export const useAppStore = create<AppState>()(
             name: 'student-app-storage',
             // 重要: dbオブジェクトのみを永続化し、uiオブジェクトは保存しない
             partialize: (state) => ({ db: state.db }),
-            skipHydration: true,
         }
     )
   )

@@ -11,6 +11,7 @@ import Main from './features/Main/Main';
 import { GuardianPortal } from './features/ParentForm/GuardianPortal/GuardianPortal';
 import ScheduleSetting from './features/Schedule/ScheduleSetting';
 import StudentSetting from './features/Students/StudentSetting';
+import { StartScreen } from './features/StartScreen/StartScreen';
 import Navigation from './components/Navigation';
 import { BulkSetupHub } from './features/BulkSetup/BulkSetupHub';
 
@@ -26,6 +27,18 @@ const contentAreaStyle: React.CSSProperties = {
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
+};
+
+const TeacherRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isSessionActive = useAppStore((state) => state.isSessionActive);
+
+  // まだ「始める」を押していなければ、スタート画面を表示
+  if (!isSessionActive) {
+    return <StartScreen />;
+  }
+
+  // 押していれば、本来の画面（AdminLayoutなど）を表示
+  return <>{children}</>;
 };
 
 const AdminLayout: React.FC = () => {
@@ -63,24 +76,6 @@ const AdminLayout: React.FC = () => {
             </div>
             <BulkSetupHub />
             <ConfirmationModal />
-            {/* --- モーダル群 --- */}
-            
-            {/* 生徒詳細モーダル
-            <StudentDetailsModal
-                isOpen={manager.studentDetailsModalState.isOpen}
-                student={manager.studentDetailsModalState.student}
-                onClose={manager.closeStudentDetailsModal}
-                assignmentDetails={manager.getAssignmentDetails(manager.studentDetailsModalState.student?.id)}
-                siblingDetails={siblingsManager.getSiblingsForStudent(manager.studentDetailsModalState.student)}
-            />
- */}
-            {/* 生徒追加・編集モーダル */}
-            {/* <UpsertStudentModal
-                isOpen={manager.upsertStudentModalState.isOpen}
-                applicantId={manager.upsertStudentModalState.student?.id ?? null}
-                allScheduleSlots={manager.allScheduleSlots}
-                onClose={manager.closeUpsertStudentModal}
-            /> */}
         </div>
     );
 };
@@ -92,7 +87,7 @@ const App: React.FC = () => {
             <Route path="/p/:workspaceId" element={<GuardianPortal />} />
 
             {/* 2. 先生用（管理）ルート: それ以外すべて */}
-            <Route path="/*" element={<AdminLayout />} />
+            <Route path="/*" element={<TeacherRoute><AdminLayout /></TeacherRoute>} />
         </Routes>
     );
 };
