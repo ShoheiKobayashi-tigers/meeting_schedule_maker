@@ -52,6 +52,10 @@ const ApplicantDetail: React.FC<Props> = ({ applicant, assignmentText, onEdit, o
           }}
         />
       </section>
+      <section className={s.assignmentBox}>
+        <label className={s.label}>トークン</label>
+        <div>{applicant.token}</div>
+      </section>
 
       <div className={s.buttonGroup}>
         <Button variant="edit" onClick={onEdit} style={{ flex: 1 }}>

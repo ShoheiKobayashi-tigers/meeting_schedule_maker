@@ -1,9 +1,16 @@
 // features/BulkSetup/components/steps/HandoutStep.tsx
 import React from 'react';
+import { useAppStore } from '../../../../store/useAppStore';
+import { generateHandoutDocx } from '../../../../utils/docxUtils';
 import * as s from './HandoutStep.css';
 import * as common from './ImportStep.css';
 
 export const HandoutStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
+  const { applicants, schoolSettings, workspaceId } = useAppStore(state => state.db);
+  const handleDownload = async () => {
+    // workspaceId がない場合は null などを渡し、docxUtils 側で「URL未発行」と表示させる
+    await generateHandoutDocx(applicants, schoolSettings, workspaceId || '');
+  };
   return (
     <div className={common.container}>
       <section className={common.section}>
@@ -15,7 +22,7 @@ export const HandoutStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
         <div className={s.printHero}>
           <div className={s.statusBadge}>準備完了</div>
           <span className={s.icon}>📄</span>
-          <button className={s.downloadBtn}>
+          <button className={s.downloadBtn} onClick={handleDownload}>
             案内を一括生成してダウンロード (.docx)
           </button>
           <p style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>

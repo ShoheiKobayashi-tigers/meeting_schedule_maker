@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { ImportStep } from './components/steps/ImportStep';
 import { TemplateStep } from './components/steps/TemplateStep';
+import { PreviewStep } from './components/steps/PreviewStep';
 import { HandoutStep } from './components/steps/HandoutStep';
 import { SyncStep } from './components/steps/SyncStep';
 import { BULK_STEPS, BulkStep } from './types';
@@ -17,13 +18,15 @@ export const BulkSetupHub: React.FC = () => {
 
   const handleNext = () => {
     if (activeStep === 'import') setActiveStep('template');
-    else if (activeStep === 'template') setActiveStep('handout');
+    else if (activeStep === 'template') setActiveStep('preview');
+    else if (activeStep === 'preview') setActiveStep('handout');
     else if (activeStep === 'sync') setActiveStep('sync');
   };
 
   const StepComponents: Record<BulkStep, React.ReactElement> = {
     import: <ImportStep onNext={handleNext} />,
     template: <TemplateStep onNext={handleNext} />,
+    preview: <PreviewStep onNext={handleNext} />,
     handout: <HandoutStep onNext={handleNext} />,
     sync: <SyncStep />,
   };

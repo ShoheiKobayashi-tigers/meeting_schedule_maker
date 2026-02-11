@@ -1,4 +1,5 @@
 import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 // Store をインポート
 import { useAppStore, VIEWS } from './store/useAppStore'; 
 
@@ -7,6 +8,7 @@ import ConfirmationModal from './components/modals/ConfirmationModal';
 import StudentDetailsModal from './components/modals/StudentDetailsModal';
 import UpsertStudentModal from './features/Students/components/modals/UpsertStudentModal';
 import Main from './features/Main/Main';
+import { GuardianPortal } from './features/ParentForm/GuardianPortal/GuardianPortal';
 import ScheduleSetting from './features/Schedule/ScheduleSetting';
 import StudentSetting from './features/Students/StudentSetting';
 import Navigation from './components/Navigation';
@@ -26,7 +28,7 @@ const contentAreaStyle: React.CSSProperties = {
   flexDirection: 'column',
 };
 
-const App: React.FC = () => {
+const AdminLayout: React.FC = () => {
     // 1. Store から最新のデータを取得
     const db = useAppStore(state => state.db);
     const ui = useAppStore(state => state.ui);
@@ -80,6 +82,18 @@ const App: React.FC = () => {
                 onClose={manager.closeUpsertStudentModal}
             /> */}
         </div>
+    );
+};
+
+const App: React.FC = () => {
+    return (
+        <Routes>
+            {/* 1. 保護者用ルート: /p/NanoID */}
+            <Route path="/p/:workspaceId" element={<GuardianPortal />} />
+
+            {/* 2. 先生用（管理）ルート: それ以外すべて */}
+            <Route path="/*" element={<AdminLayout />} />
+        </Routes>
     );
 };
 

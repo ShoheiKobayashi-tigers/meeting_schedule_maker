@@ -38,7 +38,7 @@ export const ImportStep: React.FC<ImportStepProps> = ({ onNext }) => {
         family_name: row['苗字'] || '',
         first_name: row['名前'] || '',
         preferred_dates: [],               // 初期状態は空
-        token: generateShortToken(4),      // お便り印字用の認証コード
+        token: generateShortToken(6),      // お便り印字用の認証コード
       }));
 
       setPreviewData(mappedData);
@@ -98,7 +98,7 @@ return (
                     <tr key={student.id} style={{ borderTop: '1px solid #eee' }}>
                     <td style={{ padding: '12px' }}>{student.student_id}</td>
                     <td style={{ padding: '12px' }}>{`${student.family_name} ${student.first_name}`}</td>
-                    {/* <td style={{ padding: '12px' }}><code>{student.token}</code></td> */}
+                    <td style={{ padding: '12px' }}><code>{student.token}</code></td>
                     </tr>
                 ))}
                 </tbody>

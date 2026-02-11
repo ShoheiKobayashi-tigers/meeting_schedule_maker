@@ -1,18 +1,102 @@
+// features/BulkSetup/components/steps/SyncStep.tsx
 import React from 'react';
+import { useAppStore } from '../../../../store/useAppStore';
+import { useCloudSync } from '../../hooks/useCloudSync';
 import * as s from './ImportStep.css';
 
 export const SyncStep: React.FC = () => {
+  const { workspaceId } = useAppStore((state) => state.db);
+  const { sync, pullResponses, loading, error } = useCloudSync(); // pullResponsesを追加
+
+  const handleSync = async () => {
+    const result = await sync();
+    if (result.success) {
+      alert(workspaceId ? "データを更新しました。" : "クラウドとの同期が完了しました！");
+    } else {
+      alert("同期失敗: " + result.error);
+    }
+  };
+
+  // 受信（回答取り込み）
+  const handlePull = async () => {
+    const result = await pullResponses();
+    if (result.success) {
+      alert("最新の回答を取得し、名簿を更新しました！");
+    } else {
+      alert("取得失敗: " + result.error);
+    }
+  };
+
+  const publicUrl = workspaceId ? `${window.location.origin}/p/${workspaceId}` : null;
+
   return (
     <div className={s.container}>
       <section className={s.section}>
         <h4 className={s.sectionTitle}>4. クラウド同期と回答待機</h4>
-        <p className={s.description}>
-          現在の名簿情報をクラウドにアップロードし、保護者からの入力を受け付けます。
-        </p>
+        
+        <div className={s.previewCard} style={{ padding: '32px', textAlign: 'center' }}>
+          {/* ステータス表示 */}
+          <div style={{ marginBottom: '24px' }}>
+            {workspaceId ? (
+              <span style={{ color: '#28a745', fontWeight: 'bold', backgroundColor: '#e6fffa', padding: '8px 16px', borderRadius: '20px' }}>
+                ✓ 公開中（同期済み）
+              </span>
+            ) : (
+              <span style={{ color: '#666', fontWeight: 'bold', backgroundColor: '#eee', padding: '8px 16px', borderRadius: '20px' }}>
+                準備中（未同期）
+              </span>
+            )}
+          </div>
 
-        <div className={s.previewCard} style={{ padding: '24px', textAlign: 'center' }}>
-          <p>ステータス: <strong>オフライン</strong></p>
-          <button>クラウドと同期を開始する</button>
+          {/* URL表示 */}
+          {publicUrl && (
+            <div style={{ marginBottom: '24px' }}>
+              <p style={{ fontSize: '14px', marginBottom: '8px' }}>保護者用公開URL:</p>
+              <code style={{ display: 'block', padding: '12px', background: '#f8f9fa', border: '1px solid #ddd', borderRadius: '4px', wordBreak: 'break-all' }}>
+                {publicUrl}
+              </code>
+            </div>
+          )}
+
+          {/* 同期ボタン（常に表示し、文言を切り替え） */}
+          <button 
+            onClick={handleSync} 
+            disabled={loading}
+            style={{ 
+              padding: '12px 24px', 
+              backgroundColor: '#0070f3', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px', 
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            {loading ? '処理中...' : workspaceId ? 'クラウドのデータを更新する' : 'クラウドと同期して公開する'}
+          </button>
+
+                      {/* 2. 受信ボタン（公開後のみ表示） */}
+            {workspaceId && (
+              <button 
+                onClick={handlePull} 
+                disabled={loading}
+                style={{ 
+                  padding: '12px 24px', 
+                  backgroundColor: '#fff', 
+                  color: '#0070f3', 
+                  border: '2px solid #0070f3', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  minWidth: '200px'
+                }}
+              >
+                最新の回答を取り込む
+              </button>
+            )}
+
+
+          {error && <p style={{ color: '#e53e3e', fontSize: '12px', marginTop: '12px' }}>{error}</p>}
         </div>
       </section>
     </div>

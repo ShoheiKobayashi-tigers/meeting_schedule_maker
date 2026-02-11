@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
+import { nanoid } from 'nanoid';
 import { type Applicant, type Sibling, type StudentFormValues, applicantInputSchema, siblingInputSchema, studentFormSchema } from '../types/Students';
+import { SchoolSettings, DEFAULT_SCHOOL_SETTINGS } from '../types/BulkConfig';
 import { ScheduleData, SlotIndex } from '../types/ScheduleManager';
 import { ConfirmationModalState } from '../types/Modal';
 import { assignApplicantToSlot, deleteAssignmentFromSlot } from '../utils/assignmentUtils';
@@ -105,6 +107,8 @@ interface DbState {
     applicants: Applicant[];
     siblings: Sibling[];
     scheduleData: ScheduleData;
+    schoolSettings: SchoolSettings;
+    workspaceId?: string;
 }
 
 interface UiState {
@@ -160,6 +164,9 @@ interface AppState {
     isBulkSetupOpen: boolean; // 一括設定センターが開いているか
     setBulkSetupOpen: (isOpen: boolean) => void;
 
+    setSchoolSettings: (settings: SchoolSettings) => void;
+    setWorkspaceId: (id: string) => void;
+
     restorePreviousData: () => void;
 }
 
@@ -174,7 +181,16 @@ export const useAppStore = create<AppState>()(
                 applicants: INITIAL_APPLICANTS,
                 siblings: INITIAL_SIBLINGS,
                 scheduleData: INITIAL_SCHEDULE,
+                schoolSettings: DEFAULT_SCHOOL_SETTINGS,
+                workspaceId: 'testNanoId',
             },
+
+            setSchoolSettings: (settings) => set((state) => ({
+                db: { ...state.db, schoolSettings: settings }
+            })),
+            setWorkspaceId: (id) => set((state) => ({
+                db: { ...state.db, workspaceId: id }
+            })),
 
             // 2. 初期状態 (UI)
             ui: {
@@ -498,7 +514,7 @@ export const useAppStore = create<AppState>()(
             })),
 
             resetAll: () => set({ 
-                db: { applicants: INITIAL_APPLICANTS, siblings: INITIAL_SIBLINGS, scheduleData: INITIAL_SCHEDULE },
+                db: { applicants: INITIAL_APPLICANTS, siblings: INITIAL_SIBLINGS, scheduleData: INITIAL_SCHEDULE, schoolSettings: DEFAULT_SCHOOL_SETTINGS},
                 ui: { 
                     currentView: VIEWS.SCHEDULE,
                     interviewDuration: 15,
