@@ -149,6 +149,7 @@ interface AppState {
     assignApplicant: (applicantId: string, slot: SlotIndex) => void;
     deleteAssignmentFromSlot: (slot: SlotIndex) => void;
     bulkSaveApplicants: (newApplicants: Applicant[]) => void;
+    importApplicants: (newStudentsData: Omit<Applicant, 'id' | 'token' | 'preferred_dates' | 'siblings' | 'family_id'>[]) => void;
     
     // スケジュール操作
     toggleSlotBlock: (slot: SlotIndex) => void;
@@ -342,7 +343,7 @@ export const useAppStore = create<AppState>()(
                         ...validated, 
                         id, 
                         family_id,
-                        token: validated.token || generateShortToken(4)
+                        token: validated.token || generateShortToken(6)
                     };                    
                     const newApplicants = isUpdate
                         ? state.db.applicants.map((a) => (a.id === id ? newApplicant : a))
@@ -439,7 +440,7 @@ export const useAppStore = create<AppState>()(
                             ...validated,
                             id: validated.id || `app-${crypto.randomUUID()}`,
                             family_id: validated.family_id || `fam-${crypto.randomUUID()}`,
-                            token: validated.token || generateShortToken(4)
+                            token: validated.token || generateShortToken(6)
                         };
 
                         if (existingIndex !== -1) {
@@ -454,6 +455,47 @@ export const useAppStore = create<AppState>()(
                     return { db: { ...state.db, applicants: currentApplicants } };
                 });
             },
+
+            importApplicants: (newStudentsData) => set((state) => {
+                const currentApplicants = state.db.applicants;
+                
+                const mergedApplicants = newStudentsData.map((input) => {
+                // 既存リストから「出席番号」と「氏名」が完全一致する人を探す
+                const existing = currentApplicants.find(a => 
+                    a.student_id === input.student_id &&
+                    a.family_name === input.family_name &&
+                    a.first_name === input.first_name
+                );
+
+                if (existing) {
+                    // 【重要】一致する人がいたら、IDとトークン、既存の予約情報などを引き継ぐ
+                    return {
+                    ...input,          // 新しい入力データ（修正があるかもしれないのでベースにする）
+                    id: existing.id,   // ID維持（これが変わると予約が切れる）
+                    token: existing.token, // トークン維持（これが変わるとログインできなくなる）
+                    preferred_dates: existing.preferred_dates, // 予約データ維持
+                    family_id: existing.family_id, // 家族ID維持
+                    } as Applicant;
+                } else {
+                    // 一致しない（完全な新規生徒）なら、新しくIDとトークンを発行
+                    return {
+                    ...input,
+                    id: nanoid(),
+                    token: generateShortToken(), // 新規発行
+                    preferred_dates: [],
+                    siblings: [],
+                    family_id: nanoid(),
+                    } as Applicant;
+                }
+                });
+
+                return {
+                    db: {
+                        ...state.db,
+                        applicants: mergedApplicants
+                    }
+                };
+            }),
 
             // --- スケジュール関連 ---
             // --- 割り当て実行アクション ---

@@ -22,6 +22,8 @@ export const schoolSettingsSchema = z.object({
   
   // 案内文のカスタマイズ（任意項目）
   message: z.string().optional(),
+
+  letterMessage: z.string().optional(),
   
   // 回答期限（日付文字列として保持）
   deadline: z.string().optional(),
@@ -35,6 +37,17 @@ export type SchoolSettings = z.infer<typeof schoolSettingsSchema>;
 /**
  * 初期値（TemplateStepなどで利用）
  */
+// 定数として定義（ファイルの上のほう）
+const DEFAULT_LETTER_MESSAGE = `保護者の皆様
+
+いつも教育活動にご理解とご協力をいただき、ありがとうございます。
+下記の日程で個別面談を行います。
+つきましては、本システムのQRコードより、ご希望の日時を選択し、送信してください。
+
+調整の上、後日決定した日時をお知らせいたします。
+どうぞよろしくお願いいたします。`;
+
+
 export const DEFAULT_SCHOOL_SETTINGS: SchoolSettings = {
   schoolName: '',
   principalName: '',
@@ -43,4 +56,5 @@ export const DEFAULT_SCHOOL_SETTINGS: SchoolSettings = {
   limitDate: '',
   isOpened: true,
   message: '日頃より本校の教育活動へのご理解とご協力をいただき感謝申し上げます。さて、今年度も個人相談を実施いたします。',
+  letterMessage: DEFAULT_LETTER_MESSAGE
 };
