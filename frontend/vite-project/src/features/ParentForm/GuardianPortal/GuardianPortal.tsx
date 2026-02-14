@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+// features/BulkSetup/components/GuardianPortal.tsx
+
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import ScheduleBaseTable, { GridRow, GridCell } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 
@@ -21,10 +23,13 @@ interface VerifyResponse {
 
 export const GuardianPortal: React.FC = () => {
   const { workspaceId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const tokenFromUrl = searchParams.get('token');
+  const stepParam = searchParams.get('step'); // 'confirm' | 'complete' | null
 
   // --- State ---
-  const [step, setStep] = useState<'LOGIN' | 'SELECT' | 'CONFIRM' | 'COMPLETE'>('LOGIN');
-  const [inputToken, setInputToken] = useState('');
+  const [inputToken, setInputToken] = useState(''); 
   const [data, setData] = useState<VerifyResponse | null>(null);
   const [selections, setSelections] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -69,17 +74,17 @@ export const GuardianPortal: React.FC = () => {
     });
   };
 
-  // --- API Actions ---
-  
-  // 1. ログイン
-  const handleLogin = async () => {
+  // --- Core Logic: URLの変更を検知してログイン/ログアウトを制御 ---
+
+  // ログイン処理（API実行）
+  const executeLogin = useCallback(async (tokenVal: string) => {
     setLoading(true);
     setError('');
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/workspaces/${workspaceId}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: inputToken }),
+        body: JSON.stringify({ token: tokenVal }),
       });
 
       if (res.status === 401) throw new Error('認証コードが正しくありません');
@@ -89,7 +94,11 @@ export const GuardianPortal: React.FC = () => {
       const json: VerifyResponse = await res.json();
       setData(json);
 
-      // ★ここでサーバー形式の日付を UI用のIDに変換してセット
+      // URLにトークンを反映（手入力からの遷移用）
+      // stepパラメータは指定しない＝'SELECT'扱いになる
+      setSearchParams({ token: tokenVal });
+
+      // サーバーデータをUI用に変換して初期値セット
       const initialSelections = mapServerDatesToIds(
         json.preferred_dates || [],
         json.schedule.rows,
@@ -97,17 +106,54 @@ export const GuardianPortal: React.FC = () => {
       );
       setSelections(initialSelections);
 
-      setStep('SELECT');
     } catch (err: any) {
       setError(err.message);
+      // エラー時はURLをクリアしてログイン画面に戻す
+      setSearchParams({});
     } finally {
       setLoading(false);
     }
+  }, [workspaceId, setSearchParams]);
+
+  // ★重要: URLのトークンが変わった時の副作用を定義
+  useEffect(() => {
+    if (tokenFromUrl) {
+      // URLにトークンがあるのにデータがない場合 -> ログイン実行
+      if (!data && !loading) {
+        executeLogin(tokenFromUrl);
+      }
+    } else {
+      // 2. URLにトークンがない -> ログイン画面へリセット（ブラウザの「戻る」対策）
+      setData(null);
+      setSelections([]);
+      setError('');
+      setInputToken('');
+    }
+  }, [tokenFromUrl, executeLogin, data]);
+
+
+  // --- UI Handlers ---
+
+  // 「次へ進む」ボタン: 単にURLを変更するだけ（あとはuseEffectがやる）
+  const handleNextClick = () => {
+    if (!inputToken) return;
+    setSearchParams({ token: inputToken });
   };
 
-  // 2. 送信ロジック
+  const goToConfirm = () => {
+    if (!tokenFromUrl) return;
+    // step=confirm を付与して履歴に追加
+    setSearchParams({ token: tokenFromUrl, step: 'confirm' });
+  };
+
+  const backToSelect = () => {
+    if (!tokenFromUrl) return;
+    // stepパラメータを削除（＝SELECT画面へ戻る）
+    setSearchParams({ token: tokenFromUrl });
+  };
+
   const handleSubmit = async () => {
-    if (!data) return;
+    if (!data || !tokenFromUrl) return;
     setLoading(true);
     
     // ★ここで UI用のIDを サーバー形式の日付に変換して送信
@@ -122,19 +168,35 @@ export const GuardianPortal: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          token: data.token,
-          preferred_dates: formattedDates // 変換済みデータを送る
+          token: tokenFromUrl, // URLのトークンを使用
+          preferred_dates: formattedDates
         }),
       });
 
       if (!res.ok) throw new Error('送信に失敗しました。もう一度お試しください。');
       
-      setStep('COMPLETE');
+      // 完了画面へ（step=complete）
+      setSearchParams({ token: tokenFromUrl, step: 'complete' });
+
     } catch (err: any) {
       alert(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  // --- Handlers ---
+  const toggleSelection = (cellId: string) => {
+    if (selections.includes(cellId)) {
+      setSelections(prev => prev.filter(id => id !== cellId));
+    } else {
+      setSelections(prev => [...prev, cellId]);
+    }
+  };
+
+  const handleCloseBrowser = () => {
+    window.close(); // 効かない場合が多い
+    alert("画面を閉じて終了してください。");
   };
 
   // --- Grid Generation ---
@@ -156,19 +218,6 @@ export const GuardianPortal: React.FC = () => {
     }));
   }, [data]);
 
-  // --- Handlers ---
-  const toggleSelection = (cellId: string) => {
-    if (selections.includes(cellId)) {
-      setSelections(prev => prev.filter(id => id !== cellId));
-    } else {
-      setSelections(prev => [...prev, cellId]);
-    }
-  };
-
-  const handleCloseBrowser = () => {
-    window.close(); // 効かない場合が多い
-    alert("画面を閉じて終了してください。");
-  };
 
   // --- Render Helpers ---
 
@@ -242,44 +291,59 @@ export const GuardianPortal: React.FC = () => {
 
   // --- Views ---
 
+  // 現在のステップをURLから判定
+  // dataがない、またはtokenがない場合は強制的にLOGIN（ローディング含む）
+  const currentStep = (!data || !tokenFromUrl) 
+    ? 'LOGIN' 
+    : (stepParam === 'confirm' ? 'CONFIRM' 
+        : (stepParam === 'complete' ? 'COMPLETE' : 'SELECT'));
+
   // 1. ログイン画面
-  if (step === 'LOGIN') {
+  if (currentStep === 'LOGIN') {
     return (
       <div style={{ maxWidth: '400px', margin: '80px auto', padding: '24px', textAlign: 'center', fontFamily: 'sans-serif' }}>
         <h3 style={{ marginBottom: '24px', color: '#333' }}>保護者用ページ</h3>
         <p style={{ color: '#666', marginBottom: '16px' }}>お便りに記載された6桁の認証コードを入力してください。</p>
         
-        <input 
-          type="text" 
-          value={inputToken}
-          onChange={e => setInputToken(e.target.value.toUpperCase())}
-          placeholder="A1B2C3"
-          style={{ 
-            fontSize: '28px', padding: '12px', width: '200px', textAlign: 'center', 
-            letterSpacing: '4px', marginBottom: '24px', border: '2px solid #e2e8f0', borderRadius: '8px',
-            outline: 'none'
-          }}
-        />
-        <br />
-        <button 
-          onClick={handleLogin} 
-          disabled={loading || inputToken.length < 6}
-          style={{ 
-            padding: '14px 40px', fontSize: '16px', fontWeight: 'bold',
-            backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '30px', 
-            cursor: 'pointer', opacity: loading ? 0.7 : 1,
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-          }}
-        >
-          {loading ? '確認中...' : '次へ進む'}
-        </button>
+        {loading ? (
+           <div style={{ marginTop: '40px', color: '#666' }}>
+             データを読み込んでいます...
+           </div>
+        ) : (
+          <>
+            <input 
+              type="text" 
+              value={inputToken}
+              onChange={e => setInputToken(e.target.value.toUpperCase())}
+              placeholder="A1B2C3"
+              style={{ 
+                fontSize: '28px', padding: '12px', width: '200px', textAlign: 'center', 
+                letterSpacing: '4px', marginBottom: '24px', border: '2px solid #e2e8f0', borderRadius: '8px',
+                outline: 'none'
+              }}
+            />
+            <br />
+            <button 
+              onClick={handleNextClick} 
+              disabled={loading || inputToken.length < 6}
+              style={{ 
+                padding: '14px 40px', fontSize: '16px', fontWeight: 'bold',
+                backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '30px', 
+                cursor: 'pointer', opacity: loading ? 0.7 : 1,
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+              }}
+            >
+              次へ進む
+            </button>
+          </>
+        )}
         {error && <p style={{ color: '#e53e3e', marginTop: '20px', fontWeight: 'bold', backgroundColor: '#fff5f5', padding: '10px', borderRadius: '4px' }}>{error}</p>}
       </div>
     );
   }
 
   // 2. 日程選択画面
-  if (step === 'SELECT') {
+  if (currentStep === 'SELECT') {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f8fafc', fontFamily: 'sans-serif' }}>
         <header style={{ padding: '16px 20px', backgroundColor: 'white', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
@@ -315,16 +379,13 @@ export const GuardianPortal: React.FC = () => {
           </button>
           
           <button 
-            onClick={() => setStep('CONFIRM')}
-            style={{ 
-              flex: 1, padding: '14px', 
-              backgroundColor: selections.length > 0 ? '#0070f3' : '#cbd5e1', 
-              color: 'white', 
-              border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold',
-              cursor: selections.length > 0 ? 'pointer' : 'not-allowed',
-              boxShadow: selections.length > 0 ? '0 4px 6px rgba(0,112,243,0.2)' : 'none'
-            }}
+            onClick={goToConfirm} // URLを変更
             disabled={selections.length === 0}
+            style={{ 
+              flex: 1, padding: '14px', backgroundColor: selections.length > 0 ? '#0070f3' : '#cbd5e1', 
+              color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold',
+              cursor: selections.length > 0 ? 'pointer' : 'not-allowed'
+            }}
           >
             確認画面へ
           </button>
@@ -334,7 +395,7 @@ export const GuardianPortal: React.FC = () => {
   }
 
   // 3. 確認画面
-  if (step === 'CONFIRM') {
+  if (currentStep === 'CONFIRM') {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#f8fafc', fontFamily: 'sans-serif' }}>
         <header style={{ padding: '20px', backgroundColor: 'white', textAlign: 'center', borderBottom: '1px solid #e2e8f0' }}>
@@ -354,7 +415,7 @@ export const GuardianPortal: React.FC = () => {
 
         <footer style={{ padding: '16px 20px', backgroundColor: 'white', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '16px', boxShadow: '0 -4px 6px rgba(0,0,0,0.02)' }}>
           <button 
-            onClick={() => setStep('SELECT')} 
+            onClick={backToSelect} // URLのstepを消して戻る
             disabled={loading}
             style={{ 
               flex: 1, padding: '14px', 
@@ -384,7 +445,7 @@ export const GuardianPortal: React.FC = () => {
   }
 
   // 4. 完了画面
-  if (step === 'COMPLETE') {
+  if (currentStep === 'COMPLETE') {
     return (
       <div style={{ padding: '60px 20px', maxWidth: '600px', margin: '0 auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
         <div style={{ width: '80px', height: '80px', backgroundColor: '#d1fae5', borderRadius: '50%', color: '#059669', fontSize: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
