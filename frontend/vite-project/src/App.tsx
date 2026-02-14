@@ -14,6 +14,7 @@ import StudentSetting from './features/Students/StudentSetting';
 import { StartScreen } from './features/StartScreen/StartScreen';
 import Navigation from './components/Navigation';
 import { BulkSetupHub } from './features/BulkSetup/BulkSetupHub';
+import { ImportStudentModal } from './features/Students/components/modals/ImportStudentModal';
 
 const containerStyle: React.CSSProperties = {
   display: 'flex',

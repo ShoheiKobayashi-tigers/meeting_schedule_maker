@@ -29,3 +29,10 @@ export interface UpsertStudentModalState {
     student: Applicant | null; // 編集対象の生徒データ。新規作成時は null
     mode: 'add' | 'edit';
 }
+
+/**
+ * 生徒一括登録モーダルの状態 (ImportStudentModal)
+ */
+export interface ImportStudentModalState {
+    isOpen: boolean;
+}

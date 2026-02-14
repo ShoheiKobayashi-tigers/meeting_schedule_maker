@@ -3,6 +3,7 @@ import { useAppStore } from '../../../store/useAppStore';
 import { useProcessedApplicants } from '../../../hooks/useProcessedApplicants';
 import ApplicantForm from '../components/parts/ApplicantForm';
 import ApplicantDetail from '../components/parts/ApplicantDetail';
+import { ImportStudentModal } from '../components/modals/ImportStudentModal';
 import Button from '../../../components/ui/Button/Button';
 import * as s from './ApplicantSettingPanel.css';
 
@@ -16,7 +17,7 @@ type PanelMode = 'list' | 'add' | 'edit' | 'detail';
 const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   // useProcessedApplicants を使用して加工済みデータを取得
   const processedApplicants = useProcessedApplicants();
-  const { openConfirmationModal, deleteApplicant, setBulkSetupOpen } = useAppStore();
+  const { setImportStudentModalOpen, openConfirmationModal, deleteApplicant, setBulkSetupOpen } = useAppStore();
 
   const [mode, setMode] = useState<PanelMode>('list');
 
@@ -38,10 +39,6 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
       confirmText: '削除',
       cancelText: 'キャンセル'
     });
-  };
-
-  const startBulkSetup = () => {
-    setBulkSetupOpen(true); // これだけで全画面が切り替わる
   };
 
   // モードに応じたレンダリング
@@ -82,7 +79,8 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
       <div className={s.listHeader}>
         <h3 className={s.title}>生徒一覧</h3>
         <div className={s.actionButtonGroup}>
-          <Button variant='edit' onClick={() => { startBulkSetup(); }}>一括設定画面へ</Button>
+          <Button variant='edit' onClick={() => { setImportStudentModalOpen(true); }}>一括設定モーダル</Button>
+          <Button variant='edit' onClick={() => { setBulkSetupOpen(true); }}>一括設定画面へ</Button>
           <Button variant="add" onClick={() => { onSelect(null); setMode('add'); }}>新規追加</Button>
         </div>
       </div>
@@ -116,6 +114,7 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
           );
         })}
       </div>
+      <ImportStudentModal />
     </div>
   );
 };

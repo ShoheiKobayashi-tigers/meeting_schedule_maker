@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { type Applicant, type Sibling, type StudentFormValues, applicantInputSchema, siblingInputSchema, studentFormSchema } from '../types/Students';
 import { SchoolSettings, DEFAULT_SCHOOL_SETTINGS } from '../types/BulkConfig';
 import { ScheduleData, SlotIndex } from '../types/ScheduleManager';
-import { ConfirmationModalState } from '../types/Modal';
+import { ConfirmationModalState, ImportStudentModalState } from '../types/Modal';
 import { assignApplicantToSlot, deleteAssignmentFromSlot } from '../utils/assignmentUtils';
 import { generateShortToken } from '../utils/tokenUtils';
 import { calculateTimeRange } from '../utils/timeUtils';
@@ -124,6 +124,7 @@ interface UiState {
     draggingApplicantId: string | null;
     draggingSlotIndex: SlotIndex | null;
     confirmationModal: ConfirmationModalState;
+    importStudentModal: ImportStudentModalState;
 }
 
 interface AppState {
@@ -169,6 +170,7 @@ interface AppState {
     getFamilyIdByApplicantId: (id: string) => string | undefined;
     openConfirmationModal: (config: Omit<ConfirmationModalState, 'isOpen'>) => void;
     closeConfirmationModal: () => void;
+    setImportStudentModalOpen: (isOpen: boolean) => void;
 
     isBulkSetupOpen: boolean; // 一括設定センターが開いているか
     setBulkSetupOpen: (isOpen: boolean) => void;
@@ -216,7 +218,8 @@ export const useAppStore = create<AppState>()(
                     onConfirm: () => {},
                     confirmText: 'OK',
                     cancelText: 'キャンセル',
-                },                
+                },
+                importStudentModal: {isOpen: false}                
             },
 
             isSessionActive: false,
@@ -580,7 +583,8 @@ export const useAppStore = create<AppState>()(
                         isOpen: false, title: '', 
                         message: '', onConfirm: () => {}, 
                         confirmText: null, cancelText: null 
-                    }
+                    },
+                    importStudentModal:{isOpen: false}
                 },
                 isSessionActive: true
             }),
@@ -607,6 +611,16 @@ export const useAppStore = create<AppState>()(
                     }
                 }));
             },
+
+            setImportStudentModalOpen: (isOpen) => set((state) => ({
+                ui: {
+                    ...state.ui,
+                    importStudentModal: {
+                        ...state.ui.importStudentModal,
+                        isOpen: isOpen
+                    }
+                }
+            })),
 
             isBulkSetupOpen: false,
             setBulkSetupOpen: (isOpen) => set({ isBulkSetupOpen: isOpen }),
