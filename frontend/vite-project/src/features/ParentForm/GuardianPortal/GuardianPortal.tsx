@@ -35,6 +35,30 @@ export const GuardianPortal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // 公開情報を保持するStateを追加
+  const [publicInfo, setPublicInfo] = useState<{ 
+    class_name: string; 
+    message: string; 
+    is_opened: boolean;
+    event_name: string 
+  } | null>(null);
+
+  // 初回マウント時に「表紙情報」を取得
+  useEffect(() => {
+    const fetchPublicInfo = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/workspaces/${workspaceId}/public`);
+        if (res.ok) {
+          const info = await res.json();
+          setPublicInfo(info);
+        }
+      } catch (e) {
+        console.error("表紙情報の取得に失敗", e);
+      }
+    };
+    fetchPublicInfo();
+  }, [workspaceId]);
+  
   // --- Helpers: フォーマット変換ロジック ---
 
   // 1. 受信時: "YYYY-MM-DD HH:mm - HH:mm" -> "row-col"
@@ -302,8 +326,24 @@ export const GuardianPortal: React.FC = () => {
   if (currentStep === 'LOGIN') {
     return (
       <div style={{ maxWidth: '400px', margin: '80px auto', padding: '24px', textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <h3 style={{ marginBottom: '24px', color: '#333' }}>保護者用ページ</h3>
-        <p style={{ color: '#666', marginBottom: '16px' }}>お便りに記載された6桁の認証コードを入力してください。</p>
+        {publicInfo && (
+            <div style={{ marginBottom: '32px' }}>
+                <h1 style={{ fontSize: '24px', color: '#333' }}>{publicInfo.event_name}希望日程回答フォーム</h1>
+                <h2 style={{ fontSize: '20px', color: '#333' }}>本校{publicInfo.class_name}の保護者の皆様</h2>
+                <div style={{ 
+                    fontSize: '14px', color: '#666', textAlign: 'left', 
+                    background: '#f8fafc', padding: '16px', borderRadius: '8px', marginTop: '16px',
+                    whiteSpace: 'pre-wrap' 
+                }}>
+                    {publicInfo.message}
+                </div>
+                {!publicInfo.is_opened && (
+                    <p style={{ color: 'red', fontWeight: 'bold', marginTop: '16px' }}>
+                        ※現在、回答の受付を停止しています。希望される方は、担任までご連絡ください。
+                    </p>
+                )}
+            </div>
+        )}
         
         {loading ? (
            <div style={{ marginTop: '40px', color: '#666' }}>
@@ -355,7 +395,7 @@ export const GuardianPortal: React.FC = () => {
 
         {data?.settings.message && (
           <div style={{ padding: '16px 20px', backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', fontSize: '14px', lineHeight: '1.6', color: '#334155' }}>
-            {data.settings.message}
+            ご都合のよい日程を選択してください。（複数選択可）
           </div>
         )}
 

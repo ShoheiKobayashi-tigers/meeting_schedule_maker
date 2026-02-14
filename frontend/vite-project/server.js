@@ -28,7 +28,8 @@ app.post('/workspaces/sync', async (req, res) => {
   const { 
     workspaceId, rows, cols, tokens, 
     className, limitDate, message, isOpened, 
-    applicants 
+    applicants,
+    eventName 
   } = req.body;
   
   const client = await pool.connect();
@@ -40,11 +41,11 @@ app.post('/workspaces/sync', async (req, res) => {
     const safeLimitDate = limitDate ? limitDate : null;
 
     // A. フォーム設定の保存 (Upsert)
-    await client.query(
+await client.query(
       `INSERT INTO form_settings (
-         workspace_id, rows, cols, tokens, class_name, limit_date, message, is_opened, updated_at
+         workspace_id, rows, cols, tokens, class_name, limit_date, message, is_opened, event_name, updated_at
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()) -- $9を追加
        ON CONFLICT (workspace_id) DO UPDATE 
        SET 
          rows = EXCLUDED.rows,
@@ -54,6 +55,7 @@ app.post('/workspaces/sync', async (req, res) => {
          limit_date = EXCLUDED.limit_date,
          message = EXCLUDED.message,
          is_opened = EXCLUDED.is_opened,
+         event_name = EXCLUDED.event_name, -- ★追加
          updated_at = NOW()`,
       [
         workspaceId,
@@ -63,7 +65,8 @@ app.post('/workspaces/sync', async (req, res) => {
         className,
         safeLimitDate,
         message,
-        isOpened ?? true // デフォルトtrue
+        isOpened ?? true,
+        eventName // ★追加 ($9に対応)
       ]
     );
 
@@ -201,3 +204,29 @@ app.get('/workspaces/:id/responses', async (req, res) => {
   }
 });
 // ------------------------------------------
+/**
+ * 4. 公開設定取得 (Public Info) API
+ * - ログイン前の「表紙」に表示する情報を返します。
+ * - トークンは不要です。
+ */
+app.get('/workspaces/:id/public', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      'SELECT class_name, message, is_opened, limit_date, event_name FROM form_settings WHERE workspace_id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'フォームが見つかりません' });
+    }
+
+    // 必要最低限の情報だけ返す
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error('Public Info Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});

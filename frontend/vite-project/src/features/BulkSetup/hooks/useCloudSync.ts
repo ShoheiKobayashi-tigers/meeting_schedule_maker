@@ -44,9 +44,10 @@ export const useCloudSync = () => {
           
           // 設定データ
           tokens: tokens,
+          eventName: schoolSettings.eventName || "個人面談",
           className: schoolSettings.className || "",
           limitDate: schoolSettings.limitDate || null, // TIMESTAMP用 (空文字ならnull)
-          formMessage: schoolSettings.formMessage || "",
+          message: schoolSettings.formMessage || "",
           isOpened: schoolSettings.isOpened ?? true,   // 公開フラグ
           
           // 回答枠初期化用リスト
