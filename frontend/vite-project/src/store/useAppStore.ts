@@ -16,10 +16,11 @@ const INITIAL_APPLICANTS: Applicant[] = [
     {
         id: 'app-1',
         family_name: '佐藤',
-        first_name: '太郎',
+        first_name: '和男',
         student_id: '1',
         preferred_dates: ['2025-12-01 09:15 - 09:30', '2025-11-30 14:00 - 14:15'],
-        family_id: '1'
+        family_id: '1',
+        token: 'AAAAAA'
     },
     // 山田花子さんは兄弟なし
     {
@@ -28,7 +29,8 @@ const INITIAL_APPLICANTS: Applicant[] = [
         first_name: '花子',
         student_id: '2',
         preferred_dates: ['2025-12-01 09:00 - 09:15', '2025-12-01 14:00 - 14:15'],
-        family_id: '2'
+        family_id: '2',
+        token: 'BBBBBB'
     },
     {
         id: 'app-3',
@@ -36,7 +38,8 @@ const INITIAL_APPLICANTS: Applicant[] = [
         first_name: '一郎',
         student_id: '3',
         preferred_dates: ['2025-12-01 09:00 - 09:15', '2025-11-30 09:00 - 09:15'],
-        family_id: '3'
+        family_id: '3',
+        token: 'CCCCCC'
     },
     // 鈴木美咲さんは希望日程なし
     {
@@ -45,15 +48,17 @@ const INITIAL_APPLICANTS: Applicant[] = [
         first_name: '美咲',
         student_id: '4',
         preferred_dates: [],
-        family_id: '4'
+        family_id: '4',
+        token: 'DDDDDD'
     }, 
     {
         id: 'app-5',
-        family_name: '王',
-        first_name: '貞治',
+        family_name: '高橋',
+        first_name: '正彦',
         student_id: '5',
         preferred_dates: ['2025-12-01 09:15 - 09:30', '2025-11-30 14:00 - 14:15', '2025-11-30 09:15 - 09:30', '2025-11-30 09:00 - 09:15', '2025-12-01 09:00 - 09:15', '2025-12-01 14:00 - 14:15'],
-        family_id: '5'
+        family_id: '5',
+        token: 'EEEEEE'
     },    
 ];
 

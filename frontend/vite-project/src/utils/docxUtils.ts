@@ -5,7 +5,7 @@ import {
   Paragraph, 
   TextRun, 
   AlignmentType, 
-  HeadingLevel, 
+  convertMillimetersToTwip, 
   ImageRun, 
   PageBreak 
 } from 'docx';
@@ -13,6 +13,8 @@ import { saveAs } from 'file-saver';
 import QRCode from 'qrcode';
 import { Applicant } from '../types/Students';
 import { SchoolSettings } from '../types/BulkConfig';
+import { getNengo, parseWareki } from './timeUtils';
+import { setEngine } from 'node:crypto';
 
 /**
  * QRコード画像をBase64形式からdocxが扱えるUint8Arrayに変換する
@@ -36,6 +38,24 @@ const generateQRBuffer = async (text: string): Promise<Uint8Array> => {
 };
 
 /**
+ * 改行コード(\n)を含む文字列を、docx用のTextRun配列に変換する関数
+ */
+const createTextRunsFromMultiline = (text: string, size: number = 10.5) => {
+  // 1. 改行コードで分割する
+  const lines = text.split(/\r?\n/);
+
+  // 2. 分割した行ごとにTextRunを作成する
+  return lines.map((line, index) => {
+    return new TextRun({
+      text: line,
+      size: size, // フォントサイズ
+      // 2行目以降（index > 0）なら、直前に改行(break)を入れる
+      break: index > 0 ? 1 : 0, 
+    });
+  });
+};
+
+/**
  * 全生徒分の案内を1つのWordファイルとして生成・ダウンロードする
  */
 export const generateHandoutDocx = async (
@@ -53,50 +73,50 @@ export const generateHandoutDocx = async (
     
     // 1. 個別のログインURLを生成
     // 構造: https://domain.com/p/[workspaceId]?t=[token]
-    const loginUrl = `${baseUrl}/p/${workspaceId}?t=${student.token}`;
+    const loginUrl = `${baseUrl}/p/${workspaceId}`;
     
     // 2. QRコード生成
     const qrBuffer = await generateQRBuffer(loginUrl);
 
     // 3. ページ内容の構築
     const pageParagraphs = [
+      new Paragraph({
+        alignment: AlignmentType.RIGHT,
+        children: [
+          new TextRun({ text: parseWareki(settings.distributionDate) || "令和〇年〇月〇日", size: 22 }),
+        ],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.LEFT,
+        children: [
+          new TextRun({ text:  `${student.student_id} 番  ${student.family_name} ${student.first_name}さん`, size: 22, underline: {}}),
+          new TextRun({ text: '　保護者様', size: 22})
+        ],
+      }),
       // ヘッダー（学校情報）
       new Paragraph({
         alignment: AlignmentType.RIGHT,
         children: [
           new TextRun({ text: settings.schoolName || "〇〇小学校", size: 22 }),
-          new TextRun({ text: settings.principalName ? `\n${settings.principalName}` : "\n校長 氏名", size: 22, break: 1 }),
+          new TextRun({ text: settings.principalName ? `\n校長　${settings.principalName}` : "\n校長氏名", size: 22, break: 1}),
+          new TextRun({ text: settings.principalName ? `\n${settings.className}担任　${settings.senderName}` : "\n学級名　担任氏名", size: 22, break: 1 }),
         ],
       }),
 
       // タイトル
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        heading: HeadingLevel.HEADING_1,
         spacing: { before: 400, after: 400 },
         children: [
-          new TextRun({ text: "教育相談（三者面談）希望調査への回答について", bold: true, size: 32 }),
+          new TextRun({ text: `${getNengo(settings.distributionDate)}${settings.eventName}希望調査への回答について`, bold: true, size: 32 }),
         ],
       }),
 
-      // 生徒宛名
+      // 本文
       new Paragraph({
-        spacing: { after: 200 },
-        children: [
-          new TextRun({ 
-            text: `${student.student_id} 番  ${student.family_name} ${student.first_name} 様`, 
-            size: 24, 
-            underline: {} 
-          }),
-        ],
-      }),
-
-      new Paragraph({
+        alignment: AlignmentType.LEFT,
         spacing: { after: 300 },
-        children: [
-          new TextRun({ text: "日頃より本校の教育活動へのご理解とご協力をいただき感謝申し上げます。", size: 20 }),
-          new TextRun({ text: "\nさて、今年度の教育相談を下記により実施いたします。つきましては、以下のQRコードまたは認証コードを用いて、スマートフォンやPCよりご希望の日時をご回答ください。", size: 20, break: 1 }),
-        ],
+        children: createTextRunsFromMultiline(settings.letterMessage?.replace('個人面談', `${settings.eventName}`), 22)
       }),
 
       // QRコードエリア
@@ -136,21 +156,16 @@ export const generateHandoutDocx = async (
       }),
 
       new Paragraph({
+        alignment: AlignmentType.CENTER,
         spacing: { before: 400 },
         children: [
-          new TextRun({ text: "※QRコードが読み取れない場合は、上記URLにアクセスし、認証コードを直接入力してください。", size: 16 }),
-          new TextRun({ text: "\n※回答期限までに必ずご入力をお願いいたします。", size: 16, break: 1, bold: true }),
+          new TextRun({ text: "※QRコードが読み取れない場合は、お手数ではございますが、上記URLを直接入力してアクセスしてください。", size: 16 }),
+          new TextRun({ text: "※", size: 16, break: 1 }),          
+          new TextRun({ text: `${settings.limitDate}` || "令和〇年〇月〇日", size: 16, bold: true }),
+          new TextRun({ text: "までに必ずご入力をお願いいたします。", size: 16 }),
         ],
       }),
 
-      // フッター（担任名）
-      new Paragraph({
-        alignment: AlignmentType.RIGHT,
-        spacing: { before: 600 },
-        children: [
-          new TextRun({ text: settings.senderName || "担任", size: 22 }),
-        ],
-      }),
     ];
 
     // children配列にこの生徒の段落を追加
@@ -164,12 +179,34 @@ export const generateHandoutDocx = async (
 
   // 4. ドキュメントとして書き出し
   const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: {
+              name: "UD デジタル 教科書体 NK",     // 英数字用
+              eastAsia: "UD デジタル 教科書体 NK", // 日本語用（ここが重要）
+            },
+          },
+        },
+      },
+    },
     sections: [{
-      properties: {},
+      properties: {
+        page: {
+          margin: {
+            // Wordの「やや狭い」設定
+            top: convertMillimetersToTwip(25.4),    // 上: 25.4mm (1インチ)
+            bottom: convertMillimetersToTwip(25.4), // 下: 25.4mm (1インチ)
+            left: convertMillimetersToTwip(19.05),  // 左: 19.05mm (0.75インチ)
+            right: convertMillimetersToTwip(19.05), // 右: 19.05mm (0.75インチ)
+          },
+        },        
+      },
       children: children,
     }],
   });
 
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, `面談希望調査_配付用資料_${new Date().toISOString().split('T')[0]}.docx`);
+  saveAs(blob, `${settings.eventName}希望調査_配付用資料_${new Date().toISOString().split('T')[0]}.docx`);
 };

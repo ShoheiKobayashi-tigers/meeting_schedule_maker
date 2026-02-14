@@ -19,7 +19,24 @@ export const TemplateStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
         <h4 className={s.sectionTitle}>2. お便りの共通項目を設定</h4>
         <p className={s.description}>配付する案内に記載する情報を入力してください。</p>
         
-        <div style={{ display: 'grid', gap: '16px', maxWidth: '400px', marginTop: '16px' }}>
+        <div style={{ display: 'grid', gap: '16px', maxWidth: '800px', marginTop: '16px' }}>
+          <label>イベント名<br/>
+            <input 
+              type="text" 
+              value={schoolSettings.eventName || ''} 
+              onChange={(e) => handleChange('eventName', e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </label>
+          <label>お便り配布予定日（※お便りには和暦で表示されます）<br/>
+            <input 
+              type="date" 
+              value={schoolSettings.distributionDate || ''} 
+              onChange={(e) => handleChange('distributionDate', e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </label>
+          
           <label>学校名<br/>
             <input 
               type="text" 
@@ -34,7 +51,16 @@ export const TemplateStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
               type="text" 
               value={schoolSettings.principalName || ''} 
               onChange={(e) => handleChange('principalName', e.target.value)}
-              placeholder="校長 氏名" 
+              placeholder="山田　太郎" 
+              style={{ width: '100%' }}
+            />
+          </label>
+          <label>学級名<br/>
+            <input 
+              type="text" 
+              value={schoolSettings.className || ''} 
+              onChange={(e) => handleChange('className', e.target.value)}
+              placeholder='〇年〇組'
               style={{ width: '100%' }}
             />
           </label>
@@ -43,7 +69,23 @@ export const TemplateStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
               type="text" 
               value={schoolSettings.senderName || ''} 
               onChange={(e) => handleChange('senderName', e.target.value)}
-              placeholder="第1学年1組 担任" 
+              placeholder="鈴木　花子" 
+              style={{ width: '100%' }}
+            />
+          </label>
+          <label>提出期限日（※お便りには和暦で表示されます）<br/>
+            <input 
+              type="date"
+              value={schoolSettings.limitDate || ''} 
+              onChange={(e) => handleChange('limitDate', e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </label>
+          <label>お便り本文<br/>
+            <textarea 
+              rows={10}
+              value={schoolSettings.letterMessage || ''} 
+              onChange={(e) => handleChange('letterMessage', e.target.value)}
               style={{ width: '100%' }}
             />
           </label>

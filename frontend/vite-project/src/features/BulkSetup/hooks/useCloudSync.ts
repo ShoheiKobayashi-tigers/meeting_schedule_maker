@@ -46,7 +46,7 @@ export const useCloudSync = () => {
           tokens: tokens,
           className: schoolSettings.className || "",
           limitDate: schoolSettings.limitDate || null, // TIMESTAMP用 (空文字ならnull)
-          message: schoolSettings.message || "",
+          formMessage: schoolSettings.formMessage || "",
           isOpened: schoolSettings.isOpened ?? true,   // 公開フラグ
           
           // 回答枠初期化用リスト
