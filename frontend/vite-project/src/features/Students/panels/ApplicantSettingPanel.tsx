@@ -17,7 +17,7 @@ type PanelMode = 'list' | 'add' | 'edit' | 'detail';
 const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   // useProcessedApplicants を使用して加工済みデータを取得
   const processedApplicants = useProcessedApplicants();
-  const { setImportStudentModalOpen, openConfirmationModal, deleteApplicant, setBulkSetupOpen } = useAppStore();
+  const { setImportStudentModalOpen, openConfirmationModal, deleteApplicant } = useAppStore();
 
   const [mode, setMode] = useState<PanelMode>('list');
 
@@ -79,8 +79,7 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
       <div className={s.listHeader}>
         <h3 className={s.title}>生徒一覧</h3>
         <div className={s.actionButtonGroup}>
-          <Button variant='edit' onClick={() => { setImportStudentModalOpen(true); }}>一括設定モーダル</Button>
-          <Button variant='edit' onClick={() => { setBulkSetupOpen(true); }}>一括設定画面へ</Button>
+          <Button variant='edit' onClick={() => { setImportStudentModalOpen(true); }}>児童一括登録</Button>
           <Button variant="add" onClick={() => { onSelect(null); setMode('add'); }}>新規追加</Button>
         </div>
       </div>

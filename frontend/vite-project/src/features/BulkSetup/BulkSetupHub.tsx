@@ -41,7 +41,7 @@ export const BulkSetupHub: React.FC = () => {
           <h2 className={s.title}>一括設定・連携センター</h2>
         </div>
         <button className={s.closeButton} onClick={() => setBulkSetupOpen(false)}>
-          ✕ 閉じて名簿に戻る
+          ✕ 閉じてメイン画面に戻る
         </button>
       </header>
       

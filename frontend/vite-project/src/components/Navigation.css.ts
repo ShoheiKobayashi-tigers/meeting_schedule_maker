@@ -6,10 +6,18 @@ export const navBar = style({
   display: 'flex',
   backgroundColor: '#2d3748', // ダークグレー
   padding: '0 1rem',
-  gap: '0.5rem',
+  // gap: '0.5rem', // ★削除: 親でgapを指定すると左右の振り分けが難しくなるため
   height: '50px',
   alignItems: 'center',
   boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  justifyContent: 'space-between', // ★追加: 左のボタングループと右のメニューを両端に配置
+});
+
+// ★追加: 左側のナビゲーションボタンをまとめるグループ
+export const navGroup = style({
+  display: 'flex',
+  gap: '0.5rem', // ここでボタン間の隙間を指定
+  alignItems: 'center',
 });
 
 export const navButton = style({
