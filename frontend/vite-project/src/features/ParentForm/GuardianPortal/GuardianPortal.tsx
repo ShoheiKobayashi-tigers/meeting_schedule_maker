@@ -1,9 +1,10 @@
 // features/BulkSetup/components/GuardianPortal.tsx
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import ScheduleBaseTable, { GridRow, GridCell } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { formatDisplayDate } from '../../../hooks/useProcessedSchedule';
+import { sortTimeRows, sortDateCols } from '../../../utils/sortUtils';
 
 // --- 型定義 ---
 interface VerifyResponse {
@@ -42,6 +43,26 @@ export const GuardianPortal: React.FC = () => {
     is_opened: boolean;
     event_name: string 
   } | null>(null);
+
+  // ★修正1: 「最後に試行したトークン」を記録するRefに変更
+  // (成功・失敗問わず、一度アクセスしたら記録してループを防ぐ)
+  const lastAttemptedToken = useRef<string | null>(null);
+  
+  // 成功状態の管理用（データ保持チェック用）
+  const lastSuccessToken = useRef<string | null>(null);
+
+  // ★重要: サーバーデータをソートして使用するための useMemo
+  // これにより、管理画面と同様に日付・時間が昇順で表示されます
+  const sortedSchedule = useMemo(() => {
+    if (!data) return { rows: [], cols: [] };
+
+    return {
+      // 時間文字列 ("09:00 - 09:15") を開始時刻順にソート
+      rows: sortTimeRows(data.schedule.rows),
+      // ISO日付文字列 ("2025-12-01") をカレンダー順にソート
+      cols: sortDateCols(data.schedule.cols)
+    };
+  }, [data]);
 
   // 初回マウント時に「表紙情報」を取得
   useEffect(() => {
@@ -101,7 +122,15 @@ export const GuardianPortal: React.FC = () => {
   // --- Core Logic: URLの変更を検知してログイン/ログアウトを制御 ---
 
   // ログイン処理（API実行）
-  const executeLogin = useCallback(async (tokenVal: string) => {
+  const executeLogin = useCallback(async (tokenVal: string, isAutoLogin: boolean = false) => {
+    // すでにデータ取得済みなら何もしない（React.Strictmode対策など）
+    if (data && lastSuccessToken.current === tokenVal) return;
+
+    // ★修正2: 処理開始時に「試行済み」として記録する
+    // これにより、API処理中に loading が変化して useEffect が走っても
+    // 「同じトークンだから」と無視され、ループが止まる
+    lastAttemptedToken.current = tokenVal;
+
     setLoading(true);
     setError('');
     try {
@@ -116,44 +145,65 @@ export const GuardianPortal: React.FC = () => {
       if (!res.ok) throw new Error('エラーが発生しました');
       
       const json: VerifyResponse = await res.json();
+      
+      // --- 成功時の処理 ---
       setData(json);
+      lastSuccessToken.current = tokenVal;
 
-      // URLにトークンを反映（手入力からの遷移用）
-      // stepパラメータは指定しない＝'SELECT'扱いになる
-      setSearchParams({ token: tokenVal });
+      // ★重要: 成功したタイミングでのみ URL を更新する
+      // (すでにURLにある場合は書き換えないようにして、履歴の重複を防ぐ)
+      if (!isAutoLogin) {
+        setSearchParams({ token: tokenVal });
+      }
 
-      // サーバーデータをUI用に変換して初期値セット
+      // ★注意: json.schedule.rows/cols は未ソートのため直接使わず、
+      // ここで即座にソートして初期値計算に使う
+      const sortedRows = sortTimeRows(json.schedule.rows);
+      const sortedCols = sortDateCols(json.schedule.cols);
+
       const initialSelections = mapServerDatesToIds(
         json.preferred_dates || [],
-        json.schedule.rows,
-        json.schedule.cols
+        sortedRows, // ソート済みを使用
+        sortedCols  // ソート済みを使用
       );
       setSelections(initialSelections);
 
     } catch (err: any) {
       setError(err.message);
-      // エラー時はURLをクリアしてログイン画面に戻す
-      setSearchParams({});
     } finally {
       setLoading(false);
     }
-  }, [workspaceId, setSearchParams]);
+  }, [workspaceId, setSearchParams, data]); // dataを依存に追加
 
-  // ★重要: URLのトークンが変わった時の副作用を定義
+  // URLのトークンが変わった時の副作用を定義
   useEffect(() => {
     if (tokenFromUrl) {
-      // URLにトークンがあるのにデータがない場合 -> ログイン実行
-      if (!data && !loading) {
-        executeLogin(tokenFromUrl);
+      // ★修正3: 「最後に試みたトークン」と比較する
+      if (tokenFromUrl !== lastAttemptedToken.current) {
+        
+        // URLが変わったので、古いデータがあれば破棄して不整合を防ぐ
+        if (data) {
+          setData(null);
+          setSelections([]);
+        }
+        if(!loading){
+          executeLogin(tokenFromUrl, true); // true = 自動ログイン
+        }
       }
     } else {
-      // 2. URLにトークンがない -> ログイン画面へリセット（ブラウザの「戻る」対策）
-      setData(null);
-      setSelections([]);
+      // トークンがURLから消えた場合のリセット
+      // (次に同じトークンを入れても反応するようにRefもリセット)
+      lastAttemptedToken.current = null;
+      lastSuccessToken.current = null;
+      
+      if (data) {
+        setData(null);
+        setSelections([]);
+        setInputToken('');
+      }
       setError('');
-      setInputToken('');
     }
-  }, [tokenFromUrl, executeLogin, data]);
+  }, [tokenFromUrl, data, loading, executeLogin]);
 
 
   // --- UI Handlers ---
@@ -161,7 +211,8 @@ export const GuardianPortal: React.FC = () => {
   // 「次へ進む」ボタン: 単にURLを変更するだけ（あとはuseEffectがやる）
   const handleNextClick = () => {
     if (!inputToken) return;
-    setSearchParams({ token: inputToken });
+    // URL変更(setSearchParams)は行わず、APIを叩きに行く
+    executeLogin(inputToken, false); // false = 手動ログイン
   };
 
   const goToConfirm = () => {
@@ -183,8 +234,8 @@ export const GuardianPortal: React.FC = () => {
     // ★ここで UI用のIDを サーバー形式の日付に変換して送信
     const formattedDates = mapIdsToServerDates(
       selections,
-      data.schedule.rows,
-      data.schedule.cols
+      sortedSchedule.rows,
+      sortedSchedule.cols
     );
 
     try {
@@ -192,7 +243,7 @@ export const GuardianPortal: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          token: tokenFromUrl, // URLのトークンを使用
+          token: tokenFromUrl,
           preferred_dates: formattedDates
         }),
       });
@@ -225,12 +276,14 @@ export const GuardianPortal: React.FC = () => {
 
   // --- Grid Generation ---
   const gridData: GridRow[] = useMemo(() => {
-    if (!data) return [];
+    // dataが無くても sortedSchedule は {rows:[], cols:[]} を返すので安全
+    if (sortedSchedule.rows.length === 0) return [];
     
-    return data.schedule.rows.map((rowLabel, rIndex) => ({
+    // ★ sortedSchedule.rows/cols を使用してグリッドを生成
+    return sortedSchedule.rows.map((rowLabel, rIndex) => ({
       rowIndex: rIndex,
       rowLabel: rowLabel,
-      cells: data.schedule.cols.map((colLabel, cIndex) => ({
+      cells: sortedSchedule.cols.map((colLabel, cIndex) => ({
         rowIndex: rIndex,
         colIndex: cIndex,
         rowLabel: rowLabel,
@@ -240,7 +293,7 @@ export const GuardianPortal: React.FC = () => {
         status: 'OPEN',
       })),
     }));
-  }, [data]);
+  }, [sortedSchedule]);
 
 
   // --- Render Helpers ---
