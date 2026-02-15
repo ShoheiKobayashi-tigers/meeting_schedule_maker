@@ -3,7 +3,7 @@ import React from 'react';
 import { useAppStore } from '../../../../store/useAppStore';
 import * as s from './PreviewStep.css';
 import * as common from './ImportStep.css';
-import { getNengo } from '../../../../utils/timeUtils';
+import { GuardianLoginView } from '../../../ParentForm/components/GuardianLoginView';
 
 export const PreviewStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
   const { schoolSettings } = useAppStore(state => state.db);
@@ -37,25 +37,21 @@ export const PreviewStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
           <div className={s.previewArea}>
             <div className={s.phoneFrame}>
               <div className={s.phoneScreen}>
-                {/* GuardianPortalの見た目を簡易再現 */}
-                <div style={{ padding: '20px', textAlign: 'center' }}>
-                  <small style={{ color: '#666' }}>{schoolSettings.schoolName}</small>
-                  <h3 style={{ margin: '10px 0' }}>{getNengo(schoolSettings.distributionDate)}{schoolSettings.eventName}希望調査</h3>
-                  <div style={{ 
-                    backgroundColor: '#f8f9fa', padding: '15px', 
-                    borderRadius: '8px', fontSize: '13px', textAlign: 'left', lineHeight: '1.6' 
-                  }}>
-                    {schoolSettings.formMessage || "（ここに案内文が表示されます）"}
-                  </div>
-                  <div style={{ marginTop: '20px', border: '1px solid #ddd', padding: '10px', borderRadius: '4px' }}>
-                    <div style={{ color: '#ccc', fontSize: '20px' }}>認証コード入力欄</div>
-                  </div>
-                  <button disabled style={{ 
-                    width: '100%', marginTop: '15px', padding: '10px', 
-                    backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '4px' 
-                  }}>次へ進む</button>
-                </div>
-              </div>
+                <GuardianLoginView
+                  hasInfo={true} // プレビューなので常に表示
+                  eventName={schoolSettings.eventName}
+                  classNameStr={schoolSettings.className}
+                  message={schoolSettings.formMessage}
+                  
+                  // プレビュー用のダミーデータ/状態
+                  inputToken="" 
+                  onTokenChange={() => {}} // 何もしない
+                  onNext={() => {}}        // 何もしない
+                  loading={false}
+                  error="" // 必要であればエラー表示のテスト用テキストを入れる
+                  
+                  isPreview={true} // プレビューモード（余白削除、入力不可など）
+                />              </div>
             </div>
             <p style={{ textAlign: 'center', fontSize: '12px', color: '#999', marginTop: '8px' }}>
               ※実際の画面イメージ

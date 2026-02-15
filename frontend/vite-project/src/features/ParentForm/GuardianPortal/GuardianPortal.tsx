@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import ScheduleBaseTable, { GridRow, GridCell } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import { sortTimeRows, sortDateCols } from '../../../utils/sortUtils';
+import { GuardianLoginView } from '../components/GuardianLoginView';
 
 // --- 型定義 ---
 interface VerifyResponse {
@@ -383,57 +384,19 @@ export const GuardianPortal: React.FC = () => {
   // 1. ログイン画面
   if (currentStep === 'LOGIN') {
     return (
-      <div style={{ maxWidth: '400px', margin: '80px auto', padding: '24px', textAlign: 'center', fontFamily: 'sans-serif' }}>
-        {publicInfo && (
-            <div style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontSize: '24px', color: '#333' }}>{publicInfo.event_name}希望日程回答フォーム</h1>
-                <h2 style={{ fontSize: '20px', color: '#333' }}>本校{publicInfo.class_name}の保護者の皆様</h2>
-                <div style={{ 
-                    fontSize: '14px', color: '#666', textAlign: 'left', 
-                    background: '#f8fafc', padding: '16px', borderRadius: '8px', marginTop: '16px',
-                    whiteSpace: 'pre-wrap' 
-                }}>
-                    {publicInfo.message}
-                </div>
-            </div>
-        )}
-        
-        {loading ? (
-           <div style={{ marginTop: '40px', color: '#666' }}>
-             データを読み込んでいます...
-           </div>
-        ) : (
-          <>
-            <input 
-              type="text" 
-              value={inputToken}
-              onChange={e => setInputToken(e.target.value.toUpperCase())}
-              placeholder="A1B2C3"
-              style={{ 
-                fontSize: '28px', padding: '12px', width: '200px', textAlign: 'center', 
-                letterSpacing: '4px', marginBottom: '24px', border: '2px solid #e2e8f0', borderRadius: '8px',
-                outline: 'none'
-              }}
-            />
-            <br />
-            <button 
-              onClick={handleNextClick} 
-              disabled={loading || inputToken.length < 6}
-              style={{ 
-                padding: '14px 40px', fontSize: '16px', fontWeight: 'bold',
-                backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '30px', 
-                cursor: 'pointer', opacity: loading ? 0.7 : 1,
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-              }}
-            >
-              次へ進む
-            </button>
-          </>
-        )}
-        {error && <p style={{ color: '#e53e3e', marginTop: '20px', fontWeight: 'bold', backgroundColor: '#fff5f5', padding: '10px', borderRadius: '4px', whiteSpace: 'pre-wrap' }}>{error}</p>}
-      </div>
-    );
-  }
+      <GuardianLoginView
+        hasInfo={!!publicInfo}
+        eventName={publicInfo?.event_name || ''}
+        classNameStr={publicInfo?.class_name || ''}
+        message={publicInfo?.message || ''}
+        inputToken={inputToken}
+        onTokenChange={setInputToken}
+        onNext={handleNextClick}
+        loading={loading}
+        error={error}
+        isPreview={false}
+      />
+    );  }
 
   // 2. 日程選択画面
   if (currentStep === 'SELECT') {
