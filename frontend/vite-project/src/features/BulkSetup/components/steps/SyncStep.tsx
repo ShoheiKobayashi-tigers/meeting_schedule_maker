@@ -2,11 +2,15 @@
 import React from 'react';
 import { useAppStore } from '../../../../store/useAppStore';
 import { useCloudSync } from '../../hooks/useCloudSync';
-import * as s from './ImportStep.css';
+import * as s from './SyncStep.css'; // ★ImportStep.css から変更
 
 export const SyncStep: React.FC = () => {
-  const { workspaceId } = useAppStore((state) => state.db);
-  const { sync, pullResponses, loading, error } = useCloudSync(); // pullResponsesを追加
+  // Storeから設定と更新関数を取得
+  const { db, setSchoolSettings } = useAppStore();
+  const { workspaceId, schoolSettings } = db;
+  const { isOpened } = schoolSettings;
+  
+  const { sync, pullResponses, loading, error } = useCloudSync();
 
   const handleSync = async () => {
     const result = await sync();
@@ -27,6 +31,14 @@ export const SyncStep: React.FC = () => {
     }
   };
 
+  // ★追加: 公開フラグの切り替え処理
+  const toggleOpened = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSchoolSettings({
+      ...schoolSettings,
+      isOpened: e.target.checked
+    });
+  };
+
   const publicUrl = workspaceId ? `${window.location.origin}/p/${workspaceId}` : null;
 
   return (
@@ -34,7 +46,7 @@ export const SyncStep: React.FC = () => {
       <section className={s.section}>
         <h4 className={s.sectionTitle}>4. クラウド同期と回答待機</h4>
         
-        <div className={s.previewCard} style={{ padding: '32px', textAlign: 'center' }}>
+        <div className={s.previewCard}>
           {/* ステータス表示 */}
           <div style={{ marginBottom: '24px' }}>
             {workspaceId ? (
@@ -58,22 +70,50 @@ export const SyncStep: React.FC = () => {
             </div>
           )}
 
-          {/* 同期ボタン（常に表示し、文言を切り替え） */}
-          <button 
-            onClick={handleSync} 
-            disabled={loading}
-            style={{ 
-              padding: '12px 24px', 
-              backgroundColor: '#0070f3', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '6px', 
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            {loading ? '処理中...' : workspaceId ? 'クラウドのデータを更新する' : 'クラウドと同期して公開する'}
-          </button>
+          {/* ★追加: 公開設定スイッチ */}
+          <div className={s.settingItem}>
+            <label className={s.label}>
+              <input 
+                type="checkbox" 
+                className={s.checkbox}
+                checked={isOpened ?? true} 
+                onChange={toggleOpened}
+              />
+              回答の受付状況:
+            </label>
+            
+            <span 
+              className={s.statusText}
+              style={{ 
+                backgroundColor: isOpened ? '#d1fae5' : '#f1f5f9',
+                color: isOpened ? '#059669' : '#64748b'
+              }}
+            >
+              {isOpened ? '受付中 (Open)' : '停止中 (Closed)'}
+            </span>
+          </div>
+
+          {/* ボタンエリア */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+            <button 
+              onClick={handleSync} 
+              disabled={loading}
+              style={{ 
+                padding: '12px 24px', 
+                backgroundColor: '#0070f3', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '6px', 
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                width: '100%',
+                maxWidth: '320px',
+                opacity: loading ? 0.7 : 1,
+                boxShadow: '0 4px 6px rgba(0,112,243,0.2)'
+              }}
+            >
+              {loading ? '処理中...' : workspaceId ? '設定を更新して同期' : 'クラウドと同期して公開'}
+            </button>
 
                       {/* 2. 受信ボタン（公開後のみ表示） */}
             {workspaceId && (
@@ -88,13 +128,15 @@ export const SyncStep: React.FC = () => {
                   borderRadius: '6px', 
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  minWidth: '200px'
+                  width: '100%',
+                  maxWidth: '320px',
+                  opacity: loading ? 0.7 : 1
                 }}
               >
                 最新の回答を取り込む
               </button>
             )}
-
+          </div>
 
           {error && <p style={{ color: '#e53e3e', fontSize: '12px', marginTop: '12px' }}>{error}</p>}
         </div>

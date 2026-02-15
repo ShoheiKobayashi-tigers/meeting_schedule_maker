@@ -72,6 +72,11 @@ export const GuardianPortal: React.FC = () => {
         if (res.ok) {
           const info = await res.json();
           setPublicInfo(info);
+
+          // ★追加: 受付停止中なら、即座にエラーメッセージを表示する
+          if (!info.is_opened) {
+             setError("現在、回答の受付を停止しています。\n希望される方は、担任までご連絡ください。");
+          }
         }
       } catch (e) {
         console.error("表紙情報の取得に失敗", e);
@@ -141,7 +146,7 @@ export const GuardianPortal: React.FC = () => {
       });
 
       if (res.status === 401) throw new Error('認証コードが正しくありません');
-      if (res.status === 403) throw new Error('現在、回答の受付を停止しています');
+      if (res.status === 403) throw new Error("現在、回答の受付を停止しています。\n希望される方は、担任までご連絡ください。");
       if (!res.ok) throw new Error('エラーが発生しました');
       
       const json: VerifyResponse = await res.json();
@@ -390,11 +395,6 @@ export const GuardianPortal: React.FC = () => {
                 }}>
                     {publicInfo.message}
                 </div>
-                {!publicInfo.is_opened && (
-                    <p style={{ color: 'red', fontWeight: 'bold', marginTop: '16px' }}>
-                        ※現在、回答の受付を停止しています。希望される方は、担任までご連絡ください。
-                    </p>
-                )}
             </div>
         )}
         
@@ -430,7 +430,7 @@ export const GuardianPortal: React.FC = () => {
             </button>
           </>
         )}
-        {error && <p style={{ color: '#e53e3e', marginTop: '20px', fontWeight: 'bold', backgroundColor: '#fff5f5', padding: '10px', borderRadius: '4px' }}>{error}</p>}
+        {error && <p style={{ color: '#e53e3e', marginTop: '20px', fontWeight: 'bold', backgroundColor: '#fff5f5', padding: '10px', borderRadius: '4px', whiteSpace: 'pre-wrap' }}>{error}</p>}
       </div>
     );
   }
