@@ -93,12 +93,12 @@ const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) =>
         <Button type="button" variant="edit" onClick={() => setIsModalOpen(true)}>
           希望日程を選択する
         </Button>
-        <FamilySettingsArea 
-          currentFamilyId={currentFamilyId}
-          currentStudentId={initialData?.id}
-          onLinkChange={(newId) => setValue('family_id', newId, { shouldDirty: true })}
-        />        
       </div>
+      <FamilySettingsArea 
+        currentFamilyId={currentFamilyId}
+        currentStudentId={initialData?.id}
+        onLinkChange={(newId) => setValue('family_id', newId, { shouldDirty: true })}
+      />        
       
       {/* モーダル */}
       <UpsertStudentAssignmentModal
