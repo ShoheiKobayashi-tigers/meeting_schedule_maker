@@ -1,36 +1,36 @@
 // features/BulkSetup/BulkSetupHub.tsx
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { ImportStep } from './components/steps/ImportStep';
-import { TemplateStep } from './components/steps/TemplateStep';
-import { PreviewStep } from './components/steps/PreviewStep';
-import { HandoutStep } from './components/steps/HandoutStep';
-import { SyncStep } from './components/steps/SyncStep';
-import { BULK_STEPS, BulkStep } from './types';
+import { DocumentStep } from './components/steps/DocumentStep'; // 新規作成 (旧2+4)
+import { PublishStep } from './components/steps/PublishStep';   // 新規作成 (旧3+5)
 import * as s from './BulkSetupHub.css';
-  
+
+// ステップ定義をシンプルに再編
+type BulkStep = 'document' | 'publish';
+
+const BULK_STEPS = [
+  { 
+    id: 'document' as BulkStep, 
+    label: '1. 案内状の作成', 
+    description: '配布するお便りの設定とダウンロードを行います。' 
+  },
+  { 
+    id: 'publish' as BulkStep, 
+    label: '2. Web公開設定', 
+    description: '保護者画面のプレビューとクラウド同期、公開切替を行います。' 
+  },
+];
+
 export const BulkSetupHub: React.FC = () => {
   const isBulkSetupOpen = useAppStore((state) => state.isBulkSetupOpen);
   const setBulkSetupOpen = useAppStore((state) => state.setBulkSetupOpen);
   
-  // 現在のステップを管理
-  const [activeStep, setActiveStep] = useState<BulkStep>('import');
+  const [activeStep, setActiveStep] = useState<BulkStep>('document');
 
   const handleNext = () => {
-    if (activeStep === 'import') setActiveStep('template');
-    else if (activeStep === 'template') setActiveStep('preview');
-    else if (activeStep === 'preview') setActiveStep('handout');
-    else if (activeStep === 'sync') setActiveStep('sync');
+    if (activeStep === 'document') setActiveStep('publish');
+    // publish の次は完了なので特に遷移なし（閉じるなど）
   };
-
-  const StepComponents: Record<BulkStep, React.ReactElement> = {
-    import: <ImportStep onNext={handleNext} />,
-    template: <TemplateStep onNext={handleNext} />,
-    preview: <PreviewStep onNext={handleNext} />,
-    handout: <HandoutStep onNext={handleNext} />,
-    sync: <SyncStep />,
-  };
-
 
   if (!isBulkSetupOpen) return null;
 
@@ -66,7 +66,8 @@ export const BulkSetupHub: React.FC = () => {
         
         <main className={s.content}>
           <div className={s.contentInner}>
-            {StepComponents[activeStep]}
+            {activeStep === 'document' && <DocumentStep onNext={handleNext} />}
+            {activeStep === 'publish' && <PublishStep />}
           </div>
         </main>
       </div>

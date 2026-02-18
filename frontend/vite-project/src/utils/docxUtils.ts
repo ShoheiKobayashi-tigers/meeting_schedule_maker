@@ -161,7 +161,7 @@ export const generateHandoutDocx = async (
         children: [
           new TextRun({ text: "※QRコードが読み取れない場合は、お手数ではございますが、上記URLを直接入力してアクセスしてください。", size: 16 }),
           new TextRun({ text: "※", size: 16, break: 1 }),          
-          new TextRun({ text: `${settings.limitDate}` || "令和〇年〇月〇日", size: 16, bold: true }),
+          new TextRun({ text: `${parseWareki(settings.limitDate)}` || "令和〇年〇月〇日", size: 16, bold: true }),
           new TextRun({ text: "までに必ずご入力をお願いいたします。", size: 16 }),
         ],
       }),
