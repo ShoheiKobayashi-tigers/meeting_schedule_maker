@@ -1,10 +1,11 @@
 // src/features/Students/components/parts/ApplicantForm.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppStore } from '../../../../store/useAppStore';
 import { type Applicant, applicantInputSchema } from '../../../../types/Students';
 import Button from '../../../../components/ui/Button/Button';
+import { FamilySettingsArea } from './FamilySettingsArea';
 import UpsertStudentAssignmentModal from '../modals/UpsertStudentAssignmentModal';
 import * as s from './ApplicantForm.css';
 
@@ -16,7 +17,8 @@ interface Props {
 
 const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) => {
   const saveApplicant = useAppStore((state) => state.saveApplicant);
-  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const getSafeDefaultValues = (data?: Applicant | null): Applicant => ({
     id: data?.id,
     family_name: data?.family_name ?? '',
@@ -39,6 +41,8 @@ const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) =>
   });
 
   const preferredDates = watch('preferred_dates') || [];
+  const currentFamilyId = watch('family_id');
+
 
   // 初期データがある場合（編集モード）にフォームをリセット
   useEffect(() => {
@@ -89,8 +93,13 @@ const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) =>
         <Button type="button" variant="edit" onClick={() => setIsModalOpen(true)}>
           希望日程を選択する
         </Button>
+        <FamilySettingsArea 
+          currentFamilyId={currentFamilyId}
+          currentStudentId={initialData?.id}
+          onLinkChange={(newId) => setValue('family_id', newId, { shouldDirty: true })}
+        />        
       </div>
-
+      
       {/* モーダル */}
       <UpsertStudentAssignmentModal
         isOpen={isModalOpen}

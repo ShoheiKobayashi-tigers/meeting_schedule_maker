@@ -1,8 +1,10 @@
 import React from 'react';
 import { type Applicant } from '../../../../types/Students';
 import { useProcessedSchedule } from '../../../../hooks/useProcessedSchedule';
+import { useAppStore } from '../../../../store/useAppStore';
 import ScheduleBaseTable from '../../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import Button from '../../../../components/ui/Button/Button';
+import { FamilySettingsArea } from './FamilySettingsArea';
 import * as s from './ApplicantDetail.css';
 
 interface Props {
@@ -14,6 +16,7 @@ interface Props {
 
 const ApplicantDetail: React.FC<Props> = ({ applicant, assignmentText, onEdit, onDelete }) => {
   const { grid } = useProcessedSchedule();
+  const { saveApplicant } = useAppStore((state) => state);
   const preferredDates = applicant.preferred_dates || [];
 
   return (
@@ -52,6 +55,12 @@ const ApplicantDetail: React.FC<Props> = ({ applicant, assignmentText, onEdit, o
           }}
         />
       </section>
+      {/* 家族設定エリア (共通コンポーネント) */}
+      <FamilySettingsArea 
+        currentFamilyId={applicant.family_id}
+        currentStudentId={applicant.id}
+        onLinkChange={(newId) => saveApplicant({ ...applicant, family_id: newId })}
+      />
       <section className={s.assignmentBox}>
         <label className={s.label}>トークン</label>
         <div>{applicant.token}</div>

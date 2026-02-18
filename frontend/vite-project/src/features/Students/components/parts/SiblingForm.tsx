@@ -1,5 +1,5 @@
 // src/features/Students/components/parts/SiblingForm.tsx
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form'; // Controllerを追加
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type Sibling, siblingInputSchema } from '../../../../types/Students';
@@ -23,7 +23,7 @@ const SiblingForm: React.FC<Props> = ({
   submitLabel = '保存する'
 }) => {
   const { applicants } = useAppStore((state) => state.db);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     register,
     handleSubmit,
