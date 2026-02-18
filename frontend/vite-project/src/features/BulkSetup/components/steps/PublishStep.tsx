@@ -134,13 +134,12 @@ export const PublishStep: React.FC = () => {
                       checked={schoolSettings.isOpened ?? true} 
                       onChange={toggleOpened} 
                     />
-                    <span style={{ fontSize: '14px', fontWeight: 'bold', color: schoolSettings.isOpened ? '#059669' : '#64748b' }}>
+                    <span className={s.checkboxLabel} style={{ color: schoolSettings.isOpened ? '#059669' : '#64748b' }}>
                       {schoolSettings.isOpened ? '受付中 (Open)' : '停止中 (Closed)'}
                     </span>
                   </label>
                   <span style={{ fontSize: '12px', color: '#64748b' }}>※OFFにすると保護者はログインできません</span>
-                </div>
-              </div>
+                </div>              </div>
             </div>
 
             <div className={s.controlGroup} style={{ justifyContent: 'flex-end' }}>

@@ -160,7 +160,6 @@ export const urlBox = style({
   wordBreak: 'break-all',
 });
 
-// スイッチデザインの改善
 export const switchContainer = style({
   display: 'flex',
   alignItems: 'center',
@@ -171,41 +170,17 @@ export const switchContainer = style({
   border: '1px solid #e2e8f0',
 });
 
-export const switchLabel = style({
+export const checkbox = style({
+  width: '24px',
+  height: '24px',
   cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '12px',
+  accentColor: vars.color.primary, // ブラウザ標準のアクセントカラーを使用
 });
 
-// チェックボックスをiOS風トグルスイッチにする
-export const checkbox = style({
-  accentColor: vars.color.primary,
-  width: '20px',
-  height: '20px',
+export const checkboxLabel = style({
+  fontSize: '14px',
+  fontWeight: 'bold',
   cursor: 'pointer',
-  transition: 'background 0.3s',
-  outline: 'none',
-  ':checked': {
-    background: '#10b981', // ON時の色 (Green)
-  },
-  ':before': {
-    content: '""',
-    position: 'absolute',
-    top: '2px',
-    left: '2px',
-    width: '24px',
-    height: '24px',
-    background: 'white',
-    borderRadius: '50%',
-    transition: 'transform 0.3s',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-  },
-  selectors: {
-    '&:checked:before': {
-      transform: 'translateX(20px)',
-    }
-  }
 });
 
 export const statusBadgeText = style({
