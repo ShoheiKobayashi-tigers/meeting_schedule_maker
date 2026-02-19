@@ -25,6 +25,9 @@ export const applicantInputSchema = z.object({
     preferred_dates: z.array(z.string()),
     family_id: z.string().optional(),
     token: z.string().optional(),
+    is_fixed: z.boolean().default(false),
+    is_last_slot: z.boolean().default(false),
+    needs_gap_after: z.boolean().default(false),
 });
 
 /**

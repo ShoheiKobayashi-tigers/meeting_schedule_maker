@@ -20,7 +20,10 @@ const INITIAL_APPLICANTS: Applicant[] = [
         student_id: '1',
         preferred_dates: ['2025-12-01 09:15 - 09:30', '2025-11-30 14:00 - 14:15'],
         family_id: '1',
-        token: 'AAAAAA'
+        token: 'AAAAAA',
+        is_fixed: false,
+        is_last_slot: false,
+        needs_gap_after:false,
     },
     // 山田花子さんは兄弟なし
     {
@@ -30,7 +33,10 @@ const INITIAL_APPLICANTS: Applicant[] = [
         student_id: '2',
         preferred_dates: ['2025-12-01 09:00 - 09:15', '2025-12-01 14:00 - 14:15'],
         family_id: '2',
-        token: 'BBBBBB'
+        token: 'BBBBBB',
+        is_fixed: false,
+        is_last_slot: false,
+        needs_gap_after:false,
     },
     {
         id: 'app-3',
@@ -39,7 +45,10 @@ const INITIAL_APPLICANTS: Applicant[] = [
         student_id: '3',
         preferred_dates: ['2025-12-01 09:00 - 09:15', '2025-11-30 09:00 - 09:15'],
         family_id: '3',
-        token: 'CCCCCC'
+        token: 'CCCCCC',
+        is_fixed: false,
+        is_last_slot: false,
+        needs_gap_after:false,
     },
     // 鈴木美咲さんは希望日程なし
     {
@@ -49,7 +58,10 @@ const INITIAL_APPLICANTS: Applicant[] = [
         student_id: '4',
         preferred_dates: [],
         family_id: '4',
-        token: 'DDDDDD'
+        token: 'DDDDDD',
+        is_fixed: false,
+        is_last_slot: false,
+        needs_gap_after:false,
     }, 
     {
         id: 'app-5',
@@ -58,7 +70,10 @@ const INITIAL_APPLICANTS: Applicant[] = [
         student_id: '5',
         preferred_dates: ['2025-12-01 09:15 - 09:30', '2025-11-30 14:00 - 14:15', '2025-11-30 09:15 - 09:30', '2025-11-30 09:00 - 09:15', '2025-12-01 09:00 - 09:15', '2025-12-01 14:00 - 14:15'],
         family_id: '5',
-        token: 'EEEEEE'
+        token: 'EEEEEE',
+        is_fixed: false,
+        is_last_slot: false,
+        needs_gap_after:false,
     },    
 ];
 
@@ -392,6 +407,9 @@ export const useAppStore = create<AppState>()(
                         student_id: validated.student_id,
                         family_id: sharedFamilyId,
                         preferred_dates: validated.preferred_dates,
+                        is_fixed: validated.is_fixed,
+                        is_last_slot: validated.is_last_slot,
+                        needs_gap_after: validated.needs_gap_after
                     };
 
                     let updatedSiblings = [...state.db.siblings];
