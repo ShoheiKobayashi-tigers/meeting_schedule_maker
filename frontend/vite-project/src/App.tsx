@@ -5,8 +5,6 @@ import { useAppStore, VIEWS } from './store/useAppStore';
 
 // コンポーネントのインポート
 import ConfirmationModal from './components/modals/ConfirmationModal';
-import StudentDetailsModal from './components/modals/StudentDetailsModal';
-import UpsertStudentModal from './features/Students/components/modals/UpsertStudentModal';
 import Main from './features/Main/Main';
 import { GuardianPortal } from './features/ParentForm/GuardianPortal/GuardianPortal';
 import ScheduleSetting from './features/Schedule/ScheduleSetting';
@@ -14,7 +12,7 @@ import StudentSetting from './features/Students/StudentSetting';
 import { StartScreen } from './features/StartScreen/StartScreen';
 import Navigation from './components/Navigation';
 import { BulkSetupHub } from './features/BulkSetup/BulkSetupHub';
-import { ImportStudentModal } from './features/Students/components/modals/ImportStudentModal';
+import { AllocationConfigPage } from './features/AllocationConfig/AllocationConfigPage'
 
 const containerStyle: React.CSSProperties = {
   display: 'flex',
@@ -76,6 +74,7 @@ const AdminLayout: React.FC = () => {
                 {renderCurrentView()}
             </div>
             <BulkSetupHub />
+            <AllocationConfigPage />
             <ConfirmationModal />
         </div>
     );

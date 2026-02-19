@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAppStore, VIEWS } from '../store/useAppStore';
 import * as s from './Navigation.css';
-import { HamburgerMenu } from './ui/HamburgerMenu/HamburgerMenu';
+import { SettingMenu } from './ui/SettingMenu/SettingMenu';
 
 const Navigation: React.FC = () => {
   const currentView = useAppStore((state) => state.ui.currentView);
@@ -29,7 +29,7 @@ const Navigation: React.FC = () => {
       </div>
 
       {/* ★右側: ハンバーガーメニュー */}
-      <HamburgerMenu />
+      <SettingMenu />
     </nav>
   );
 };

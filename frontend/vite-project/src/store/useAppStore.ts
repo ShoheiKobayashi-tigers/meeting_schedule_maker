@@ -175,6 +175,9 @@ interface AppState {
     isBulkSetupOpen: boolean; // 一括設定センターが開いているか
     setBulkSetupOpen: (isOpen: boolean) => void;
 
+    isAllocationConfigOpen: boolean;
+    setAllocationConfigOpen: (isOpen: boolean) => void;
+
     setSchoolSettings: (settings: SchoolSettings) => void;
     setWorkspaceId: (id: string) => void;
 
@@ -624,6 +627,10 @@ export const useAppStore = create<AppState>()(
 
             isBulkSetupOpen: false,
             setBulkSetupOpen: (isOpen) => set({ isBulkSetupOpen: isOpen }),
+
+            isAllocationConfigOpen: false,
+            setAllocationConfigOpen: (isOpen) => set({ isAllocationConfigOpen: isOpen }),
+
         }),
         { 
             name: 'student-app-storage',
