@@ -7,8 +7,8 @@ export const SettingMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   
   // ★Storeから開閉アクションを取得
-  const setBulkSetupOpen = useAppStore((state) => state.setBulkSetupOpen);
-  const setAllocationConfigOpen = useAppStore((state) => state.setAllocationConfigOpen);
+  const { setBulkSetupOpen, setAllocationConfigOpen } = useAppStore((state) => state);
+
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -34,7 +34,7 @@ export const SettingMenu: React.FC = () => {
             <button className={s.menuItem} onClick={() => handleAction(() => setBulkSetupOpen(true))}>
               <span style={{ fontSize: '18px' }}>📋</span>
               <div>
-                <div style={{ fontWeight: 'bold' }}>一括設定ウィザード</div>
+                <div style={{ fontWeight: 'bold' }}>保護者フォーム・お便り設定</div>
                 <div style={{ fontSize: '11px', color: '#64748b' }}>書類・フォーム・公開設定</div>
               </div>
             </button>
@@ -48,6 +48,15 @@ export const SettingMenu: React.FC = () => {
                 <div style={{ fontSize: '11px', color: '#64748b' }}>固定・兄弟ルールなど</div>
               </div>
             </button>
+
+            <button className={s.menuItem} onClick={() => handleAction(() => setAllocationConfigOpen(true))}>
+              <span style={{ fontSize: '18px' }}>⚙️</span>
+              <div>
+                <div style={{ fontWeight: 'bold' }}>双子設定</div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>同一クラスに在籍の児童を双子に設定</div>
+              </div>
+            </button>
+            
             
           </div>
         )}
