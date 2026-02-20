@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 // Store をインポート
 import { useAppStore, VIEWS } from './store/useAppStore'; 
 
@@ -42,7 +42,6 @@ const TeacherRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 const AdminLayout: React.FC = () => {
     // 1. Store から最新のデータを取得
-    const db = useAppStore(state => state.db);
     const ui = useAppStore(state => state.ui);
     
     
