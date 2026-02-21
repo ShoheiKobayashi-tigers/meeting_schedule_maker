@@ -201,9 +201,10 @@ interface AppState {
     setSchoolSettings: (settings: SchoolSettings) => void;
     setWorkspaceId: (id: string) => void;
 
-    
-
     restorePreviousData: () => void;
+
+    //リリース前に削除
+    clearAllAssignments: () => void; // ★ 追加: 全割り当て解除アクション
 }
 
 // --- Store実装 ---
@@ -673,6 +674,30 @@ export const useAppStore = create<AppState>()(
 
             isAllocationConfigOpen: false,
             setAllocationConfigOpen: (isOpen) => set({ isAllocationConfigOpen: isOpen }),
+
+
+
+            /*
+            以下、ここはリリース前に削除する     
+            */
+            clearAllAssignments: () => set((state) => {
+                const { assignments } = state.db.scheduleData;
+                // assignmentsの2次元配列をすべて null で埋め尽くす
+                const clearedAssignments = assignments.map(row => row.map(() => null));
+                
+                return {
+                    db: {
+                        ...state.db,
+                        scheduleData: {
+                            ...state.db.scheduleData,
+                            assignments: clearedAssignments
+                        }
+                    }
+                };
+            }),
+            /*
+            ここまで        
+            */
 
         }),
         { 

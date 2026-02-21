@@ -15,7 +15,7 @@ const ScheduleTablePanel: React.FC = () => {
   // === Storeからデータ(db)と状態(ui)を取得 ===
   const { applicants, scheduleData, siblings } = useAppStore((state) => state.db);
   const { draggingApplicantId } = useAppStore((state) => state.ui);
-  const { setAutoAssignConfirmModalOpen } = useAppStore((state) => state);
+  const { setAutoAssignConfirmModalOpen, clearAllAssignments } = useAppStore((state) => state);
   
   const { grid } = useProcessedSchedule();
 
@@ -40,6 +40,12 @@ const ScheduleTablePanel: React.FC = () => {
     // 計算が終わったらモーダルを開いて結果を渡す
     setAutoAssignConfirmModalOpen(true, result);
   };
+
+  const handleClearAll = () => {
+      if(window.confirm('すべての割り当てを解除します。よろしいですか？')) {
+          clearAllAssignments();
+      }
+  }
 
   // === ヘルパー関数 ===
   // 児童名を取得するロジック
@@ -66,7 +72,9 @@ const ScheduleTablePanel: React.FC = () => {
         <h1 className={s.title} style={{ margin: 0 }}>
           スケジュールボード
         </h1> 
-        
+        <Button variant="delete" onClick={handleClearAll}>
+                ⚠️ 全割り当て解除(テスト用)
+            </Button>
         <Button variant="edit" onClick={handleAutoAssignClick}>
           ✨ 自動割り当てを実行
         </Button>
