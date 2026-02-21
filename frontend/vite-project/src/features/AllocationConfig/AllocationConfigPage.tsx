@@ -70,10 +70,10 @@ export const AllocationConfigPage: React.FC = () => {
               value={autoAssignmentConfig.sibling_slot_gap} // ★Storeの値を反映
               onChange={(e) => setAutoAssignmentConfig({sibling_slot_gap: Number(e.target.value)})}
             >
-              <option value={0}>連続（隙間なし）のみ許可</option>
-              <option value={1}>前後 1枠まで許可</option>
-              <option value={2}>前後 2枠まで許可 (推奨)</option>
-              <option value={3}>前後 3枠まで許可</option>
+              <option value={1}>連続（待ち時間なし）</option>
+              <option value={2}>待ち時間 1枠分まで許可 (推奨)</option>
+              <option value={3}>待ち時間 2枠分まで許可</option>
+              <option value={4}>待ち時間 3枠分まで許可</option>
               <option value={99}>制限なし（同じ日ならOK）</option>
             </select>
             <span style={{ fontSize: '12px', color: '#64748b' }}>
