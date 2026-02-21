@@ -5,16 +5,19 @@ import * as s from './AllocationConfigPage.css';
 
 export const AllocationConfigPage: React.FC = () => {
   // Store から必要な値を取得
-  const isOpen = useAppStore((state) => state.isAllocationConfigOpen);
-  const setOpen = useAppStore((state) => state.setAllocationConfigOpen);
-  
-  const applicants = useAppStore((state) => state.db.applicants);
-  const saveApplicant = useAppStore((state) => state.saveApplicant);
-  // ※本来は schoolSettings の状態もここに入れますが、まだストアにない場合は一旦固定値にします。
-  // const schoolSettings = useAppStore((state) => state.db.schoolSettings);
-  // const setSchoolSettings = useAppStore((state) => state.setSchoolSettings);
+  const { applicants, siblings, autoAssignmentConfig } =
+    useAppStore((state) => state.db);
+  const { isAllocationConfigOpen } = useAppStore((state) => state.ui);
+  const {
+    setAutoAssignmentConfig,
+    setAllocationConfigOpen,
+    saveApplicant,
+  } = useAppStore((state) => state);
 
-  if (!isOpen) return null;
+  if (!isAllocationConfigOpen) return null;
+
+  // 兄弟制限の全体ルールが適用されているか（制限なし:99 以外なら適用中）
+  const isGapRuleActive = autoAssignmentConfig.sibling_slot_gap !== 99;
 
   // フラグの切り替え処理
   const toggleFlag = (applicantId: string, field: 'is_fixed' | 'is_last_slot' | 'needs_gap_after') => {
@@ -40,7 +43,7 @@ export const AllocationConfigPage: React.FC = () => {
               ※ここでチェックを入れた生徒の条件が優先されますが、枠の状況によっては必ずしも希望通りにならない場合があります。
             </p>
           </div>
-          <Button variant="cancel" onClick={() => setOpen(false)}>保存して戻る</Button>
+          <Button variant="cancel" onClick={() => setAllocationConfigOpen(false)}>保存して戻る</Button>
         </header>
 
         {/* メインコンテンツ（スクロール領域） */}
@@ -51,8 +54,8 @@ export const AllocationConfigPage: React.FC = () => {
             <span className={s.settingLabel}>👨‍👩‍👧‍👦 兄弟・双子の配置間隔ルール:</span>
             <select 
               className={s.select}
-              defaultValue={2} // Storeに連携するまでは初期値2
-              // onChange={(e) => setSchoolSettings({...schoolSettings, sibling_slot_gap: Number(e.target.value)})}
+              value={autoAssignmentConfig.sibling_slot_gap} // ★Storeの値を反映
+              onChange={(e) => setAutoAssignmentConfig({sibling_slot_gap: Number(e.target.value)})}
             >
               <option value={0}>連続（隙間なし）のみ許可</option>
               <option value={1}>前後 1枠まで許可</option>
@@ -93,59 +96,85 @@ export const AllocationConfigPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                applicants.map((app, index) => (
-                  <tr key={app.id} className={s.tr}>
-                    <td className={s.td}>{index + 1}</td>
-                    <td className={s.td}>
-                      <div className={s.nameCell}>
-                        <span style={{ fontWeight: 'bold' }}>{app.family_name} {app.first_name}</span>
-                        <span className={s.studentId}>{app.student_id}</span>
-                      </div>
-                    </td>
-                    
-                    {/* 📌 固定フラグ */}
-                    <td 
-                      className={s.checkCell} 
-                      onClick={() => toggleFlag(app.id!, 'is_fixed')}
-                      style={{ backgroundColor: app.is_fixed ? '#eff6ff' : undefined }} // 青系
-                    >
-                      <input 
-                        type="checkbox" 
-                        className={s.checkbox}
-                        checked={!!app.is_fixed} 
-                        readOnly 
-                      />
-                    </td>
+                applicants.map((app, index) => {
+                  // ★この生徒が「他クラスの兄弟」または「同クラスの双子」を持っているか判定
+                  const hasLinkedSibling = !!app.family_id && (
+                    siblings.some(s => s.family_id === app.family_id) || 
+                    applicants.filter(a => a.family_id === app.family_id).length > 1
+                  );
+                  
+                  // 兄弟がいて、かつ全体ルールが制限ありの場合、最後枠と休憩のチェックを禁止する
+                  const isRestricted = hasLinkedSibling && isGapRuleActive;
 
-                    {/* 🔚 最後尾フラグ */}
-                    <td 
-                      className={s.checkCell} 
-                      onClick={() => toggleFlag(app.id!, 'is_last_slot')}
-                      style={{ backgroundColor: app.is_last_slot ? '#f0fdf4' : undefined }} // 緑系
-                    >
-                      <input 
-                        type="checkbox" 
-                        className={s.checkbox}
-                        checked={!!app.is_last_slot} 
-                        readOnly 
-                      />
-                    </td>
+                  return (
+                    <tr key={app.id} className={s.tr}>
+                      <td className={s.td}>{index + 1}</td>
+                      <td className={s.td}>
+                        <div className={s.nameCell}>
+                          <span style={{ fontWeight: 'bold' }}>{app.family_name} {app.first_name}</span>
+                          <span className={s.studentId}>{app.student_id}</span>
+                          {hasLinkedSibling && (
+                            <span style={{fontSize: '10px', color: '#ea580c', marginLeft: '8px'}}>※兄弟あり</span>
+                          )}
+                        </div>
+                      </td>
+                      
+                      {/* 📌 固定フラグ (これは先生の手動強制上書きなので常に許可) */}
+                      <td 
+                        className={s.checkCell} 
+                        onClick={() => toggleFlag(app.id!, 'is_fixed')}
+                        style={{ backgroundColor: app.is_fixed ? '#eff6ff' : undefined }}
+                      >
+                        <input 
+                          type="checkbox" 
+                          className={s.checkbox}
+                          checked={!!app.is_fixed} 
+                          readOnly 
+                        />
+                      </td>
 
-                    {/* ☕ 休憩フラグ */}
-                    <td 
-                      className={s.checkCell} 
-                      onClick={() => toggleFlag(app.id!, 'needs_gap_after')}
-                      style={{ backgroundColor: app.needs_gap_after ? '#fff7ed' : undefined }} // オレンジ系
-                    >
-                      <input 
-                        type="checkbox" 
-                        className={s.checkbox}
-                        checked={!!app.needs_gap_after} 
-                        readOnly 
-                      />
-                    </td>
-                  </tr>
-                ))
+                      {/* 🔚 最後尾フラグ (制限対象) */}
+                      <td 
+                        className={s.checkCell} 
+                        onClick={() => { if (!isRestricted) toggleFlag(app.id!, 'is_last_slot'); }}
+                        style={{ 
+                          backgroundColor: isRestricted ? '#f1f5f9' : (app.is_last_slot ? '#f0fdf4' : undefined),
+                          cursor: isRestricted ? 'not-allowed' : 'pointer',
+                          opacity: isRestricted ? 0.4 : 1
+                        }}
+                        title={isRestricted ? "兄弟の配置ルールが優先されるため、設定できません" : ""}
+                      >
+                        <input 
+                          type="checkbox" 
+                          className={s.checkbox}
+                          checked={!!app.is_last_slot} 
+                          disabled={isRestricted}
+                          readOnly 
+                        />
+                      </td>
+
+                      {/* ☕ 休憩フラグ (制限対象) */}
+                      <td 
+                        className={s.checkCell} 
+                        onClick={() => { if (!isRestricted) toggleFlag(app.id!, 'needs_gap_after'); }}
+                        style={{ 
+                          backgroundColor: isRestricted ? '#f1f5f9' : (app.needs_gap_after ? '#fff7ed' : undefined),
+                          cursor: isRestricted ? 'not-allowed' : 'pointer',
+                          opacity: isRestricted ? 0.4 : 1
+                        }}
+                        title={isRestricted ? "兄弟の配置ルールが優先されるため、設定できません" : ""}
+                      >
+                        <input 
+                          type="checkbox" 
+                          className={s.checkbox}
+                          checked={!!app.needs_gap_after}
+                          disabled={isRestricted} 
+                          readOnly 
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

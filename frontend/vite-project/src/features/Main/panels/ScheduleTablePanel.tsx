@@ -13,7 +13,7 @@ import * as s from './ScheduleTablePanel.css';
 
 const ScheduleTablePanel: React.FC = () => {
   // === Storeからデータ(db)と状態(ui)を取得 ===
-  const { applicants, scheduleData, siblings } = useAppStore((state) => state.db);
+  const { applicants, scheduleData, siblings, autoAssignmentConfig } = useAppStore((state) => state.db);
   const { draggingApplicantId } = useAppStore((state) => state.ui);
   const { setAutoAssignConfirmModalOpen, clearAllAssignments } = useAppStore((state) => state);
   
@@ -32,7 +32,7 @@ const ScheduleTablePanel: React.FC = () => {
   // ★クリックハンドラーを追加
   const handleAutoAssignClick = () => {
     // 兄弟間の許容間隔（とりあえず2で固定。後でStoreのschoolSettingsと繋ぐ予定）
-    const siblingGap = 2; 
+    const siblingGap = autoAssignmentConfig.sibling_slot_gap; 
 
     // 裏側でシミュレーションを実行！（画面はまだ変わらない）
     const result = simulateAutoAssignment(applicants, siblings, scheduleData, siblingGap);
