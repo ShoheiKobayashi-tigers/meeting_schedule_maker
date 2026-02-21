@@ -19,14 +19,27 @@ export const AllocationConfigPage: React.FC = () => {
   // 兄弟制限の全体ルールが適用されているか（制限なし:99 以外なら適用中）
   const isGapRuleActive = autoAssignmentConfig.sibling_slot_gap !== 99;
 
-  // フラグの切り替え処理
+  // フラグの切り替え処理（複数選択不可・排他制御）
   const toggleFlag = (applicantId: string, field: 'is_fixed' | 'is_last_slot' | 'needs_gap_after') => {
     const target = applicants.find(a => a.id === applicantId);
     if (target) {
-      saveApplicant({ 
-        ...target, 
-        [field]: !target[field] 
-      });
+      const isCurrentlyTrue = !!target[field];
+      
+      if (isCurrentlyTrue) {
+        // すでにオンのものをクリックした場合は、単にそれをオフにする
+        saveApplicant({ 
+          ...target, 
+          [field]: false 
+        });
+      } else {
+        // 新しくオンにする場合は、クリックしたものを true にし、他を強制的に false にする
+        saveApplicant({ 
+          ...target, 
+          is_fixed: field === 'is_fixed',
+          is_last_slot: field === 'is_last_slot',
+          needs_gap_after: field === 'needs_gap_after'
+        });
+      }
     }
   };
 
