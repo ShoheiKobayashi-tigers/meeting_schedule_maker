@@ -106,21 +106,35 @@ export function simulateAutoAssignment(
 
   // 1. 各兄弟が「入れる枠」を事前にリストアップ
   const siblingCandidatesMap = new Map<string, { r: number; c: number }[]>();
+  
   for (const app of siblingLinkedApplicants) {
-    const sibling = siblings.find(
-      (s) => s.family_id === app.family_id && s.assigned_slot,
-    )!;
-    const coords = getCoords(sibling.assigned_slot!);
+    // ★ 修正1: この家族の「他クラス兄弟」の割り当て済み枠を【すべて】取得する
+    const familySiblings = siblings.filter(
+      (s) => s.family_id === app.family_id && s.assigned_slot
+    );
+    
+    // ★ 修正2: 兄弟が既に使っている「列,行」のセットを作成
+    const occupiedSlots = new Set<string>();
+    let referenceCoords: { c: number; r: number } | null = null;
+
+    for (const sib of familySiblings) {
+      const coords = getCoords(sib.assigned_slot!);
+      if (coords) {
+        if (!referenceCoords) referenceCoords = coords; // 基準とする兄弟は最初の1人目
+        occupiedSlots.add(`${coords.c},${coords.r}`);
+      }
+    }
+
     const candidates: { r: number; c: number }[] = [];
-    if (coords) {
-      const { c: sibC, r: sibR } = coords;
+    if (referenceCoords) {
+      const { c: sibC, r: sibR } = referenceCoords;
       for (
         let r = Math.max(0, sibR - siblingSlotGap);
         r <= Math.min(sortedRows.length - 1, sibR + siblingSlotGap);
         r++
       ) {
-        // ★★★ 追加: 兄弟と全く同じ時間はダブルブッキングになるので除外 ★★★
-        if (r === sibR) continue;
+        // ★★★ 修正3: この家族の「どの兄弟」とも時間が被らないようにチェック ★★★
+        if (occupiedSlots.has(`${sibC},${r}`)) continue;
 
         // 固定(is_fixed)以外で、条件を満たす枠をピックアップ
         if (
@@ -133,7 +147,7 @@ export function simulateAutoAssignment(
           candidates.push({ r, c: sibC });
         }
       }
-      candidates.sort((a, b) => Math.abs(a.r - sibR) - Math.abs(b.r - sibR)); // 兄弟の枠に近い順
+      candidates.sort((a, b) => Math.abs(a.r - sibR) - Math.abs(b.r - sibR)); // 基準の枠に近い順
     }
     siblingCandidatesMap.set(app.id!, candidates);
   }
@@ -229,6 +243,10 @@ export function simulateAutoAssignment(
   // 第2優先: 最後枠指定 (is_last_slot)
   // =========================================================================
   const lastSlotApplicants = targetApplicants.filter((a) => a.is_last_slot);
+
+  // ★ ユーザー様ご提案のルール1: 1人のlast_slotによって潰していいのは最大3枠まで
+  const MAX_ALLOWED_BLOCKS = 3;
+
   for (const app of lastSlotApplicants) {
     let placed = false;
     const prefsByCol: Record<number, number[]> = {};
@@ -242,28 +260,65 @@ export function simulateAutoAssignment(
 
     for (const cStr of Object.keys(prefsByCol)) {
       const c = Number(cStr);
-      const rowsForCol = prefsByCol[c].sort((a, b) => b - a);
+      const rowsForCol = prefsByCol[c].sort((a, b) => b - a); // 下から探索
+
       for (const r of rowsForCol) {
         if (isSlotAvailable(c, r)) {
           let canBeLast = true;
+          let blockCount = 0;
+
+          // 自分より下の枠をチェック
           for (let belowR = r + 1; belowR < sortedRows.length; belowR++) {
             if (newAssignments[belowR][c] !== null) {
               canBeLast = false;
               break;
             }
-          }
-          if (canBeLast) {
-            newAssignments[r][c] = app.id!;
-            for (let belowR = r + 1; belowR < sortedRows.length; belowR++) {
-              newAvailability[belowR][c] = "system_block";
+            // まだ誰もいない＆ブロックされていない有効な空き枠ならカウント
+            if (
+              newAvailability[belowR][c] !== "admin_block" &&
+              newAvailability[belowR][c] !== "system_block"
+            ) {
+              blockCount++;
             }
-            placed = true;
-            break;
+          }
+
+          if (canBeLast && blockCount <= MAX_ALLOWED_BLOCKS) {
+            // ★ ユーザー様ご提案のルール2: システムブロック後の空き枠が未割当の人数を下回るかチェック
+
+            // 現時点での全体の有効な空き枠を数える
+            let totalAvailable = 0;
+            for (let tr = 0; tr < sortedRows.length; tr++) {
+              for (let tc = 0; tc < sortedCols.length; tc++) {
+                if (isSlotAvailable(tc, tr)) totalAvailable++;
+              }
+            }
+
+            // この配置を行ったあとの「残りの空き枠数」
+            // (全体から、自分の1枠 ＋ 道連れにするblockCount を引く)
+            const nextAvailableCount = totalAvailable - 1 - blockCount;
+
+            // この後配置を待っている「残りの未割当の人数」
+            // (targetApplicantsの残り人数(自分以外) ＋ すでに未割当になった人数)
+            const remainingApplicantsCount =
+              targetApplicants.length - 1 + unassigned.length;
+
+            // 残りの空き枠が、未割当の人数を下回らない場合のみ許可！
+            if (nextAvailableCount >= remainingApplicantsCount) {
+              newAssignments[r][c] = app.id!;
+              // 宣言通り、下をシステムブロック
+              for (let belowR = r + 1; belowR < sortedRows.length; belowR++) {
+                newAvailability[belowR][c] = "system_block";
+              }
+              placed = true;
+              break;
+            }
           }
         }
       }
       if (placed) break;
     }
+
+    // 条件が厳しすぎて入れなかった場合は、キャンセル(未割当)になる
     if (!placed) unassigned.push(app);
     targetApplicants = targetApplicants.filter((a) => a.id !== app.id);
   }
