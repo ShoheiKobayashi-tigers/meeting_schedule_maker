@@ -224,9 +224,8 @@ interface AppState {
   setInterviewDuration: (duration: number) => void;
   handleAddColFromPicker: (dateString: string) => void;
   handleAddRowFromTime: (startTime: string) => boolean;
-  handleDeleteCol: (index: number) => void;
-  handleDeleteRow: (index: number) => void;
-  // その他
+  handleDeleteCol: (dateString: string) => void;
+  handleDeleteRow: (timeString: string) => void;  // その他
   resetAvailability: () => void;
   resetAll: () => void;
   getFamilyIdByApplicantId: (id: string) => string | undefined;
@@ -384,9 +383,13 @@ export const useAppStore = create<AppState>()(
           return success;
         },
 
-        handleDeleteCol: (index: number) =>
+handleDeleteCol: (targetCol: string) =>
           set((state) => {
             const { cols, availability, assignments } = state.db.scheduleData;
+            // ★ 受け取った値から、元データ内の本当のインデックスを探す
+            const index = cols.indexOf(targetCol);
+            if (index === -1) return state;
+
             return {
               db: {
                 ...state.db,
@@ -404,9 +407,13 @@ export const useAppStore = create<AppState>()(
             };
           }),
 
-        handleDeleteRow: (index: number) =>
+        handleDeleteRow: (targetRow: string) =>
           set((state) => {
             const { rows, availability, assignments } = state.db.scheduleData;
+            // ★ 受け取った値から、元データ内の本当のインデックスを探す
+            const index = rows.indexOf(targetRow);
+            if (index === -1) return state;
+
             return {
               db: {
                 ...state.db,

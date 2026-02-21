@@ -63,7 +63,7 @@ const ScheduleSettingPanel: React.FC = () => {
           {sortedCols.map((col, idx) => (
             <div key={col} className={s.listItem}>
               <span className={s.listText}>{idx + 1}. {formatDisplayDate(col)}</span>
-              <button className={s.deleteButton} onClick={() => confirmDeleteCol(idx)}>削除</button>
+              <button className={s.deleteButton} onClick={() => confirmDeleteCol(col)}>削除</button>
             </div>
           ))}
         </div>
@@ -82,7 +82,7 @@ const ScheduleSettingPanel: React.FC = () => {
           {sortedRows.map((row, idx) => (
             <div key={row + idx} className={s.listItem}>
               <span className={s.listText}>{idx + 1}. {row}</span>
-              <button className={s.deleteButton} onClick={() => confirmDeleteRow(idx)}>削除</button>
+              <button className={s.deleteButton} onClick={() => confirmDeleteRow(row)}>削除</button>
             </div>
           ))}
         </div>
