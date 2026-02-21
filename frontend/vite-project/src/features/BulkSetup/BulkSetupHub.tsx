@@ -22,7 +22,7 @@ const BULK_STEPS = [
 ];
 
 export const BulkSetupHub: React.FC = () => {
-  const isBulkSetupOpen = useAppStore((state) => state.isBulkSetupOpen);
+  const isBulkSetupOpen = useAppStore((state) => state.ui.isBulkSetupOpen);
   const setBulkSetupOpen = useAppStore((state) => state.setBulkSetupOpen);
   
   const [activeStep, setActiveStep] = useState<BulkStep>('document');
