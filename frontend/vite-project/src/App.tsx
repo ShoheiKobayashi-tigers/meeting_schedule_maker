@@ -5,6 +5,7 @@ import { useAppStore, VIEWS } from './store/useAppStore';
 
 // コンポーネントのインポート
 import ConfirmationModal from './components/modals/ConfirmationModal';
+import { AutoAssignConfirmModal } from './components/modals/AutoAssignConfirmModal';
 import Main from './features/Main/Main';
 import { GuardianPortal } from './features/ParentForm/GuardianPortal/GuardianPortal';
 import ScheduleSetting from './features/Schedule/ScheduleSetting';
@@ -75,6 +76,7 @@ const AdminLayout: React.FC = () => {
             <BulkSetupHub />
             <AllocationConfigPage />
             <ConfirmationModal />
+            <AutoAssignConfirmModal/>
         </div>
     );
 };

@@ -9,6 +9,7 @@ import { assignApplicantToSlot, deleteAssignmentFromSlot } from '../utils/assign
 import { generateShortToken } from '../utils/tokenUtils';
 import { calculateTimeRange } from '../utils/timeUtils';
 import { getInitialAvailability } from '../utils/availabilityUtils';
+import { AutoAssignmentResult } from '../utils/autoAssignment';
 
 // 初期データ定義 (変更なしのため省略可能ですが、文脈維持のため記載)
 // ... (INITIAL_APPLICANTS, INITIAL_SIBLINGS, INITIAL_SCHEDULE は以前と同じ)
@@ -193,8 +194,14 @@ interface AppState {
     isAllocationConfigOpen: boolean;
     setAllocationConfigOpen: (isOpen: boolean) => void;
 
+    autoAssignConfirmModal: { isOpen: boolean; result: AutoAssignmentResult | null };
+    setAutoAssignConfirmModalOpen: (isOpen: boolean, result?: AutoAssignmentResult | null) => void;
+    applyAutoAssignmentResult: (result: AutoAssignmentResult) => void;
+
     setSchoolSettings: (settings: SchoolSettings) => void;
     setWorkspaceId: (id: string) => void;
+
+    
 
     restorePreviousData: () => void;
 }
@@ -591,6 +598,24 @@ export const useAppStore = create<AppState>()(
                 }
             })),
 
+            // ★追加 1: モーダルの開閉状態とシミュレーション結果を保持するState
+            autoAssignConfirmModal: { isOpen: false, result: null },
+            
+            setAutoAssignConfirmModalOpen: (isOpen, result = null) => 
+                set({ autoAssignConfirmModal: { isOpen, result } }),
+
+            applyAutoAssignmentResult: (result) => 
+                set((state) => ({
+                    db: {
+                        ...state.db,
+                        scheduleData: {
+                            ...state.db.scheduleData,
+                            assignments: result.assignments,
+                            availability: result.availability
+                        }
+                    }
+                })),
+                
             resetAll: () => set({ 
                 db: { applicants: INITIAL_APPLICANTS, siblings: INITIAL_SIBLINGS, scheduleData: INITIAL_SCHEDULE, schoolSettings: DEFAULT_SCHOOL_SETTINGS},
                 ui: { 
