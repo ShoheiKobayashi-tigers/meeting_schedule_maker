@@ -88,20 +88,20 @@ export const useDnD = () => {
         //ドラッグ元のスロットID　ドラッグ元がapplicant-listの場合はnullで返ってくる
         const sourceSlot = parseSlotId(sourceCellId);
 
-        // A. リスト（解除エリア）へのドロップ
-        if (targetId === 'applicant-list') {
+        // A. 解除ゾーン（ゴミ箱）へのドロップ
+        if (targetId === 'remove-zone') {
             if (sourceSlot) {
-                if (droppedOnApplicantId) {
-                    // 1. 【入れ替え】特定の児童(かつisAvailable)の上にドロップされた場合
-                    // 元の枠に、リストにいた児童を上書き割り当て
-                    assignApplicant(droppedOnApplicantId, sourceSlot);
-                } else {
-                    // 2. 【解除】児童以外のリストエリアにドロップされた場合
-                    deleteAssignmentFromSlot(sourceSlot);
-                }
+                deleteAssignmentFromSlot(sourceSlot);
             }
         }
-        // B. 面談スロットへのドロップ
+        // B. リスト内の生徒の上へのドロップ（入れ替え）
+        else if (targetId === 'applicant-list') {
+            if (sourceSlot && droppedOnApplicantId) {
+                // 特定の児童の上にドロップされた場合のみ上書き割り当て
+                assignApplicant(droppedOnApplicantId, sourceSlot);
+            }
+        }
+        // C. 面談スロットへのドロップ
         else {
             //ドロップ先のスロットID
             const targetSlot = parseSlotId(targetId);

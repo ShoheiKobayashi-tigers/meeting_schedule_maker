@@ -51,7 +51,6 @@ const ApplicantListPanel: React.FC = () => {
         <div
             className={s.container}
             onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, 'applicant-list', null)}
         >
             <h2 className={s.title}>未割り当ての児童（生徒）リスト</h2>
             
@@ -97,6 +96,22 @@ const ApplicantListPanel: React.FC = () => {
                     <button className={s.deleteButton} onClick={handleClickDeleteButton}>
                         選択中の枠の割り当てを解除
                     </button>
+                </div>
+            )}
+            {/* 2. D&D操作時: スケジュール表の生徒をドラッグしている場合に「解除ドロップゾーン」を表示 */}
+            {draggingSlotIndex !== null && (
+                <div className={s.actionArea}>
+                    <div 
+                        className={s.deleteButton}
+                        onDragOver={handleDragOver} // ←ドラッグ通過を許可
+                        onDrop={(e) => {
+                            e.stopPropagation();
+                            // targetId を 'remove-zone' にして useDnD に渡す！
+                            handleDrop(e, 'remove-zone', null); 
+                        }}
+                    >
+                        ここにドロップして枠から外す
+                    </div>
                 </div>
             )}
         </div>
