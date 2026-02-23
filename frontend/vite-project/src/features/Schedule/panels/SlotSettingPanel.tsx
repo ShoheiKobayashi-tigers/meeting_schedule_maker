@@ -1,11 +1,12 @@
+// src/features/Schedule/panels/SlotSettingPanel.tsx
 import React from 'react';
-import ToggleSwitch from '../../../components/ui/ToggleSwitch/ToggleSwitch';
+import { ToggleSwitch } from '../../../components/ui/ToggleSwitch/ToggleSwitch';
 import { useSlotSettings } from '../hooks/useSlotSettings';
 import { useProcessedSchedule } from '../../../hooks/useProcessedSchedule';
-import ScheduleBaseTable from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
+import { ScheduleBaseTable } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import * as s from './SlotSettingPanel.css';
 
-const SlotSettingPanel: React.FC = () => {
+export const SlotSettingPanel: React.FC = () => {
   const { handleToggleBlock } = useSlotSettings();
   const { grid } = useProcessedSchedule();
 
@@ -32,5 +33,3 @@ const SlotSettingPanel: React.FC = () => {
     </div>
   );
 };
-
-export default SlotSettingPanel;

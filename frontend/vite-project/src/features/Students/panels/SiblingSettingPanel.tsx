@@ -3,8 +3,8 @@ import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { formatSlotText } from '../../../hooks/useProcessedSchedule';
 import { SelectField } from '../../../components/ui/SelectField/SelectField';
-import Button from '../../../components/ui/Button/Button'
-import SiblingForm from '../components/parts/SiblingForm'
+import { Button } from '../../../components/ui/Button/Button'
+import { SiblingForm } from '../components/parts/SiblingForm'
 import { Sibling } from '../../../types/Students'; // 型をインポート
 import * as s from './SiblingSettingPanel.css';
 
@@ -15,7 +15,7 @@ interface Props {
 
 type PanelMode = 'list' | 'add' | 'edit';
 
-const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
+export const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   const { applicants, siblings } = useAppStore((state) => state.db);
   const { openConfirmationModal, deleteSibling, saveSibling } = useAppStore();
   const [filterFamilyId, setFilterFamilyId] = useState(''); // 検索用
@@ -116,5 +116,3 @@ const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
     </div>
   );
 };
-
-export default SiblingSettingPanel;

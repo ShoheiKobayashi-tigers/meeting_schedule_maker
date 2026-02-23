@@ -3,10 +3,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form'; // Controllerを追加
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type Sibling, siblingInputSchema } from '../../../../types/Students';
-import Button from '../../../../components/ui/Button/Button';
+import { Button } from '../../../../components/ui/Button/Button';
 import * as s from './SiblingForm.css';
 import { SelectField } from '../../../../components/ui/SelectField/SelectField';
-import UpsertStudentAssignmentModal from '../modals/UpsertStudentAssignmentModal';
+import { UpsertStudentAssignmentModal } from '../modals/UpsertStudentAssignmentModal';
 import { useAppStore } from '../../../../store/useAppStore';
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
   submitLabel?: string;
 }
 
-const SiblingForm: React.FC<Props> = ({
+export const SiblingForm: React.FC<Props> = ({
   initialData,
   onSubmit,
   onCancel,
@@ -137,5 +137,3 @@ const SiblingForm: React.FC<Props> = ({
     </form>
   );
 };
-
-export default SiblingForm;

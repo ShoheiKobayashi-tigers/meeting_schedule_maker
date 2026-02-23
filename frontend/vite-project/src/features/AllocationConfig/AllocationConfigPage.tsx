@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import Button from '../../components/ui/Button/Button';
+import { Button } from '../../components/ui/Button/Button';
 import * as s from './AllocationConfigPage.css';
 
 export const AllocationConfigPage: React.FC = () => {

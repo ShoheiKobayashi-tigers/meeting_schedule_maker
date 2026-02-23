@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { downloadTemplate, parseExcelFile } from '../../../../utils/excelUtils';
 import { useAppStore } from '../../../../store/useAppStore';
-import Button from '../../../../components/ui/Button/Button';
+import { Button } from '../../../../components/ui/Button/Button';
 import * as s from './ImportStudentModal.css';
 
 // 簡易的なモーダルUIのスタイル（必要に応じて既存のModalコンポーネントに置き換えてください）

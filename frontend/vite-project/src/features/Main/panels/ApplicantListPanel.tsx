@@ -1,3 +1,4 @@
+// src/features/Main/panels/ApplicantListPanel.tsx
 import React, { useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useDnD } from '../hooks/useDnD';
@@ -7,7 +8,7 @@ import { ApplicantItem } from '../parts/ApplicantItem/ApplicantItem';
 import { getApplicantById } from '../../../utils/applicantUtils';
 import * as s from './ApplicantListPanel.css';
 
-const ApplicantListPanel: React.FC = () => {
+export const ApplicantListPanel: React.FC = () => {
     // === Storeからデータ(db)と状態(ui)を取得 ===
     const db = useAppStore((state) => state.db);
     const ui = useAppStore((state) => state.ui);
@@ -117,5 +118,3 @@ const ApplicantListPanel: React.FC = () => {
         </div>
     );
 };
-
-export default ApplicantListPanel;

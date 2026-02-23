@@ -1,78 +1,97 @@
+// src/App.tsx
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-// Store をインポート
-import { useAppStore, VIEWS } from './store/useAppStore'; 
-
-// コンポーネントのインポート
-import ConfirmationModal from './components/modals/ConfirmationModal';
-import { AutoAssignConfirmModal } from './components/modals/AutoAssignConfirmModal';
-import Main from './features/Main/Main';
-import { GuardianPortal } from './features/ParentForm/GuardianPortal/GuardianPortal';
-import ScheduleSetting from './features/Schedule/ScheduleSetting';
-import StudentSetting from './features/Students/StudentSetting';
+import { useAppStore } from './store/useAppStore';
+import { Navigation } from './components/Navigation';
+import { SettingMenu } from './components/ui/SettingMenu/SettingMenu';
+import { StudentSetting } from './features/Students/StudentSetting';
+import { ScheduleSetting } from './features/Schedule/ScheduleSetting';
+import { ScheduleScreen } from './features/Main/Main';
 import { StartScreen } from './features/StartScreen/StartScreen';
-import Navigation from './components/Navigation';
+import { GuardianPortal } from './features/ParentForm/GuardianPortal/GuardianPortal';
+import { ConfirmationModal } from './components/modals/ConfirmationModal';
+import { AutoAssignConfirmModal } from './components/modals/AutoAssignConfirmModal';
 import { BulkSetupHub } from './features/BulkSetup/BulkSetupHub';
-import { AllocationConfigPage } from './features/AllocationConfig/AllocationConfigPage'
+import { AllocationConfigPage } from './features/AllocationConfig/AllocationConfigPage';
 
+// ★ 追加: ResultStep をインポート
+import { ResultStep } from './features/BulkSetup/components/steps/ResultStep';
+
+// --- 安全なレイアウトスタイル ---
 const containerStyle: React.CSSProperties = {
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'column', 
   height: '100vh',
-  backgroundColor: '#f7fafc',
+  backgroundColor: '#f8fafc',
 };
 
-const contentAreaStyle: React.CSSProperties = {
-  flex: 1,
-  overflow: 'hidden',
+const topBarStyle: React.CSSProperties = {
   display: 'flex',
-  flexDirection: 'column',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '0 24px',
+  height: '56px',
+  backgroundColor: '#ffffff',
 };
 
-const TeacherRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const isSessionActive = useAppStore((state) => state.isSessionActive);
-
-  // まだ「始める」を押していなければ、スタート画面を表示
-  if (!isSessionActive) {
-    return <StartScreen />;
-  }
-
-  // 押していれば、本来の画面（AdminLayoutなど）を表示
-  return <>{children}</>;
+const appTitleStyle: React.CSSProperties = {
+  fontWeight: 'bold', 
+  fontSize: '1.2rem', 
+  color: '#0ea5e9',
+  margin: 0,
 };
 
-const AdminLayout: React.FC = () => {
-    // 1. Store から最新のデータを取得
-    const ui = useAppStore(state => state.ui);
-    
-    
-    const { currentView } = ui;
+const scrollAreaStyle: React.CSSProperties = {
+  flex: 1,
+  overflowY: 'auto',
+  padding: '24px',
+};
 
-    // 2. マネージャーの初期化
-    // ※今後、マネージャー内のロジックも Store アクションへ順次移行することを推奨します
+export const App: React.FC = () => {
+    // 1. URLパスによる保護者用画面の判定
+    const path = window.location.pathname;
+    if (path.startsWith('/p/')) {
+        return <GuardianPortal />;
+    }
 
-    // 3. ビューのレンダリング
-    const renderCurrentView = () => {
-        switch (currentView) {
-            case VIEWS.SCHEDULE:
-                return <Main />; // Main 内で独自の Hook (useDnD等) を使うため manager 渡しを削減
-            case VIEWS.SETTINGS:
-                return <ScheduleSetting />;
-            case VIEWS.STUDENTS:
-                return <StudentSetting/>;
-            default:
-                return <Main />;
-        }
-    };
+    // 2. 先生用画面のステート取得
+    const workspaceId = useAppStore((state) => state.db.workspaceId);
+    const activeStep = useAppStore((state) => state.ui.activeStep);
 
+    if (!workspaceId) {
+        return <StartScreen />;
+    }
+
+    // 3. 先生用メインレイアウト
     return (
         <div style={containerStyle}>
-            {/* Navigation は内部で currentView を参照するため Props 不要 */}
-            <Navigation/>
+            {/* 一番上のバー（タイトルと設定） */}
+            <header style={topBarStyle}>
+                <h1 style={appTitleStyle}>📅 面談スケジュールメーカー</h1>
+                <SettingMenu />
+            </header>
 
-            <div style={contentAreaStyle}>
-                {renderCurrentView()}
-            </div>
+            {/* 2段構えのナビゲーション */}
+            <Navigation />
+
+            {/* メイン表示領域（フェーズ1では既存コンポーネントをそのまま描画） */}
+            <main style={scrollAreaStyle}>
+                {activeStep === 'step1' && <StudentSetting />}
+                {activeStep === 'step2' && <ScheduleSetting />}
+                
+                {activeStep === 'step3' && (
+                    <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
+                        <h2>Step 3 は現在開発中です</h2>
+                        <p>現状は、画面右上の設定メニュー(⚙️)から「保護者フォーム・お便り設定」をご利用ください。</p>
+                    </div>
+                )}
+                
+                {activeStep === 'step4' && <ScheduleScreen />}
+                
+                {/* ★ 修正: ResultStep をそのままマウント */}
+                {activeStep === 'step5' && <ResultStep />}
+            </main>
+
+            {/* モーダル群（既存のまま） */}
             <BulkSetupHub />
             <AllocationConfigPage />
             <ConfirmationModal />
@@ -80,17 +99,3 @@ const AdminLayout: React.FC = () => {
         </div>
     );
 };
-
-const App: React.FC = () => {
-    return (
-        <Routes>
-            {/* 1. 保護者用ルート: /p/NanoID */}
-            <Route path="/p/:workspaceId" element={<GuardianPortal />} />
-
-            {/* 2. 先生用（管理）ルート: それ以外すべて */}
-            <Route path="/*" element={<TeacherRoute><AdminLayout /></TeacherRoute>} />
-        </Routes>
-    );
-};
-
-export default App;

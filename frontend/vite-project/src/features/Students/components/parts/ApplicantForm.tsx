@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppStore } from '../../../../store/useAppStore';
 import { type Applicant, applicantInputSchema } from '../../../../types/Students';
-import Button from '../../../../components/ui/Button/Button';
+import { Button } from '../../../../components/ui/Button/Button';
 import { FamilySettingsArea } from './FamilySettingsArea';
-import UpsertStudentAssignmentModal from '../modals/UpsertStudentAssignmentModal';
+import { UpsertStudentAssignmentModal } from '../modals/UpsertStudentAssignmentModal';
 import * as s from './ApplicantForm.css';
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
   onCancel: () => void;
 }
 
-const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) => {
+export const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) => {
   const saveApplicant = useAppStore((state) => state.saveApplicant);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -26,6 +26,9 @@ const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) =>
     student_id: data?.student_id ?? '',
     preferred_dates: data?.preferred_dates ?? [],
     family_id: data?.family_id,
+    is_fixed: false,
+    is_last_slot: false,
+    needs_gap_after: false,
   });
 
   const {
@@ -118,5 +121,3 @@ const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCancel }) =>
     </form>
   );
 };
-
-export default ApplicantForm;

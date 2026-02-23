@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import ScheduleBaseTable, { GridRow, GridCell } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
+import { ScheduleBaseTable, GridRow, GridCell } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import { sortTimeRows, sortDateCols } from '../../../utils/sortUtils';
 import { GuardianLoginView } from '../components/GuardianLoginView';

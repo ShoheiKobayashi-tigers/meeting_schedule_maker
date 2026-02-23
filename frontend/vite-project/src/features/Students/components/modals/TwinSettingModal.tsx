@@ -1,7 +1,7 @@
 // features/Students/components/modals/TwinSettingModal.tsx
 import React, { useMemo, useState } from 'react';
 import { useAppStore } from '../../../../store/useAppStore';
-import Button from '../../../../components/ui/Button/Button';
+import { Button } from '../../../../components/ui/Button/Button';
 import { nanoid } from 'nanoid';
 import * as s from './TwinSettingModal.css';
 

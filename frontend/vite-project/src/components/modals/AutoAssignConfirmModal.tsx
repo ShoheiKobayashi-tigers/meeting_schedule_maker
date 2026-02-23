@@ -1,6 +1,6 @@
 import React from "react";
 import { useAppStore } from "../../store/useAppStore";
-import Button from "../ui/Button/Button";
+import { Button } from "../ui/Button/Button";
 import * as s from "./AutoAssignConfirmModal.css";
 
 export const AutoAssignConfirmModal: React.FC = () => {

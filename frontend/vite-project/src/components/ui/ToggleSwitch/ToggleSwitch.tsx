@@ -7,7 +7,7 @@ interface ToggleSwitchProps {
 }
 
 // トグルスイッチコンポーネント
-const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ isChecked, onChange }) => {
+export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ isChecked, onChange }) => {
 
     // スタイルオブジェクトの定義は不要になりました！
 
@@ -24,5 +24,3 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ isChecked, onChange }) => {
         </div>
     );
 };
-
-export default ToggleSwitch;

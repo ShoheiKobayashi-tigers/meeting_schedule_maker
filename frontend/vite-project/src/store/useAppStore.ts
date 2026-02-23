@@ -1,3 +1,4 @@
+// src/store/useAppStore.ts
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 import { nanoid } from "nanoid";
@@ -142,13 +143,8 @@ const INITIAL_SCHEDULE: ScheduleData = {
   ],
 };
 
-export const VIEWS = {
-  SCHEDULE: "schedule",
-  SETTINGS: "settings",
-  STUDENTS: "students",
-} as const;
-
-export type ViewValues = (typeof VIEWS)[keyof typeof VIEWS];
+export type AppStepId = 'step1' | 'step2' | 'step3' | 'step4' | 'step5';
+export type Step3Mode = 'form' | 'manual' | null;
 
 // --- 型定義 ---
 export interface AutoAssignmentConfig {
@@ -168,7 +164,9 @@ interface DbState {
 }
 
 interface UiState {
-  currentView: ViewValues;
+  activeStep: AppStepId;  // ★追加
+  activeSubStep: string;  // ★追加
+  step3Mode: Step3Mode;   // ★追加  
   interviewDuration: number;
   selectedSlot: SlotIndex | null;
   selectedApplicantId: string | null;
@@ -196,7 +194,9 @@ interface AppState {
 
   // === Actions (操作) ===
   // UI操作
-  setCurrentView: (view: ViewValues) => void;
+  setActiveStep: (step: AppStepId) => void;      // ★追加
+  setActiveSubStep: (subStep: string) => void;   // ★追加
+  setStep3Mode: (mode: Step3Mode) => void;       // ★追加
   setSelectedSlot: (slot: SlotIndex | null) => void;
   setSelectedApplicantId: (id: string | null) => void;
   setDraggingApplicantId: (id: string | null) => void;
@@ -290,7 +290,9 @@ export const useAppStore = create<AppState>()(
 
         // 2. 初期状態 (UI)
         ui: {
-          currentView: VIEWS.SCHEDULE,
+          activeStep: 'step1',    // ★追加
+          activeSubStep: '1-1',   // ★追加
+          step3Mode: null,        // ★追加
           interviewDuration: 15,
           selectedSlot: null,
           selectedApplicantId: null,
@@ -449,8 +451,9 @@ handleDeleteCol: (targetCol: string) =>
         },
 
         // UI Setters (ネストした ui オブジェクトを更新)
-        setCurrentView: (view) =>
-          set((state) => ({ ui: { ...state.ui, currentView: view } })),
+        setActiveStep: (step) => set((state) => ({ ui: { ...state.ui, activeStep: step } })),       // ★追加
+        setActiveSubStep: (subStep) => set((state) => ({ ui: { ...state.ui, activeSubStep: subStep } })), // ★追加
+        setStep3Mode: (mode) => set((state) => ({ ui: { ...state.ui, step3Mode: mode } })),         // ★追加
         setSelectedSlot: (slot) =>
           set((state) => ({ ui: { ...state.ui, selectedSlot: slot } })),
         setSelectedApplicantId: (id) =>
@@ -750,7 +753,9 @@ handleDeleteCol: (targetCol: string) =>
               autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
             },
             ui: {
-              currentView: VIEWS.SCHEDULE,
+              activeStep: 'step1',    // ★追加
+              activeSubStep: '1-1',   // ★追加
+              step3Mode: null,        // ★追加
               interviewDuration: 15,
               selectedSlot: null,
               selectedApplicantId: null,

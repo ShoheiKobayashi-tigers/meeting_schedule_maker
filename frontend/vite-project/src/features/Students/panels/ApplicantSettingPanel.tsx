@@ -1,10 +1,11 @@
+// src/features/Students/panels/ApplicantSettingPanel.tsx
 import React, { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useProcessedApplicants } from '../../../hooks/useProcessedApplicants';
-import ApplicantForm from '../components/parts/ApplicantForm';
-import ApplicantDetail from '../components/parts/ApplicantDetail';
+import { ApplicantForm } from '../components/parts/ApplicantForm';
+import { ApplicantDetail } from '../components/parts/ApplicantDetail';
 import { ImportStudentModal } from '../components/modals/ImportStudentModal';
-import Button from '../../../components/ui/Button/Button';
+import { Button } from '../../../components/ui/Button/Button';
 import * as s from './ApplicantSettingPanel.css';
 
 interface Props {
@@ -14,7 +15,7 @@ interface Props {
 
 type PanelMode = 'list' | 'add' | 'edit' | 'detail';
 
-const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
+export const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
   // useProcessedApplicants を使用して加工済みデータを取得
   const processedApplicants = useProcessedApplicants();
   const { setImportStudentModalOpen, openConfirmationModal, deleteApplicant } = useAppStore();
@@ -117,5 +118,3 @@ const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
     </div>
   );
 };
-
-export default ApplicantSettingPanel;

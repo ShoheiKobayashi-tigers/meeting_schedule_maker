@@ -1,9 +1,10 @@
+// src/features/Schedule/ScheduleSetting.tsx
 import React from 'react';
-import SlotSettingPanel from './panels/SlotSettingPanel';
-import ScheduleSettingPanel from './panels/ScheduleSettingPanel';
+import { SlotSettingPanel } from './panels/SlotSettingPanel';
+import { ScheduleSettingPanel } from './panels/ScheduleSettingPanel';
 import * as s from './ScheduleSetting.css';
 
-const SchedulePage: React.FC = () => {
+export const ScheduleSetting: React.FC = () => {
   return (
     <div className={s.container}>
       {/* 左パネル：スロット設定（グリッド） */}
@@ -18,5 +19,3 @@ const SchedulePage: React.FC = () => {
     </div>
   );
 };
-
-export default SchedulePage;

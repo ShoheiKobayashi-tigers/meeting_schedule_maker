@@ -1,3 +1,4 @@
+// src/features/Main/panels/ScheduleTablePanel.tsx
 import React, { useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useProcessedSchedule } from '../../../hooks/useProcessedSchedule';
@@ -7,11 +8,11 @@ import { useClickAssignment } from '../hooks/useClickAssignment';
 import { ScheduleSlot } from '../parts/ScheduleSlot/ScheduleSlot';
 import { getApplicantById } from '../../../utils/applicantUtils';
 import { simulateAutoAssignment } from '../../../utils/autoAssignment';
-import ScheduleBaseTable from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
-import Button from '../../../components/ui/Button/Button';
+import { ScheduleBaseTable } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
+import { Button } from '../../../components/ui/Button/Button';
 import * as s from './ScheduleTablePanel.css';
 
-const ScheduleTablePanel: React.FC = () => {
+export const ScheduleTablePanel: React.FC = () => {
   // === Storeからデータ(db)と状態(ui)を取得 ===
   const { applicants, scheduleData, siblings, autoAssignmentConfig } = useAppStore((state) => state.db);
   const { draggingApplicantId } = useAppStore((state) => state.ui);
@@ -108,5 +109,3 @@ const ScheduleTablePanel: React.FC = () => {
     </div>
   );
 };
-
-export default ScheduleTablePanel;

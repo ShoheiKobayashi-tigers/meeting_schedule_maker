@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../../../store/useAppStore';
-import Button from '../../../../components/ui/Button/Button';
+import { Button } from '../../../../components/ui/Button/Button';
 import { TwinSettingModal } from '../modals/TwinSettingModal';
 import * as s from './FamilySettingsArea.css';
 

@@ -1,67 +1,107 @@
+// src/components/Navigation.css.ts
 import { style } from '@vanilla-extract/css';
 import { vars } from '../styles/vars.css';
-import { baseButton } from '../styles/layout.css.ts';
 
-export const navBar = style({
+export const navContainer = style({
+  backgroundColor: '#ffffff',
+  borderBottom: `1px solid ${vars.color.border}`,
   display: 'flex',
-  backgroundColor: '#2d3748', // ダークグレー
-  padding: '0 1rem',
-  // gap: '0.5rem', // ★削除: 親でgapを指定すると左右の振り分けが難しくなるため
-  height: '50px',
-  alignItems: 'center',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  justifyContent: 'space-between', // ★追加: 左のボタングループと右のメニューを両端に配置
+  flexDirection: 'column',
 });
 
-// ★追加: 左側のナビゲーションボタンをまとめるグループ
-export const navGroup = style({
+// --- 親タブ (Tier 1) ---
+export const parentTabList = style({
   display: 'flex',
-  gap: '0.5rem', // ここでボタン間の隙間を指定
-  alignItems: 'center',
+  listStyle: 'none',
+  margin: 0,
+  padding: '0 24px',
+  gap: '8px',
+  overflowX: 'auto',
 });
 
-export const navButton = style({
-  padding: '0.5rem 1rem',
-  backgroundColor: 'transparent',
-  border: 'none',
-  color: '#cbd5e0',
-  fontSize: '0.9rem',
-  fontWeight: '600',
+export const parentTab = style({
+  padding: '16px 12px',
   cursor: 'pointer',
-  borderRadius: '4px',
+  fontSize: '1rem',
+  fontWeight: 'bold',
+  color: vars.color.textSecondary,
+  borderBottom: '3px solid transparent',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  whiteSpace: 'nowrap',
   transition: 'all 0.2s',
-  outline: 'none',
-
   ':hover': {
-    backgroundColor: '#4a5568',
-    color: '#fff',
-  },
+    color: vars.color.textPrimary,
+  }
 });
 
-export const navButtonActive = style({
-  backgroundColor: '#4a5568',
-  color: '#fff',
+export const parentTabActive = style([parentTab, {
+  color: vars.color.primary,
+  borderBottom: `3px solid ${vars.color.primary}`,
+}]);
+
+// --- 子タブ (Tier 2) ---
+export const childTabContainer = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  backgroundColor: '#f8fafc',
+  padding: '8px 24px',
+  borderTop: `1px solid ${vars.color.border}`,
+  minHeight: '52px',
 });
 
-export const navButtonLabel = style({
-  display: 'inline-block',
+export const childTabList = style({
+  display: 'flex',
+  listStyle: 'none',
+  margin: 0,
+  padding: 0,
+  gap: '8px',
+  overflowX: 'auto',
 });
 
-export const restoreButton = style([baseButton, {
-  backgroundColor: 'transparent',
-  color: vars.color.textMuted,
-  border: `1px solid ${vars.color.border}`,
-  fontSize: '0.8rem',
-  padding: '6px 12px',
+export const childTab = style({
+  padding: '6px 16px',
+  cursor: 'pointer',
+  fontSize: '0.875rem',
+  color: vars.color.textSecondary,
+  borderRadius: '20px', 
+  fontWeight: 'bold',
+  whiteSpace: 'nowrap',
+  transition: 'all 0.2s',
   ':hover': {
-    backgroundColor: vars.color.background,
-    color: vars.color.primary,
-    borderColor: vars.color.primary,
+    backgroundColor: '#e2e8f0',
+    color: vars.color.textPrimary,
+  }
+});
+
+export const childTabActive = style([childTab, {
+  backgroundColor: vars.color.primary,
+  color: '#ffffff',
+  ':hover': {
+    backgroundColor: vars.color.primary,
+    color: '#ffffff',
   }
 }]);
 
-export const bottomActions = style({
-  padding: vars.space.medium,
-  marginTop: 'auto', // サイドバーの場合、下端に寄せる
-  borderTop: `1px solid ${vars.color.border}`,
+// --- 右端のモード切替ボタン ---
+export const modeSwitchBtn = style({
+  fontSize: '0.75rem',
+  color: vars.color.textSecondary,
+  background: 'none',
+  border: `1px solid ${vars.color.border}`,
+  padding: '6px 12px',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '4px',
+  fontWeight: 'bold',
+  transition: 'all 0.2s',
+  backgroundColor: '#ffffff',
+  ':hover': {
+    color: vars.color.primary,
+    borderColor: vars.color.primary,
+  }
 });

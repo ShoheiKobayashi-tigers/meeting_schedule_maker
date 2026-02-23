@@ -1,3 +1,4 @@
+// src/components/ui/ScheduleBaseTable/ScheduleBaseTable.tsx
 import React, { ReactNode } from 'react';
 import * as s from './ScheduleBaseTable.css';
 
@@ -25,7 +26,7 @@ interface ScheduleBaseTableProps {
   renderCell: (cell: GridCell, cellId: string) => ReactNode;
 }
 
-const ScheduleBaseTable: React.FC<ScheduleBaseTableProps> = ({ 
+export const ScheduleBaseTable: React.FC<ScheduleBaseTableProps> = ({ 
   grid, 
   timeHeaderLabel = "時間帯 ＼ 日付",
   renderCell 
@@ -64,5 +65,3 @@ const ScheduleBaseTable: React.FC<ScheduleBaseTableProps> = ({
     </div>
   );
 };
-
-export default ScheduleBaseTable;

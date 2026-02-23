@@ -1,9 +1,10 @@
+// src/features/Students/components/parts/ApplicantDetail.tsx
 import React from 'react';
 import { type Applicant } from '../../../../types/Students';
 import { useProcessedSchedule } from '../../../../hooks/useProcessedSchedule';
 import { useAppStore } from '../../../../store/useAppStore';
-import ScheduleBaseTable from '../../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
-import Button from '../../../../components/ui/Button/Button';
+import { ScheduleBaseTable } from '../../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
+import { Button } from '../../../../components/ui/Button/Button';
 import { FamilySettingsArea } from './FamilySettingsArea';
 import * as s from './ApplicantDetail.css';
 
@@ -14,7 +15,7 @@ interface Props {
   onDelete: () => void;
 }
 
-const ApplicantDetail: React.FC<Props> = ({ applicant, assignmentText, onEdit, onDelete }) => {
+export const ApplicantDetail: React.FC<Props> = ({ applicant, assignmentText, onEdit, onDelete }) => {
   const { grid } = useProcessedSchedule();
   const { saveApplicant } = useAppStore((state) => state);
   const preferredDates = applicant.preferred_dates || [];
@@ -80,5 +81,3 @@ const ApplicantDetail: React.FC<Props> = ({ applicant, assignmentText, onEdit, o
     </div>
   );
 };
-
-export default ApplicantDetail;

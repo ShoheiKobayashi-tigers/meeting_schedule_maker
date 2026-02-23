@@ -1,10 +1,10 @@
-// src/pages/Main.tsx
+// src/features/Main/Main.tsx
 import React from 'react';
 import * as s from './Main.css.ts'; // さっき作ったスタイル
-import ScheduleTablePanel from './panels/ScheduleTablePanel.tsx';
-import ApplicantListPanel from './panels/ApplicantListPanel.tsx';
+import { ScheduleTablePanel } from './panels/ScheduleTablePanel.tsx';
+import { ApplicantListPanel } from './panels/ApplicantListPanel.tsx';
 
-const ScheduleScreen = () => {
+export const ScheduleScreen = () => {
     // managerを引数でもらう必要がなくなります！
     return (
         <div className={s.container}>
@@ -18,5 +18,3 @@ const ScheduleScreen = () => {
         </div>
     );
 };
-
-export default ScheduleScreen;

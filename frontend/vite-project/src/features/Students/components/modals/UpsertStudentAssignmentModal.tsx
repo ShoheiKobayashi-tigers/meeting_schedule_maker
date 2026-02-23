@@ -1,8 +1,9 @@
+// src/features/Students/components/modals/UpsertStudentAssignmentModal.tsx
 import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../../../../store/useAppStore';
 import { useProcessedSchedule } from '../../../../hooks/useProcessedSchedule';
-import ScheduleBaseTable, { GridCell } from '../../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
-import Button from '../../../../components/ui/Button/Button';
+import { ScheduleBaseTable, GridCell } from '../../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
+import { Button } from '../../../../components/ui/Button/Button';
 import * as s from './UpsertStudentAssignmentModal.css';
 
 interface Props {
@@ -14,7 +15,7 @@ interface Props {
   title: string;
 }
 
-const UpsertStudentAssignmentModal: React.FC<Props> = ({
+export const UpsertStudentAssignmentModal: React.FC<Props> = ({
   isOpen,
   onClose,
   initialSelected,
@@ -79,5 +80,3 @@ const UpsertStudentAssignmentModal: React.FC<Props> = ({
     </div>
   );
 };
-
-export default UpsertStudentAssignmentModal;

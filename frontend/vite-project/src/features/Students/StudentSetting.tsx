@@ -1,10 +1,10 @@
 // src/features/Students/StudentSetting.tsx
 import React, { useState } from 'react';
 import * as s from './StudentSetting.css';
-import ApplicantSettingPanel from './panels/ApplicantSettingPanel';
-import SiblingSettingPanel from './panels/SiblingSettingPanel';
+import { ApplicantSettingPanel } from './panels/ApplicantSettingPanel';
+import { SiblingSettingPanel } from './panels/SiblingSettingPanel';
 
-const StudentSetting = () => {
+export const StudentSetting = () => {
   // 生徒一覧の選択IDと、兄弟一覧の選択IDを明確に分離する
   const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null);
   const [selectedSiblingId, setSelectedSiblingId] = useState<string | null>(null);
@@ -29,5 +29,3 @@ const StudentSetting = () => {
     </div>
   );
 };
-
-export default StudentSetting;

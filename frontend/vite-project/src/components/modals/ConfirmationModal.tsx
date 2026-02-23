@@ -1,8 +1,9 @@
+// src/components/modals/ConfirmationModal.tsx
 import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import * as s from './ConfirmationModal.css'; // 切り出したスタイル
 
-const ConfirmationModal: React.FC = () => {
+export const ConfirmationModal: React.FC = () => {
     const config = useAppStore((state) => state.ui.confirmationModal);
     const close = useAppStore((state) => state.closeConfirmationModal);
 
@@ -25,5 +26,3 @@ const ConfirmationModal: React.FC = () => {
         </div>
     );
 };
-
-export default ConfirmationModal;

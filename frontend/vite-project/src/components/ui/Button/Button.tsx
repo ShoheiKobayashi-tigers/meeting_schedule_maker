@@ -1,3 +1,4 @@
+// src/components/ui/Button/Button.tsx
 import React from 'react';
 import * as s from './Button.css';
 
@@ -9,7 +10,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
-const Button: React.FC<ButtonProps> = ({ 
+export const Button: React.FC<ButtonProps> = ({ 
   variant = 'confirm', 
   leftIcon, 
   children, 
@@ -26,5 +27,3 @@ const Button: React.FC<ButtonProps> = ({
     </button>
   );
 };
-
-export default Button;

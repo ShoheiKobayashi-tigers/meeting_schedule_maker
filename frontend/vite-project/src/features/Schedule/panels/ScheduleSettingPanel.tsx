@@ -1,3 +1,4 @@
+// src/features/Schedule/panels/ScheduleSettingPanel.tsx
 import React from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useProcessedSchedule, formatDisplayDate } from '../../../hooks/useProcessedSchedule';
@@ -7,7 +8,7 @@ import * as s from './ScheduleSettingPanel.css';
 
 const DURATION_OPTIONS = [5, 10, 15, 20, 25, 30, 45, 60];
 
-const ScheduleSettingPanel: React.FC = () => {
+export const ScheduleSettingPanel: React.FC = () => {
   const interviewDuration = useAppStore((state) => state.ui.interviewDuration);
   
   const {
@@ -90,5 +91,3 @@ const ScheduleSettingPanel: React.FC = () => {
     </div>
   );
 };
-
-export default ScheduleSettingPanel;
