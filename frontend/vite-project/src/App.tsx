@@ -29,7 +29,7 @@ const topBarStyle: React.CSSProperties = {
   justifyContent: 'space-between',
   alignItems: 'center',
   padding: '0 24px',
-  height: '56px',
+  height: '48px',
   backgroundColor: '#ffffff',
 };
 
@@ -66,7 +66,7 @@ export const App: React.FC = () => {
         <div style={containerStyle}>
             {/* 一番上のバー（タイトルと設定） */}
             <header style={topBarStyle}>
-                <h1 style={appTitleStyle}>📅 面談スケジュールメーカー</h1>
+                <h1 style={appTitleStyle}>面談スケジュールメーカー</h1>
                 <SettingMenu />
             </header>
 
