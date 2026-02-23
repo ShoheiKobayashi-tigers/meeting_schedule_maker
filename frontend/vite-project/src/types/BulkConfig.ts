@@ -29,6 +29,10 @@ export const schoolSettingsSchema = z.object({
   
   // 回答期限（日付文字列として保持）
   limitDate: z.string().min(1, '回答期限は必須です'),
+
+  resultDistributionDate: z.string().min(1, 'お便り配布予定日は必須です'),
+
+  resultLetterMessage: z.string().min(1, 'お便りの本文は必須です'),
 });
 
 /**
@@ -54,6 +58,7 @@ const DEFAULT_FORM_MESSAGE = `　日頃より本校の教育活動にご理解�
 　個人面談の希望日時をお伺いします。
 　お手元の案内状に記載されている「認証コード（6桁）」を入力し、次へ進んでください。`;
 
+const DEFAULT_RESULT_LETTER_MESSAGE = '日頃より本校の教育活動にご理解とご協力をいただき、ありがとうございます。\n　さて、先般ご提出いただきました希望調査をもとに、面談日時を以下の通り決定いたしましたのでお知らせいたします。\n　ご多用の折とは存じますが、よろしくお願い申し上げます。';
 
 export const DEFAULT_SCHOOL_SETTINGS: SchoolSettings = {
   eventName: '個人面談',
@@ -66,4 +71,6 @@ export const DEFAULT_SCHOOL_SETTINGS: SchoolSettings = {
   letterMessage: DEFAULT_LETTER_MESSAGE,
   isOpened: true,
   formMessage: DEFAULT_FORM_MESSAGE,
+  resultDistributionDate: '',
+  resultLetterMessage: DEFAULT_RESULT_LETTER_MESSAGE
 };

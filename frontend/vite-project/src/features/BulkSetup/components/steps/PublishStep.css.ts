@@ -4,7 +4,6 @@ import { vars } from '../../../../styles/vars.css';
 import * as s from '../../../../styles/layout.css'
 
 export const container = style({
-  padding: '32px 40px',
   paddingBottom: '1300px',
   margin: '0 auto',
   height: '100%',

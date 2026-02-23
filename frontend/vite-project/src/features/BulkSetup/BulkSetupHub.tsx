@@ -1,12 +1,13 @@
-// features/BulkSetup/BulkSetupHub.tsx
+// src/features/BulkSetup/BulkSetupHub.tsx
 import React, { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { DocumentStep } from './components/steps/DocumentStep'; // 新規作成 (旧2+4)
-import { PublishStep } from './components/steps/PublishStep';   // 新規作成 (旧3+5)
+import { DocumentStep } from './components/steps/DocumentStep'; 
+import { PublishStep } from './components/steps/PublishStep';
+import { ResultStep } from './components/steps/ResultStep'; // ★追加
 import * as s from './BulkSetupHub.css';
 
-// ステップ定義をシンプルに再編
-type BulkStep = 'document' | 'publish';
+// ★ Step3を追加
+type BulkStep = 'document' | 'publish' | 'result';
 
 const BULK_STEPS = [
   { 
@@ -19,6 +20,11 @@ const BULK_STEPS = [
     label: '2. 保護者フォーム公開設定', 
     description: '保護者画面のプレビューとクラウド同期、公開切替を行います。' 
   },
+  { 
+    id: 'result' as BulkStep, 
+    label: '3. 日程結果のお知らせ出力', 
+    description: '確定したスケジュール表を含むお便りをダウンロードします。' 
+  },
 ];
 
 export const BulkSetupHub: React.FC = () => {
@@ -29,7 +35,7 @@ export const BulkSetupHub: React.FC = () => {
 
   const handleNext = () => {
     if (activeStep === 'document') setActiveStep('publish');
-    // publish の次は完了なので特に遷移なし（閉じるなど）
+    if (activeStep === 'publish') setActiveStep('result'); // ★次へを追加
   };
 
   if (!isBulkSetupOpen) return null;
@@ -52,7 +58,6 @@ export const BulkSetupHub: React.FC = () => {
               {BULK_STEPS.map((step) => (
                 <li 
                   key={step.id}
-                  // アクティブなステップに特別なスタイルを当てる
                   className={activeStep === step.id ? s.stepItemActive : s.stepItem}
                   onClick={() => setActiveStep(step.id)}
                 >
@@ -68,6 +73,7 @@ export const BulkSetupHub: React.FC = () => {
           <div className={s.contentInner}>
             {activeStep === 'document' && <DocumentStep onNext={handleNext} />}
             {activeStep === 'publish' && <PublishStep />}
+            {activeStep === 'result' && <ResultStep />} {/* ★追加 */}
           </div>
         </main>
       </div>

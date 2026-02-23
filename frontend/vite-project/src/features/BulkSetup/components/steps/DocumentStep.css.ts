@@ -1,9 +1,9 @@
 // features/BulkSetup/components/steps/DocumentStep.css.ts
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../../../styles/vars.css';
+import * as s from '../../BulkSetupHub.css'
 
 export const container = style({
-  padding: '40px',
   maxWidth: '1000px',
   margin: '0 auto',
   fontFamily: 'sans-serif',
@@ -73,88 +73,23 @@ export const textarea = style([input, {
 }]);
 
 // --- ダウンロードエリアのリッチ化 ---
-export const downloadArea = style({
-  backgroundColor: '#f8fafc',
-  border: `1px solid ${vars.color.border}`,
-  borderRadius: '16px',
-  padding: '32px',
-  textAlign: 'center',
-  marginBottom: '40px',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  gap: '16px',
-});
+export const downloadArea = s.downloadArea;
 
-export const statusBadge = style({
-  padding: '6px 16px',
-  borderRadius: '20px',
-  backgroundColor: '#fff',
-  color: '#0284c7',
-  fontSize: '12px',
-  fontWeight: '800',
-  boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-  marginBottom: '8px',
-  display: 'inline-block',
-});
+export const statusBadge = s.statusBadge
 
-export const downloadIcon = style({
-  fontSize: '56px',
-  marginBottom: '8px',
-  filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))',
-});
+export const downloadIcon = s.downloadIcon
 
-export const downloadTitle = style({
-  fontSize: '16px',
-  fontWeight: 'bold',
-  color: '#334155',
-  margin: 0,
-});
+export const downloadTitle = s.downloadTitle
 
-// 統一されたボタンデザイン（Primaryスタイル）
-const baseButton = style({
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '12px',
-  backgroundColor: vars.color.primary, // #0070f3
-  color: 'white',
-  border: 'none',
-  padding: '14px 32px',
-  borderRadius: '8px',
-  fontSize: '15px',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-  textDecoration: 'none',
-  ':hover': {
-    opacity: 0.9,
-    transform: 'translateY(-1px)',
-    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-  },
-  ':active': {
-    transform: 'translateY(0)',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-  },
-  ':disabled': {
-    backgroundColor: '#cbd5e1',
-    cursor: 'not-allowed',
-    transform: 'none',
-    boxShadow: 'none',
-  }
-});
+export const downloadButton = s.downloadButton
 
-export const downloadButton = style([baseButton, {
-  width: '100%',
-  maxWidth: '400px',
-}]);
+
 
 export const nextButtonWrapper = style({
   textAlign: 'right',
   paddingTop: '24px',
 });
 
-export const nextButton = style([baseButton, {
+export const nextButton = style([s.baseButton, {
   // 必要であれば個別の調整
 }]);
