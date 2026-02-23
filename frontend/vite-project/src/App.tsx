@@ -3,18 +3,30 @@ import React from 'react';
 import { useAppStore } from './store/useAppStore';
 import { Navigation } from './components/Navigation';
 import { SettingMenu } from './components/ui/SettingMenu/SettingMenu';
-import { StudentSetting } from './features/Students/StudentSetting';
-import { ScheduleSetting } from './features/Schedule/ScheduleSetting';
-import { ScheduleScreen } from './features/Main/Main';
 import { StartScreen } from './features/StartScreen/StartScreen';
 import { GuardianPortal } from './features/ParentForm/GuardianPortal/GuardianPortal';
+
+// === Step 1 用パネル ===
+import { ApplicantSettingPanel } from './features/Students/panels/ApplicantSettingPanel';
+import { SiblingSettingPanel } from './features/Students/panels/SiblingSettingPanel';
+
+// === Step 2 用パネル ===
+import { ScheduleSettingPanel } from './features/Schedule/panels/ScheduleSettingPanel';
+import { SlotSettingPanel } from './features/Schedule/panels/SlotSettingPanel';
+
+// === Step 4 用パネル ===
+import { AllocationConfigPage } from './features/AllocationConfig/AllocationConfigPage';
+import { ScheduleScreen } from './features/Main/Main';
+
+// === Step 5 用パネル ===
+import { ResultStep } from './features/BulkSetup/components/steps/ResultStep';
+
+// === UIパーツとモーダル群 ===
 import { ConfirmationModal } from './components/modals/ConfirmationModal';
 import { AutoAssignConfirmModal } from './components/modals/AutoAssignConfirmModal';
 import { BulkSetupHub } from './features/BulkSetup/BulkSetupHub';
-import { AllocationConfigPage } from './features/AllocationConfig/AllocationConfigPage';
-
-// ★ 追加: ResultStep をインポート
-import { ResultStep } from './features/BulkSetup/components/steps/ResultStep';
+// (旧StudentSetting内にあったモーダルをAppに移動)
+import { ImportStudentModal } from './features/Students/components/modals/ImportStudentModal';
 
 // --- 安全なレイアウトスタイル ---
 const containerStyle: React.CSSProperties = {
@@ -44,6 +56,8 @@ const scrollAreaStyle: React.CSSProperties = {
   flex: 1,
   overflowY: 'auto',
   padding: '24px',
+  display: 'flex',
+  flexDirection: 'column', // パネルが高さ一杯に広がるように追加
 };
 
 export const App: React.FC = () => {
@@ -55,7 +69,7 @@ export const App: React.FC = () => {
 
     // 2. 先生用画面のステート取得
     const workspaceId = useAppStore((state) => state.db.workspaceId);
-    const activeStep = useAppStore((state) => state.ui.activeStep);
+    const { activeStep, activeSubStep } = useAppStore((state) => state.ui);
 
     if (!workspaceId) {
         return <StartScreen />;
@@ -75,9 +89,30 @@ export const App: React.FC = () => {
 
             {/* メイン表示領域（フェーズ1では既存コンポーネントをそのまま描画） */}
             <main style={scrollAreaStyle}>
-                {activeStep === 'step1' && <StudentSetting />}
-                {activeStep === 'step2' && <ScheduleSetting />}
                 
+                {/* =========================================
+                    Step 1: 名簿の準備
+                ========================================= */}
+                {activeStep === 'step1' && activeSubStep === '1-1' && (
+                    <ApplicantSettingPanel />
+                )}
+                {activeStep === 'step1' && activeSubStep === '1-2' && (
+                    <SiblingSettingPanel />
+                )}
+
+                {/* =========================================
+                    Step 2: 面談枠の作成
+                ========================================= */}
+                {activeStep === 'step2' && activeSubStep === '2-1' && (
+                    <ScheduleSettingPanel />
+                )}
+                {activeStep === 'step2' && activeSubStep === '2-2' && (
+                    <SlotSettingPanel />
+                )}
+                
+                {/* =========================================
+                    Step 3: 希望日程の回収 (次フェーズで実装)
+                ========================================= */}
                 {activeStep === 'step3' && (
                     <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
                         <h2>Step 3 は現在開発中です</h2>
@@ -85,15 +120,31 @@ export const App: React.FC = () => {
                     </div>
                 )}
                 
-                {activeStep === 'step4' && <ScheduleScreen />}
+                {/* =========================================
+                    Step 4: スケジュール割当
+                ========================================= */}
+                {activeStep === 'step4' && activeSubStep === '4-1' && (
+                    <div style={{ position: 'relative', flex: 1, minHeight: '600px' }}>
+                        {/* 元々モーダルだった画面をインラインで呼び出す */}
+                        <AllocationConfigPage />
+                    </div>
+                )}
+                {activeStep === 'step4' && activeSubStep === '4-2' && (
+                    <ScheduleScreen />
+                )}
                 
-                {/* ★ 修正: ResultStep をそのままマウント */}
-                {activeStep === 'step5' && <ResultStep />}
+                {/* =========================================
+                    Step 5: 確定と結果出力
+                ========================================= */}
+                {activeStep === 'step5' && activeSubStep === '5-1' && (
+                    <ResultStep />
+                )}
+                
             </main>
 
-            {/* モーダル群（既存のまま） */}
+            {/* モーダル群 (旧StudentSetting内にあったものもここに集約) */}
+            <ImportStudentModal />
             <BulkSetupHub />
-            <AllocationConfigPage />
             <ConfirmationModal />
             <AutoAssignConfirmModal/>
         </div>

@@ -8,14 +8,10 @@ import { ImportStudentModal } from '../components/modals/ImportStudentModal';
 import { Button } from '../../../components/ui/Button/Button';
 import * as s from './ApplicantSettingPanel.css';
 
-interface Props {
-  selectedId: string | null;
-  onSelect: (id: string | null) => void;
-}
-
 type PanelMode = 'list' | 'add' | 'edit' | 'detail';
 
-export const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
+export const ApplicantSettingPanel: React.FC = () => {
+  const [ selectedId, setSelectedId ] = useState<string | null>(null);
   // useProcessedApplicants を使用して加工済みデータを取得
   const processedApplicants = useProcessedApplicants();
   const { setImportStudentModalOpen, openConfirmationModal, deleteApplicant } = useAppStore();
@@ -26,7 +22,7 @@ export const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect })
 
   const handleBack = () => {
     setMode('list');
-    onSelect(null);
+    setSelectedId(null);
   };
 
   const handleDelete = (id: string, name: string) => {
@@ -81,7 +77,7 @@ export const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect })
         <h3 className={s.title}>生徒一覧</h3>
         <div className={s.actionButtonGroup}>
           <Button variant='edit' onClick={() => { setImportStudentModalOpen(true); }}>児童一括登録</Button>
-          <Button variant="add" onClick={() => { onSelect(null); setMode('add'); }}>新規追加</Button>
+          <Button variant="add" onClick={() => { setSelectedId(null); setMode('add'); }}>新規追加</Button>
         </div>
       </div>
       <div className={s.scrollArea}>
@@ -92,7 +88,7 @@ export const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect })
             <div 
               key={student.id} 
               className={`${s.listRow} ${isSelected ? s.listRow : ''}`} 
-              onClick={() => { onSelect(student.id!); setMode('detail'); }}
+              onClick={() => { setSelectedId(student.id!); setMode('detail'); }}
             >
               <div className={s.studentInfo}>
                 <div className={s.studentName}>
@@ -102,7 +98,7 @@ export const ApplicantSettingPanel: React.FC<Props> = ({ selectedId, onSelect })
                 <div className={s.assignmentDetail}>{student.assignmentText}</div>
               </div>
               <div className={s.actionButtonGroup} onClick={(e) => e.stopPropagation()}>
-                <Button variant="edit" onClick={() => { onSelect(student.id!); setMode('edit'); }}>編集</Button>
+                <Button variant="edit" onClick={() => { setSelectedId(student.id!); setMode('edit'); }}>編集</Button>
                 <Button 
                     variant="delete" 
                     onClick={() => { handleDelete(student.id!, `${student.family_name} ${student.first_name}`)}}

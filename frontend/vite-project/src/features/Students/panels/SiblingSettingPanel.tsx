@@ -8,14 +8,10 @@ import { SiblingForm } from '../components/parts/SiblingForm'
 import { Sibling } from '../../../types/Students'; // 型をインポート
 import * as s from './SiblingSettingPanel.css';
 
-interface Props {
-  selectedId: string | null;
-  onSelect: (id: string | null) => void; // nullを許容
-}
-
 type PanelMode = 'list' | 'add' | 'edit';
 
-export const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) => {
+export const SiblingSettingPanel: React.FC = () => {
+  const [ selectedId, setSelectedId ] = useState<string | null>(null);
   const { applicants, siblings } = useAppStore((state) => state.db);
   const { openConfirmationModal, deleteSibling, saveSibling } = useAppStore();
   const [filterFamilyId, setFilterFamilyId] = useState(''); // 検索用
@@ -26,18 +22,18 @@ export const SiblingSettingPanel: React.FC<Props> = ({ selectedId, onSelect }) =
   , [siblings, selectedId]);
 
   const handleEditStart = (id: string) => {
-    onSelect(id);
+    setSelectedId(id);
     setMode('edit');
   };
 
   const handleAddStart = () => {
-    onSelect(null);
+    setSelectedId(null);
     setMode('add');
   };
 
   const handleBack = () => {
     setMode('list');
-    onSelect(null);
+    setSelectedId(null);
   };
 
   const onFormSubmit = (data: Sibling) => {
