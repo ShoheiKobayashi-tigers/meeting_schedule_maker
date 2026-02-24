@@ -14,6 +14,11 @@ import { SiblingSettingPanel } from './features/Students/panels/SiblingSettingPa
 import { ScheduleSettingPanel } from './features/Schedule/panels/ScheduleSettingPanel';
 import { SlotSettingPanel } from './features/Schedule/panels/SlotSettingPanel';
 
+// === Step 3 用パネル ===
+import { DocumentStep } from './features/BulkSetup/components/steps/DocumentStep';
+import { PublishStep } from './features/BulkSetup/components/steps/PublishStep';
+import { ModeSelectModal } from './components/modals/ModeSelectModal';
+
 // === Step 4 用パネル ===
 import { AllocationConfigPage } from './features/AllocationConfig/AllocationConfigPage';
 import { ScheduleScreen } from './features/Main/Main';
@@ -69,7 +74,8 @@ export const App: React.FC = () => {
 
     // 2. 先生用画面のステート取得
     const workspaceId = useAppStore((state) => state.db.workspaceId);
-    const { activeStep, activeSubStep } = useAppStore((state) => state.ui);
+    const { activeStep, activeSubStep, step3Mode } = useAppStore((state) => state.ui);
+    const setActiveSubStep = useAppStore((state) => state.setActiveSubStep);
 
     if (!workspaceId) {
         return <StartScreen />;
@@ -111,15 +117,40 @@ export const App: React.FC = () => {
                 )}
                 
                 {/* =========================================
-                    Step 3: 希望日程の回収 (次フェーズで実装)
+                    Step 3: 希望日程の回収
                 ========================================= */}
                 {activeStep === 'step3' && (
-                    <div style={{ textAlign: 'center', padding: '60px', color: '#64748b' }}>
-                        <h2>Step 3 は現在開発中です</h2>
-                        <p>現状は、画面右上の設定メニュー(⚙️)から「保護者フォーム・お便り設定」をご利用ください。</p>
+                    <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        
+                        {/* モード未選択時: 背景に3A-1を置き、上にModalを被せる */}
+                        {step3Mode === null && (
+                            <>
+                                {/* 背景としてダミー表示（ぼかし効果） */}
+                                <div style={{ filter: 'blur(3px)', opacity: 0.5, pointerEvents: 'none', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                    <DocumentStep onNext={() => {}} />
+                                </div>
+                                <ModeSelectModal />
+                            </>
+                        )}
+
+                        {/* モードA: フォーム */}
+                        {step3Mode === 'form' && activeSubStep === '3A-1' && (
+                            <DocumentStep onNext={() => setActiveSubStep('3A-2')} />
+                        )}
+                        {step3Mode === 'form' && activeSubStep === '3A-2' && (
+                            <PublishStep />
+                        )}
+
+                        {/* モードB: 手入力 (これから作る画面のプレースホルダー) */}
+                        {step3Mode === 'manual' && activeSubStep === '3B-1' && (
+                            <div style={{ padding: '24px' }}>
+                                <h2>⌨️ 3B-1. 希望日程の手入力</h2>
+                                <p>（ここに爆速手入力UIを作っていきます！）</p>
+                            </div>
+                        )}
                     </div>
                 )}
-                
+
                 {/* =========================================
                     Step 4: スケジュール割当
                 ========================================= */}
