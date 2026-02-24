@@ -1,3 +1,4 @@
+// src/features/AllocationConfig/AllocationConfigPage.tsx
 import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { Button } from '../../components/ui/Button/Button';
@@ -7,14 +8,11 @@ export const AllocationConfigPage: React.FC = () => {
   // Store から必要な値を取得
   const { applicants, siblings, autoAssignmentConfig } =
     useAppStore((state) => state.db);
-  const { isAllocationConfigOpen } = useAppStore((state) => state.ui);
   const {
     setAutoAssignmentConfig,
-    setAllocationConfigOpen,
     saveApplicant,
+    setActiveSubStep
   } = useAppStore((state) => state);
-
-  if (!isAllocationConfigOpen) return null;
 
   // 兄弟制限の全体ルールが適用されているか（制限なし:99 以外なら適用中）
   const isGapRuleActive = autoAssignmentConfig.sibling_slot_gap !== 99;
@@ -26,11 +24,7 @@ export const AllocationConfigPage: React.FC = () => {
       const isCurrentlyTrue = !!target[field];
       
       if (isCurrentlyTrue) {
-        // すでにオンのものをクリックした場合は、単にそれをオフにする
-        saveApplicant({ 
-          ...target, 
-          [field]: false 
-        });
+        saveApplicant({ ...target, [field]: false });
       } else {
         // 新しくオンにする場合は、クリックしたものを true にし、他を強制的に false にする
         saveApplicant({ 
@@ -44,8 +38,7 @@ export const AllocationConfigPage: React.FC = () => {
   };
 
   return (
-    <div className={s.overlay}>
-      <div className={s.container}>
+    <div className={s.container} style={{ height: '100%', margin: '0 auto', border: 'none', boxShadow: 'none' }}>
         
         {/* ヘッダー */}
         <header className={s.header}>
@@ -56,7 +49,6 @@ export const AllocationConfigPage: React.FC = () => {
               ※ここでチェックを入れた生徒の条件が優先されますが、枠の状況によっては必ずしも希望通りにならない場合があります。
             </p>
           </div>
-          <Button variant="cancel" onClick={() => setAllocationConfigOpen(false)}>保存して戻る</Button>
         </header>
 
         {/* メインコンテンツ（スクロール領域） */}
@@ -193,7 +185,13 @@ export const AllocationConfigPage: React.FC = () => {
           </table>
         </div>
         
+      {/* ★ 新設: 画面下部に「保存して次へ」ボタンを配置 */}
+      <div style={{ padding: '24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center' }}>
+        <Button variant="confirm" onClick={() => setActiveSubStep('4-2')}>
+          設定を保存して、スケジュールの割り当てへ進む
+        </Button>
       </div>
+
     </div>
   );
 };

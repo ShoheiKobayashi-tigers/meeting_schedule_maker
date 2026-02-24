@@ -124,10 +124,7 @@ export const App: React.FC = () => {
                     Step 4: スケジュール割当
                 ========================================= */}
                 {activeStep === 'step4' && activeSubStep === '4-1' && (
-                    <div style={{ position: 'relative', flex: 1, minHeight: '600px' }}>
-                        {/* 元々モーダルだった画面をインラインで呼び出す */}
-                        <AllocationConfigPage />
-                    </div>
+                    <AllocationConfigPage />
                 )}
                 {activeStep === 'step4' && activeSubStep === '4-2' && (
                     <ScheduleScreen />
