@@ -7,7 +7,7 @@ export const ModeSelectModal: React.FC = () => {
 
   const handleSelect = (mode: 'form' | 'manual') => {
     setStep3Mode(mode);
-    if (mode === 'form') {
+    if (mode === 'manual') {
       setActiveSubStep('3A-1');
     } else {
       setActiveSubStep('3B-1');
@@ -24,22 +24,22 @@ export const ModeSelectModal: React.FC = () => {
         </p>
 
         <div className={s.cardContainer}>
-          {/* モードA：保護者フォーム */}
+          {/* モードA：手入力 */}
+          <div className={s.card} onClick={() => handleSelect('manual')}>
+            <div className={s.cardIcon}>⌨️</div>
+            <div className={s.cardTitle}>プリントで回収・手入力</div>
+            <div className={s.cardText}>
+              従来通り紙のプリントを配布・回収し、先生が画面を見ながら手作業で希望日程をシステムに入力します。
+            </div>
+          </div>
+
+          {/* モードB：保護者フォーム */}
           <div className={s.card} onClick={() => handleSelect('form')}>
             <div className={s.cardIcon}>📱</div>
             <div className={s.cardTitle}>保護者フォームで回収</div>
             <div className={s.cardText}>
               専用のWEBフォームURLを発行し、保護者のスマホから直接希望を入力してもらいます。
               ペーパーレスで自動集計されます。
-            </div>
-          </div>
-
-          {/* モードB：手入力 */}
-          <div className={s.card} onClick={() => handleSelect('manual')}>
-            <div className={s.cardIcon}>⌨️</div>
-            <div className={s.cardTitle}>プリントで回収・手入力</div>
-            <div className={s.cardText}>
-              従来通り紙のプリントを配布・回収し、先生が画面を見ながら手作業で希望日程をシステムに入力します。
             </div>
           </div>
         </div>

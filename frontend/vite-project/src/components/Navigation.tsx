@@ -21,8 +21,8 @@ export const Navigation: React.FC = () => {
     if (stepId === 'step1') setActiveSubStep('1-1');
     if (stepId === 'step2') setActiveSubStep('2-1');
     if (stepId === 'step3') {
-       if (step3Mode === 'form') setActiveSubStep('3A-1');
-       else if (step3Mode === 'manual') setActiveSubStep('3B-1');
+       if (step3Mode === 'manual') setActiveSubStep('3A-1');
+       else if (step3Mode === 'form') setActiveSubStep('3B-1');
        else setActiveSubStep(''); 
     }
     if (stepId === 'step4') setActiveSubStep('4-1');
@@ -32,8 +32,8 @@ export const Navigation: React.FC = () => {
   // 現在のステップに応じた子タブのリストを取得する
   const getActiveSubSteps = () => {
     if (activeStep === 'step3') {
-      if (step3Mode === 'form') return [{ id: '3A-1', label: '3A-1. お便り作成・印刷' }, { id: '3A-2', label: '3A-2. フォーム公開・同期' }];
-      if (step3Mode === 'manual') return [{ id: '3B-1', label: '3B-1. 希望日程の手入力' }];
+      if (step3Mode === 'manual') return [{ id: '3A-1', label: '3A-1. 希望日程の手入力' }];
+      if (step3Mode === 'form') return [{ id: '3B-1', label: '3B-1. お便り作成・印刷' }, { id: '3B-2', label: '3B-2. フォーム公開・同期' }, { id: '3B-3', label: '3B-3. 確認・修正' }];
       return [];
     }
     return STEPS.find(s => s.id === activeStep)?.sub || [];

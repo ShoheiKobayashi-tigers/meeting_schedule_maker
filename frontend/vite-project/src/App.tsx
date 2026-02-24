@@ -133,21 +133,21 @@ export const App: React.FC = () => {
                             </>
                         )}
 
-                        {/* モードA: フォーム */}
-                        {step3Mode === 'form' && activeSubStep === '3A-1' && (
-                            <DocumentStep onNext={() => setActiveSubStep('3A-2')} />
-                        )}
-                        {step3Mode === 'form' && activeSubStep === '3A-2' && (
-                            <PublishStep />
-                        )}
-
-                        {/* モードB: 手入力 (これから作る画面のプレースホルダー) */}
-                        {step3Mode === 'manual' && activeSubStep === '3B-1' && (
+                        {/* モードA: 手入力 (これから作る画面のプレースホルダー) */}
+                        {step3Mode === 'manual' && activeSubStep === '3A-1' && (
                             <div style={{ padding: '24px' }}>
-                                <h2>⌨️ 3B-1. 希望日程の手入力</h2>
+                                <h2>⌨️ 3A-1. 希望日程の手入力</h2>
                                 <p>（ここに爆速手入力UIを作っていきます！）</p>
                             </div>
                         )}
+                        {/* モードB: フォーム */}
+                        {step3Mode === 'form' && activeSubStep === '3B-1' && (
+                            <DocumentStep onNext={() => setActiveSubStep('3B-2')} />
+                        )}
+                        {step3Mode === 'form' && activeSubStep === '3B-2' && (
+                            <PublishStep />
+                        )}
+
                     </div>
                 )}
 
