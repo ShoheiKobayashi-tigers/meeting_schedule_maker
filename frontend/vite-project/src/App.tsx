@@ -18,6 +18,7 @@ import { SlotSettingPanel } from './features/Schedule/panels/SlotSettingPanel';
 import { DocumentStep } from './features/BulkSetup/components/steps/DocumentStep';
 import { PublishStep } from './features/BulkSetup/components/steps/PublishStep';
 import { ModeSelectModal } from './components/modals/ModeSelectModal';
+import { ManualInputPanel } from './features/ManualInput/ManualInputPanel';
 
 // === Step 4 用パネル ===
 import { AllocationConfigPage } from './features/AllocationConfig/AllocationConfigPage';
@@ -135,10 +136,7 @@ export const App: React.FC = () => {
 
                         {/* モードA: 手入力 (これから作る画面のプレースホルダー) */}
                         {step3Mode === 'manual' && activeSubStep === '3A-1' && (
-                            <div style={{ padding: '24px' }}>
-                                <h2>⌨️ 3A-1. 希望日程の手入力</h2>
-                                <p>（ここに爆速手入力UIを作っていきます！）</p>
-                            </div>
+                            <ManualInputPanel />
                         )}
                         {/* モードB: フォーム */}
                         {step3Mode === 'form' && activeSubStep === '3B-1' && (
