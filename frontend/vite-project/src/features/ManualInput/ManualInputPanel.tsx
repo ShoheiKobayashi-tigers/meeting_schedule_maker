@@ -51,12 +51,14 @@ export const ManualInputPanel: React.FC = () => {
                    <span className={s.studentId}>{student.student_id}.</span> 
                    {student.family_name} {student.first_name}
                  </div>
+               </div>
+               <div className={s.rightSection}>
                  <div className={s.statusText}>
                    {isRegistered 
                      ? <span style={{color: '#059669', fontWeight: 'bold'}}>✓ 希望 {student.preferred_dates.length} 枠 入力済み</span>
                      : <span style={{color: '#ef4444'}}>未入力</span>}
                  </div>
-               </div>
+                </div>
             </div>
           )
         })}

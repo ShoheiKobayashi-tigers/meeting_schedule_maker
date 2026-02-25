@@ -74,7 +74,16 @@ export const studentId = style({
   marginRight: '8px',
 });
 
+// ★ 追加: 右側にフラグとボタンをまとめるコンテナ
+export const rightSection = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '24px', // フラグとボタンの隙間
+});
+
+// ★ 修正: statusText は rightSection の中で整えるため少し調整
 export const statusText = style({
-  fontSize: '0.85rem',
-  color: vars.color.textSecondary,
+  fontSize: '0.95rem',
+  minWidth: '160px', // 文字長が変わってもボタンの位置がズレないように固定幅を設定
+  textAlign: 'right',
 });

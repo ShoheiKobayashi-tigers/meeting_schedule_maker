@@ -145,7 +145,9 @@ export const App: React.FC = () => {
                         {step3Mode === 'form' && activeSubStep === '3B-2' && (
                             <PublishStep />
                         )}
-
+                        {step3Mode === 'form' && activeSubStep === '3B-3' && (
+                            <ManualInputPanel />
+                        )}
                     </div>
                 )}
 
