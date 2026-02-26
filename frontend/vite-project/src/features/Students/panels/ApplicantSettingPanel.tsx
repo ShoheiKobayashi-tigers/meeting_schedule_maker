@@ -7,6 +7,7 @@ import { ApplicantDetail } from '../components/parts/ApplicantDetail';
 import { ImportStudentModal } from '../components/modals/ImportStudentModal';
 import { Button } from '../../../components/ui/Button/Button';
 import * as s from './ApplicantSettingPanel.css';
+import * as layout from '../../../styles/layout.css';
 
 type PanelMode = 'list' | 'add' | 'edit' | 'detail';
 
@@ -41,53 +42,58 @@ export const ApplicantSettingPanel: React.FC = () => {
   // モードに応じたレンダリング
   if (mode === 'add' || mode === 'edit') {
     return (
-      <div className={s.container}>
-        <h3 className={s.title}>{mode === 'add' ? '生徒の追加' : '生徒の編集'}</h3>
-        <ApplicantForm 
-          initialData={mode === 'edit' ? selectedApplicant : null}
-          onSuccess={handleBack}
-          onCancel={handleBack}
-        />
+      <div className={layout.basePanelCard}>
+        <div className={layout.panelHeader}>
+          <h3 className={layout.panelTitle}>{mode === 'add' ? '生徒の追加' : '生徒の編集'}</h3>
+        </div>
+        <div className={layout.panelScrollArea}>
+          <ApplicantForm 
+            initialData={mode === 'edit' ? selectedApplicant : null}
+            onSuccess={handleBack}
+            onCancel={handleBack}
+          />
+        </div>
       </div>
     );
   }
 
   if (mode === 'detail' && selectedApplicant) {
-
     return (
-      <div className={s.container}>
-        <div className={s.listHeader}>
-          <h3 className={s.title}>生徒詳細</h3>
+      <div className={layout.basePanelCard}>
+        <div className={layout.panelHeader}>
+          <h3 className={layout.panelTitle}>生徒詳細</h3>
           <Button variant="outline" onClick={handleBack}>戻る</Button>
         </div>
-        <ApplicantDetail 
-          applicant={selectedApplicant}
-          assignmentText={selectedApplicant.assignmentText}
-          onEdit={() => setMode('edit')}
-          onDelete={() => handleDelete(selectedApplicant.id!, `${selectedApplicant.family_name} ${selectedApplicant.first_name}`)}
-        />
+        <div className={layout.panelScrollArea}>
+          <ApplicantDetail 
+            applicant={selectedApplicant}
+            assignmentText={selectedApplicant.assignmentText}
+            onEdit={() => setMode('edit')}
+            onDelete={() => handleDelete(selectedApplicant.id!, `${selectedApplicant.family_name} ${selectedApplicant.first_name}`)}
+          />
+        </div>
       </div>
     );
   }
 
   // 一覧画面
   return (
-    <div className={s.container}>
-      <div className={s.listHeader}>
-        <h3 className={s.title}>生徒一覧</h3>
+    <div className={layout.basePanelCard}>
+      <div className={layout.panelHeader}>
+        <h3 className={layout.panelTitle}>生徒一覧</h3>
         <div className={s.actionButtonGroup}>
           <Button variant="outline" onClick={() => { setImportStudentModalOpen(true); }}>児童一括登録</Button>
           <Button variant="primary" onClick={() => { setSelectedId(null); setMode('add'); }}>新規追加</Button>
         </div>
       </div>
-      <div className={s.scrollArea}>
+      <div className={layout.panelScrollArea}>
         {processedApplicants.map((student) => {
           const isSelected = student.id === selectedId;
           const fullName = `${student.family_name} ${student.first_name}`;
           return (
             <div 
               key={student.id} 
-              className={`${s.listRow} ${isSelected ? s.listRow : ''}`} 
+              className={`${layout.listRow} ${isSelected ? layout.listRow : ''}`} 
               onClick={() => { setSelectedId(student.id!); setMode('detail'); }}
             >
               <div className={s.studentInfo}>
@@ -104,7 +110,7 @@ export const ApplicantSettingPanel: React.FC = () => {
                     onClick={() => { handleDelete(student.id!, `${student.family_name} ${student.first_name}`)}}
                   >
                     削除
-                  </Button>
+                </Button>
               </div>
             </div>
           );

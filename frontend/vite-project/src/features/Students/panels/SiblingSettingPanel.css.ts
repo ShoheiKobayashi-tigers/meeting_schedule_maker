@@ -1,58 +1,46 @@
 import { style } from '@vanilla-extract/css';
-import { vars } from '../../../styles/vars.css.ts';
-import * as s from '../../../styles/layout.css.ts';
+import { vars } from '../../../styles/vars.css';
 
-export const title = s.panelTitle;
+// ==========================================
+// ※ container 等のレイアウト定義は layout.css.ts に任せるため削除しました
+// ==========================================
 
-export const section = style([s.panelScrollArea,{
-  margin: vars.space.large,
-}]);
+// ヘッダーの下に固定するフィルターバーのスタイル
+export const filterBar = style({
+  padding: `${vars.space.medium} ${vars.space.large}`,
+  backgroundColor: '#f8fafc', // ヘッダーと同じ色にして一体感を出します
+  borderBottom: `1px solid ${vars.color.border}`,
+  flexShrink: 0, // スクロールしても潰れない
+});
 
-export const sectionTitle = style({
-  fontSize: '1rem',
-  fontWeight: 700,
-  marginBottom: vars.space.medium,
+// リスト内の情報
+export const siblingInfo = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '4px',
+});
+
+export const siblingName = style({
+  fontWeight: 'bold',
   color: vars.color.textPrimary,
 });
 
-export const container = style({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-  padding: vars.space.large,
+export const siblingDetail = style({
+  fontSize: '0.85rem',
+  color: vars.color.textSecondary,
 });
 
-export const scrollArea = style([s.panelScrollArea]);
-
-export const listHeader = style([s.baseListHeader, {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: vars.space.medium,
-}]);
-
-export const listRow = style([s.baseListRow, {
-  display: 'flex',
-  border: '1px solid #edf2f7',
-  borderRadius: '8px',
-  backgroundColor: '#f8fafc',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '12.5px',
-  cursor: 'default', // クリック廃止
-  ':hover': {
-    backgroundColor: 'transparent', // ホバー時の背景色変更も無効化（必要に応じて）
-  }
-}]);
-
+// アクションボタン
 export const actionButtonGroup = style({
   display: 'flex',
   gap: vars.space.small,
+  alignItems: 'center',
 });
 
+// 空の状態
 export const emptyMessage = style({
   textAlign: 'center',
-  color: vars.color.textMuted, // varsの定義を使用
+  color: vars.color.textMuted,
   padding: '2rem',
   fontSize: '0.875rem',
   backgroundColor: vars.color.white,

@@ -7,6 +7,7 @@ import { Button } from '../../../components/ui/Button/Button'
 import { SiblingForm } from '../components/parts/SiblingForm'
 import { Sibling } from '../../../types/Students'; // 型をインポート
 import * as s from './SiblingSettingPanel.css';
+import * as layout from '../../../styles/layout.css';
 
 type PanelMode = 'list' | 'add' | 'edit';
 
@@ -55,8 +56,8 @@ export const SiblingSettingPanel: React.FC = () => {
 
   if (mode === 'add' || mode === 'edit') {
     return (
-      <div className={s.container}>
-        <h3 className={s.title}>{mode === 'add' ? '兄弟の追加' : '兄弟の編集'}</h3>
+      <div className={layout.basePanelCard}>
+        <h3 className={layout.panelTitle}>{mode === 'add' ? '兄弟の追加' : '兄弟の編集'}</h3>
         <SiblingForm 
           initialData={selectedSibling}
           onSubmit={onFormSubmit}
@@ -68,12 +69,12 @@ export const SiblingSettingPanel: React.FC = () => {
   }
 
   return (
-    <div className={s.container}>
-      <div className={s.listHeader}>
-        <h3 className={s.title}>兄弟設定</h3>
+    <div className={layout.basePanelCard}>
+      <div className={layout.panelHeader}>
+        <h3 className={layout.panelTitle}>兄弟設定</h3>
         <Button variant="primary" onClick={handleAddStart}>新規追加</Button>
       </div>
-      <div className = {s.listHeader}>
+      <div className = {s.filterBar}>
         <SelectField 
           options={familyFilterOptions} 
           value={filterFamilyId} 
@@ -81,13 +82,13 @@ export const SiblingSettingPanel: React.FC = () => {
           placeholder="一覧（選択すると兄弟を絞り込めます）"
         />
       </div>
-      <div className={s.scrollArea}>
+      <div className={layout.panelScrollArea}>
         {displayedSiblings.length > 0 ? (
           displayedSiblings.map(sib => (
-            <div key={sib.id} className={s.listRow}>
-              <div>
-                <div style={{ fontWeight: 'bold' }}>{sib.family_name} {sib.first_name}</div>
-                <div style={{ fontSize: '0.85rem', color: '#718096' }}>
+            <div key={sib.id} className={layout.listRow}>
+              <div className={s.siblingInfo}>
+                <div className={s.siblingName}>{sib.family_name} {sib.first_name}</div>
+                <div className={s.siblingDetail}>
                   {sib.grade}年 {sib.class}組 : {formatSlotText(sib.assigned_slot)}
                 </div>
               </div>

@@ -1,36 +1,10 @@
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../../styles/vars.css';
-import * as s from '../../../styles/layout.css';
 
-export const container = s.basePanelCard;
-
-export const title = s.panelTitle;
-
-export const scrollArea = style({
-  flex: 1,
-  paddingBottom: vars.space.large,
-});
-
-export const listHeader = style([s.baseListHeader, {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: vars.space.medium,
-}]);
-
-export const listRow = style([s.baseListRow, {
-  display: 'flex',
-  border: '1px solid #edf2f7',
-  borderRadius: '8px',
-  backgroundColor: '#f8fafc',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '12.5px',
-  cursor: 'default', // クリック廃止
-  ':hover': {
-    backgroundColor: 'transparent', // ホバー時の背景色変更も無効化（必要に応じて）
-  }
-}]);
+// ------------------------------------------------------------------
+// ※ container, title, scrollArea, listHeader, listRow の定義はすべて削除し、
+//    layout.css.ts の共通クラスを直接 .tsx 側で使うようにしました！
+// ------------------------------------------------------------------
 
 export const studentInfo = style({
   display: 'flex',
@@ -50,6 +24,7 @@ export const studentId = style({
 export const actionButtonGroup = style({
   display: 'flex',
   gap: vars.space.small,
+  alignItems: 'center', // ボタンが縦にズレないように追加
 });
 
 export const assignmentBadge = style({
@@ -66,7 +41,7 @@ export const assignmentBadge = style({
 export const assignmentDetail = style({
   marginTop: '4px',
   fontSize: '0.8rem',
-  color: vars.color.primary, // 割り当てられていることを強調
+  color: vars.color.primary,
   fontWeight: '500',
 });
 
