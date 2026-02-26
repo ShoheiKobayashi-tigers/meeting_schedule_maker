@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useProcessedApplicants } from '../../hooks/useProcessedApplicants';
 import { ManualInputModal } from './ManualInputModal';
 import * as s from './ManualInputPanel.css';
+import * as layout from '../../styles/layout.css';
 
 export const ManualInputPanel: React.FC = () => {
   // ソート済みの名簿を取得（名簿順に次へ/前へ進めるため）
@@ -28,22 +29,25 @@ export const ManualInputPanel: React.FC = () => {
   };
 
   return (
-    <div className={s.container}>
-      <div className={s.header}>
-        <h3 className={s.title}>希望日程の入力状況</h3>
+    <div className={layout.basePanelCard}>
+      
+      {/* 固定ヘッダー */}
+      <div className={layout.panelHeader}>
+        <h3 className={layout.panelTitle}>希望日程の入力状況</h3>
         <div className={s.progressBadge}>
           入力完了: {registeredCount} / {totalCount} 人
         </div>
       </div>
       
-      <div className={s.scrollArea}>
+      {/* スクロール領域 */}
+      <div className={layout.panelScrollArea}>
         {processedApplicants.map(student => {
           const isRegistered = student.preferred_dates && student.preferred_dates.length > 0;
           
           return (
             <div 
               key={student.id} 
-              className={s.listRow}
+              className={layout.listRow} // 共通リスト行スタイル
               onClick={() => setSelectedId(student.id!)}
             >
                <div className={s.studentInfo}>
