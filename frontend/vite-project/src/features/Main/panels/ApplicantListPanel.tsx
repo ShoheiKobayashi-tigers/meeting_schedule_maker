@@ -6,7 +6,10 @@ import { useClickAssignment } from '../hooks/useClickAssignment';
 import { useProcessedApplicants } from '../../../hooks/useProcessedApplicants';
 import { ApplicantItem } from '../parts/ApplicantItem/ApplicantItem';
 import { getApplicantById } from '../../../utils/applicantUtils';
+import { Button } from '../../../components/ui/Button/Button'; // 追加
+
 import * as s from './ApplicantListPanel.css';
+import * as layout from '../../../styles/layout.css'; // 追加
 
 export const ApplicantListPanel: React.FC = () => {
     // === Storeからデータ(db)と状態(ui)を取得 ===
@@ -45,21 +48,29 @@ export const ApplicantListPanel: React.FC = () => {
             const name = applicant ? `${applicant.family_name} ${applicant.first_name}` : '';
             return `面談枠をクリックして「${name}」さんを割り当ててください。`;
         }
-        return '面談枠からここにドロップすると割り当て解除されます';
+        if (draggingApplicantId) {
+            return `児童リストか面談枠にドロップをして割り当て/入れ替え/解除をしてください。`;
+        }
+        return '児童または面談枠をクリックまたはドラッグしてください';
     };
 
     return (
-        <div
-            className={s.container}
+        <div 
+            className={layout.basePanelCard} 
             onDragOver={handleDragOver}
         >
-            <h2 className={s.title}>未割り当ての児童（生徒）リスト</h2>
-            
-            <p className={s.guideMessage}>
-                {getGuideMessage()}
-            </p>
+            {/* 1. 固定領域：ヘッダーとガイドメッセージ */}
+            <div className={layout.panelHeader} style={{ flexDirection: 'column', alignItems: 'flex-start', borderBottom: 'none', paddingBottom: 0 }}>
+                <h2 className={layout.panelTitle} style={{ fontSize: '1.25rem', marginBottom: '8px' }}>
+                    未割り当ての児童リスト
+                </h2>
+                <p className={s.guideMessage}>
+                    {getGuideMessage()}
+                </p>
+            </div>
 
-            <div className={s.scrollArea}>
+            {/* 2. スクロール領域：児童リスト */}
+            <div className={layout.panelScrollArea} style={{ padding: '0 1.5rem' }}>
                 {displayedApplicants.map((applicant) => {
                     // 1. IDがない場合は表示対象外とする（型ガード）
                     if (!applicant.id) return null;
@@ -92,26 +103,29 @@ export const ApplicantListPanel: React.FC = () => {
                 )}
             </div>
             {/* 選択中のスロットに誰かがいる場合のみ「解除ボタン」を表示 */}
-            {applicantOnSelectedSlot && (
-                <div className={s.actionArea}>
-                    <button className={s.deleteButton} onClick={handleClickDeleteButton}>
-                        選択中の枠の割り当てを解除
-                    </button>
-                </div>
-            )}
-            {/* 2. D&D操作時: スケジュール表の生徒をドラッグしている場合に「解除ドロップゾーン」を表示 */}
-            {draggingSlotIndex !== null && (
-                <div className={s.actionArea}>
-                    <div 
-                        className={s.deleteButton}
-                        onDragOver={handleDragOver} // ←ドラッグ通過を許可
-                        onDrop={(e) => {
-                            e.stopPropagation();
-                            // targetId を 'remove-zone' にして useDnD に渡す！
-                            handleDrop(e, 'remove-zone', null); 
-                        }}
-                    >
-                        ここにドロップして枠から外す
+            {(applicantOnSelectedSlot || draggingSlotIndex !== null) && (
+                <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', flexShrink: 0 }}>
+                    <div className={s.actionArea}>
+                        {applicantOnSelectedSlot ? (
+                            <Button 
+                                variant="danger" 
+                                onClick={handleClickDeleteButton}
+                                style={{ width: '100%' }}
+                            >
+                                選択中の枠の割り当てを解除
+                            </Button>
+                        ) : draggingSlotIndex !== null ? (
+                            <div 
+                                className={s.dropZone}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => {
+                                    e.stopPropagation();
+                                    handleDrop(e, 'remove-zone', null); 
+                                }}
+                            >
+                                ここにドロップして枠から外す
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             )}

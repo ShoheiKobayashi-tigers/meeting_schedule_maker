@@ -1,61 +1,44 @@
 import { style } from '@vanilla-extract/css';
+import { vars } from '../../../styles/vars.css';
 
-export const container = style({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-  padding: '1.5rem', // manager.styles.panel の代わり
-});
-
-export const title = style({
-  fontSize: '1.5rem',
-  fontWeight: '800',
-  marginBottom: '1rem',
-  color: '#2d3748',
-});
+// ※ container, title, scrollArea, deleteButton 等は削除しました
 
 export const guideMessage = style({
-  color: '#718096',
-  marginBottom: '1rem',
+  color: vars.color.textSecondary,
   fontSize: '0.875rem',
   lineHeight: '1.4',
-});
-
-export const scrollArea = style({
-  overflowY: 'auto',
-  flex: 1,
+  marginBottom: vars.space.medium,
 });
 
 export const actionArea = style({
-  marginBottom: '16px',
-  padding: '8px 0',
-  borderBottom: '1px solid #e2e8f0', // リストとの区切り線
+  marginTop: vars.space.medium, // スクロール領域とボタンの間に少し余白
+  paddingTop: vars.space.medium,
+  borderTop: `1px solid ${vars.color.border}`, // リストとの区切り線（上部に変更）
   display: 'flex',
   justifyContent: 'center',
 });
 
-// エラーの原因になっていたボタンのスタイル
-export const deleteButton = style({
-  padding: '0.5rem 1rem',
-  marginBottom: '1rem',
-  backgroundColor: '#5d5d63',
-  color: 'white',
-  border: 'none',
-  borderRadius: '0.25rem',
-  cursor: 'pointer',
-  fontSize: '1rem',
+// ドロップゾーン専用のスタイル（ボタンとは少し違う見た目のため残します）
+export const dropZone = style({
+  padding: '0.75rem 1rem',
+  backgroundColor: '#edf2f7', // 薄いグレー
+  color: vars.color.textSecondary,
+  border: `2px dashed ${vars.color.border}`,
+  borderRadius: vars.borderRadius.medium,
+  textAlign: 'center',
+  fontSize: '0.9rem',
   fontWeight: '600',
   width: '100%',
-  transition: 'background-color 0.2s',
-  selectors: {
-    '&:hover': {
-      backgroundColor: '#a1a3a6',
-    },
+  transition: 'all 0.2s',
+  ':hover': {
+    backgroundColor: '#e2e8f0',
+    borderColor: vars.color.textSecondary,
   },
 });
 
 export const emptyState = style({
   textAlign: 'center',
-  marginTop: '2rem',
+  padding: '2rem',
+  color: vars.color.textMuted,
   fontWeight: '700',
 });
