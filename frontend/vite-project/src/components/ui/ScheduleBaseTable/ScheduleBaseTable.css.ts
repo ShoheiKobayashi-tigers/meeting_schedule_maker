@@ -1,11 +1,12 @@
 import { style } from '@vanilla-extract/css';
+import { vars } from '../../../styles/vars.css'; // ★ varsをインポート
 
 export const tableWrapper = style({
   overflow: 'auto',
   flex: 1,
-  border: '1px solid #e2e8f0',
-  borderRadius: '8px',
-  backgroundColor: '#fff',
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.borderRadius.medium,
+  backgroundColor: vars.color.white,
   position: 'relative',
 });
 
@@ -21,37 +22,39 @@ export const headerCell = style({
   position: 'sticky',
   top: 0,
   zIndex: 10,
-  borderBottom: '2px solid #e2e8f0',
-  borderRight: '1px solid #e2e8f0',
-  backgroundColor: '#edf2f7',
-  padding: '0.75rem',
+  borderBottom: `2px solid ${vars.color.border}`,
+  borderRight: `1px solid ${vars.color.border}`,
+  backgroundColor: vars.color.hoverGray, // ヘッダーは少しグレーに
+  padding: vars.space.medium,
   fontWeight: '700',
   textAlign: 'center',
+  color: vars.color.textPrimary,
 });
 
 export const timeCell = style({
   position: 'sticky',
   left: 0,
   zIndex: 20,
-  borderBottom: '1px solid #e2e8f0',
-  borderRight: '1px solid #e2e8f0',
-  backgroundColor: '#f7fafc',
-  padding: '0.75rem',
+  borderBottom: `1px solid ${vars.color.border}`,
+  borderRight: `1px solid ${vars.color.border}`,
+  backgroundColor: vars.color.hoverGray,
+  padding: vars.space.medium,
   fontWeight: '600',
-  width: '100px',
+  width: '150px',
   textAlign: 'center',
+  color: vars.color.textPrimary,
 });
 
 export const cornerCell = style([
-  headerCell,
-  { left: 0, zIndex: 30 }
+  timeCell,
+  { left: 0, zIndex: 30 },
 ]);
 
 export const cell = style({
-  borderBottom: '1px solid #e2e8f0',
-  borderRight: '1px solid #e2e8f0',
+  borderBottom: `1px solid ${vars.color.border}`,
+  borderRight: `1px solid ${vars.color.border}`,
   verticalAlign: 'top',
-  padding: '0.5rem',
+  padding: vars.space.small,
   minHeight: '80px',
   position: 'relative',
   alignItems: 'center',    
