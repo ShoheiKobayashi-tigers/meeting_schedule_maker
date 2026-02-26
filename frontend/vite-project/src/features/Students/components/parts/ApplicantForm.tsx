@@ -93,7 +93,7 @@ export const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCance
             <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>日程が選択されていません</span>
           )}
         </div>
-        <Button type="button" variant="edit" onClick={() => setIsModalOpen(true)}>
+        <Button type="button" variant="outline" onClick={() => setIsModalOpen(true)}>
           希望日程を選択する
         </Button>
       </div>
@@ -113,8 +113,8 @@ export const ApplicantForm: React.FC<Props> = ({ initialData, onSuccess, onCance
         onConfirm={(dates) => setValue('preferred_dates', dates)}
       />
       <div className={s.buttonGroup}>
-        <Button variant="cancel" onClick={onCancel} type="button">キャンセル</Button>
-        <Button variant="confirm" type="submit" disabled={isSubmitting}>
+        <Button variant="outline" onClick={onCancel} type="button">キャンセル</Button>
+        <Button variant="primary" type="submit" disabled={isSubmitting}>
           {initialData ? '更新する' : '登録する'}
         </Button>
       </div>

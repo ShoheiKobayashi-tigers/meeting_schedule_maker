@@ -2,9 +2,9 @@ import { style } from '@vanilla-extract/css';
 import { vars } from '../../../styles/vars.css.ts';
 import * as s from '../../../styles/layout.css.ts';
 
-export const title = s.basePanelTitle;
+export const title = s.panelTitle;
 
-export const section = style([s.baseScrollArea,{
+export const section = style([s.panelScrollArea,{
   margin: vars.space.large,
 }]);
 
@@ -12,7 +12,7 @@ export const sectionTitle = style({
   fontSize: '1rem',
   fontWeight: 700,
   marginBottom: vars.space.medium,
-  color: vars.color.textMain,
+  color: vars.color.textPrimary,
 });
 
 export const container = style({
@@ -22,7 +22,7 @@ export const container = style({
   padding: vars.space.large,
 });
 
-export const scrollArea = style([s.baseScrollArea]);
+export const scrollArea = style([s.panelScrollArea]);
 
 export const listHeader = style([s.baseListHeader, {
   display: 'flex',

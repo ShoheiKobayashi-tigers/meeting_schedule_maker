@@ -26,7 +26,7 @@ export const label = style({
 
 export const value = style({
   fontSize: '1.1rem',
-  color: vars.color.textMain,
+  color: vars.color.textPrimary,
   fontWeight: '500',
 });
 
@@ -79,7 +79,7 @@ export const dateBadge = style({
   backgroundColor: '#edf2f7',
   padding: '4px 8px',
   borderRadius: '4px',
-  color: vars.color.textMain,
+  color: vars.color.textPrimary,
   width: 'fit-content',
 });
 

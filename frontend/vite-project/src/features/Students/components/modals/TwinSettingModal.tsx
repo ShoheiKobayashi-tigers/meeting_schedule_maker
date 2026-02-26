@@ -98,9 +98,9 @@ export const TwinSettingModal: React.FC<Props> = ({
         </div>
 
         <div className={s.footer}>
-          <Button variant="cancel" onClick={onClose}>キャンセル</Button>
+          <Button variant="outline" onClick={onClose}>キャンセル</Button>
           <Button 
-            variant="confirm" 
+            variant="primary" 
             onClick={handleConfirm} 
             disabled={!selectedTargetId}
           >

@@ -29,7 +29,7 @@ export const parseSlotId = (slotId: string) => {
  * @param {number} colIndex - 列インデックス
  * @returns {string} スロットID文字列 (例: 'slot-0-1')
  */
-export const createSlotId = (rowIndex, colIndex) => {
+export const createSlotId = (rowIndex: number, colIndex:number) => {
     return `slot-${rowIndex}-${colIndex}`;
 };
 
@@ -40,7 +40,7 @@ export const createSlotId = (rowIndex, colIndex) => {
  * @param {Array<Array<object | null>>} assignments スケジュール全体の割り当てデータ。
  * @returns {{rowIndex: number, colIndex: number} | null} 位置情報、見つからなかった場合は null。
  */
-export const findSlotByApplicantId = (applicantId, assignments) => {
+export const findSlotByApplicantId = (applicantId: string, assignments: any) => {
     if (!assignments) {
         return null;
     }

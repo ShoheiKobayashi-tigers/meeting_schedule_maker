@@ -15,7 +15,7 @@ export const table = style({
   tableLayout: 'fixed', // 列幅を安定させる
 });
 
-export const title = s.basePanelTitle;
+export const title = s.panelTitle;
 
 export const tableWrapper = style({
   overflowX: 'auto',

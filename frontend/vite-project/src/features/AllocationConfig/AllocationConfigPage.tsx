@@ -38,7 +38,7 @@ export const AllocationConfigPage: React.FC = () => {
   };
 
   return (
-    <div className={s.container} style={{ height: '100%', margin: '0 auto', border: 'none', boxShadow: 'none' }}>
+    <div className={s.container}>
         
         {/* ヘッダー */}
         <header className={s.header}>
@@ -187,7 +187,7 @@ export const AllocationConfigPage: React.FC = () => {
         
       {/* ★ 新設: 画面下部に「保存して次へ」ボタンを配置 */}
       <div style={{ padding: '24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center' }}>
-        <Button variant="confirm" onClick={() => setActiveSubStep('4-2')}>
+        <Button variant="primary" onClick={() => setActiveSubStep('4-2')}>
           設定を保存して、スケジュールの割り当てへ進む
         </Button>
       </div>

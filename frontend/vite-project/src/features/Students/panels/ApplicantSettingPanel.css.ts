@@ -2,14 +2,9 @@ import { style } from '@vanilla-extract/css';
 import { vars } from '../../../styles/vars.css';
 import * as s from '../../../styles/layout.css';
 
-export const container = style({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-  padding: vars.space.large,
-});
+export const container = s.basePanelCard;
 
-export const title = s.basePanelTitle;
+export const title = s.panelTitle;
 
 export const scrollArea = style({
   flex: 1,
@@ -49,7 +44,7 @@ export const studentName = style({
 
 export const studentId = style({
   fontSize: '0.85rem',
-  color: vars.color.textMain,
+  color: vars.color.textPrimary,
 });
 
 export const actionButtonGroup = style({

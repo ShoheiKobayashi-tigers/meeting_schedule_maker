@@ -62,7 +62,7 @@ export const ImportStudentModal: React.FC = () => {
           <p className={s.description}>
             「苗字」「名前」「出席番号」を入力したExcelを作成してください。
           </p>
-          <Button variant='edit' onClick={downloadTemplate} >
+          <Button variant="outline" onClick={downloadTemplate} >
             ひな形をダウンロード
           </Button>
         </div>
@@ -111,11 +111,11 @@ export const ImportStudentModal: React.FC = () => {
 
         {/* ボタンエリア */}
         <div className={s.footer}>
-          <Button variant='cancel' onClick={handleClose}>
+          <Button variant="outline" onClick={handleClose}>
             キャンセル
           </Button>
           <Button 
-            variant='add' 
+            variant="primary" 
             onClick={handleConfirm} 
             disabled={previewData.length === 0}
           >

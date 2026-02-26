@@ -71,7 +71,7 @@ export const SiblingSettingPanel: React.FC = () => {
     <div className={s.container}>
       <div className={s.listHeader}>
         <h3 className={s.title}>兄弟設定</h3>
-        <Button variant="add" onClick={handleAddStart}>新規追加</Button>
+        <Button variant="primary" onClick={handleAddStart}>新規追加</Button>
       </div>
       <div className = {s.listHeader}>
         <SelectField 
@@ -92,8 +92,8 @@ export const SiblingSettingPanel: React.FC = () => {
                 </div>
               </div>
               <div className={s.actionButtonGroup}>
-                <Button variant="edit" onClick={() => handleEditStart(sib.id!)}>編集</Button>
-                <Button variant="delete" onClick={() => {
+                <Button variant="outline" onClick={() => handleEditStart(sib.id!)}>編集</Button>
+                <Button variant="danger" onClick={() => {
                   openConfirmationModal({
                     title: '兄弟の削除',
                     message: `${sib.family_name} ${sib.first_name} を削除しますか？`,

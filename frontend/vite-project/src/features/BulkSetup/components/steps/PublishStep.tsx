@@ -2,6 +2,7 @@
 import React from 'react';
 import { useAppStore } from '../../../../store/useAppStore';
 import { useCloudSync } from '../../hooks/useCloudSync';
+import { Button } from '../../../../components/ui/Button/Button';
 import { GuardianLoginView } from '../../../ParentForm/components/GuardianLoginView';
 import * as s from './PublishStep.css';
 
@@ -144,17 +145,15 @@ export const PublishStep: React.FC = () => {
 
             <div className={s.controlGroup} style={{ justifyContent: 'flex-end' }}>
               {/* 同期ボタン */}
-              <button onClick={handleSync} disabled={loading} className={s.syncButton}>
+              <Button variant="primary" onClick={handleSync} disabled={loading}>
                 {loading ? '処理中...' : workspaceId ? '設定を更新して同期' : 'クラウドへ同期して公開'}
-              </button>
+              </Button>
 
-              {/* 取り込みボタン */}
               {workspaceId && (
-                <button onClick={handlePull} disabled={loading} className={s.pullButton}>
+                <Button variant="outline" onClick={handlePull} disabled={loading}>
                   最新の回答を取り込む
-                </button>
-              )}
-              
+                </Button>
+              )}              
               {syncError && <p className={s.errorText}>エラー: {syncError}</p>}
             </div>
           </div>

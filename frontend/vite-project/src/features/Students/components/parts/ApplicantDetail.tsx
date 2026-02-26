@@ -68,13 +68,13 @@ export const ApplicantDetail: React.FC<Props> = ({ applicant, assignmentText, on
       </section>
 
       <div className={s.buttonGroup}>
-        <Button variant="edit" onClick={onEdit} style={{ flex: 1 }}>
+        <Button variant="outline" onClick={onEdit} style={{ flex: 1 }}>
           編集する
         </Button>
       </div>
 
       <div className={s.deleteSection}>
-        <Button variant="delete" onClick={onDelete}>
+        <Button variant="danger" onClick={onDelete}>
           生徒情報を削除
         </Button>
       </div>

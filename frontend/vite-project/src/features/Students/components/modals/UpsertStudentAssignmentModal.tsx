@@ -1,6 +1,5 @@
 // src/features/Students/components/modals/UpsertStudentAssignmentModal.tsx
-import React, { useState, useMemo } from 'react';
-import { useAppStore } from '../../../../store/useAppStore';
+import React, { useState } from 'react';
 import { useProcessedSchedule } from '../../../../hooks/useProcessedSchedule';
 import { ScheduleBaseTable, GridCell } from '../../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { Button } from '../../../../components/ui/Button/Button';
@@ -73,8 +72,8 @@ export const UpsertStudentAssignmentModal: React.FC<Props> = ({
           />
         </div>
         <div className={s.footer}>
-          <Button variant="cancel" onClick={onClose}>戻る</Button>
-          <Button variant="confirm" onClick={handleSaveClick}>設定する</Button>
+          <Button variant="outline" onClick={onClose}>戻る</Button>
+          <Button variant="primary" onClick={handleSaveClick}>設定する</Button>
         </div>
       </div>
     </div>

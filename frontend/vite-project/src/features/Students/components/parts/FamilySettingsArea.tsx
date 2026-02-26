@@ -38,7 +38,7 @@ export const FamilySettingsArea: React.FC<Props> = ({
         {/* 設定ボタン */}
         <Button 
           type="button" 
-          variant="edit" 
+          variant="outline" 
           onClick={() => setIsTwinModalOpen(true)}
           style={{ fontSize: '11px', padding: '4px 8px', height: 'auto', minHeight: '0' }}
         >

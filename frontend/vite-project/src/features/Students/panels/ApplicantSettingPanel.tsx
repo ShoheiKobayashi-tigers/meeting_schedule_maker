@@ -58,7 +58,7 @@ export const ApplicantSettingPanel: React.FC = () => {
       <div className={s.container}>
         <div className={s.listHeader}>
           <h3 className={s.title}>生徒詳細</h3>
-          <Button variant="cancel" onClick={handleBack}>戻る</Button>
+          <Button variant="outline" onClick={handleBack}>戻る</Button>
         </div>
         <ApplicantDetail 
           applicant={selectedApplicant}
@@ -76,8 +76,8 @@ export const ApplicantSettingPanel: React.FC = () => {
       <div className={s.listHeader}>
         <h3 className={s.title}>生徒一覧</h3>
         <div className={s.actionButtonGroup}>
-          <Button variant='edit' onClick={() => { setImportStudentModalOpen(true); }}>児童一括登録</Button>
-          <Button variant="add" onClick={() => { setSelectedId(null); setMode('add'); }}>新規追加</Button>
+          <Button variant="outline" onClick={() => { setImportStudentModalOpen(true); }}>児童一括登録</Button>
+          <Button variant="primary" onClick={() => { setSelectedId(null); setMode('add'); }}>新規追加</Button>
         </div>
       </div>
       <div className={s.scrollArea}>
@@ -98,9 +98,9 @@ export const ApplicantSettingPanel: React.FC = () => {
                 <div className={s.assignmentDetail}>{student.assignmentText}</div>
               </div>
               <div className={s.actionButtonGroup} onClick={(e) => e.stopPropagation()}>
-                <Button variant="edit" onClick={() => { setSelectedId(student.id!); setMode('edit'); }}>編集</Button>
+                <Button variant="outline" onClick={() => { setSelectedId(student.id!); setMode('edit'); }}>編集</Button>
                 <Button 
-                    variant="delete" 
+                    variant="danger" 
                     onClick={() => { handleDelete(student.id!, `${student.family_name} ${student.first_name}`)}}
                   >
                     削除

@@ -76,17 +76,17 @@ export const AutoAssignConfirmModal: React.FC = () => {
 
         <div className={s.actions}>
           <Button
-            variant="cancel"
+            variant="outline"
             onClick={() => setAutoAssignConfirmModalOpen(false, null)}
           >
             キャンセル
           </Button>
           {!result.success && (
-            <Button variant="edit" onClick={handleOpenConfig}>
+            <Button variant="outline" onClick={handleOpenConfig}>
               詳細設定を見直す
             </Button>
           )}
-          <Button variant="confirm" onClick={handleApply}>
+          <Button variant="primary" onClick={handleApply}>
             この結果を適用する
           </Button>
         </div>

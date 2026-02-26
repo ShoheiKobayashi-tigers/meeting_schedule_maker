@@ -1,5 +1,12 @@
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../styles/vars.css';
+import * as s from '../../styles/layout.css'
+
+export const container = style([s.basePanelCard]);
+export const header = style([s.panelHeader]);
+export const title = style([s.panelTitle]);
+// 余白ありのスクロールエリアを適用
+export const mainContent = style([s.panelScrollArea]);
 
 export const overlay = style({
   position: 'fixed',
@@ -13,48 +20,10 @@ export const overlay = style({
   flexDirection: 'column',
 });
 
-// コンテンツを中央寄せにしつつ、最大幅を設ける
-export const container = style({
-  width: '100%',
-  maxWidth: '1200px',
-  margin: '0 auto',
-  padding: '32px',
-  boxSizing: 'border-box',
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%', // 画面いっぱいに使う
-});
-
-export const header = style({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'end',
-  marginBottom: '24px',
-  borderBottom: `1px solid ${vars.color.border}`,
-  paddingBottom: '16px',
-});
-
-export const title = style({
-  fontSize: '24px',
-  fontWeight: 'bold',
-  color: vars.color.textPrimary,
-  margin: '0 0 8px 0',
-});
-
 export const description = style({
   fontSize: '14px',
   color: vars.color.textSecondary,
   margin: 0,
-});
-
-export const mainContent = style({
-  flex: 1,
-  overflowY: 'auto', // ここだけスクロールさせる
-  backgroundColor: '#fff',
-  borderRadius: '10px',
-  border: `1px solid ${vars.color.border}`,
-  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-  paddingRight: '2.5px'
 });
 
 // 全体設定エリア

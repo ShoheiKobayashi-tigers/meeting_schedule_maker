@@ -1,5 +1,4 @@
 // src/features/Main/Main.tsx
-import React from 'react';
 import * as s from './Main.css.ts'; // さっき作ったスタイル
 import { ScheduleTablePanel } from './panels/ScheduleTablePanel.tsx';
 import { ApplicantListPanel } from './panels/ApplicantListPanel.tsx';

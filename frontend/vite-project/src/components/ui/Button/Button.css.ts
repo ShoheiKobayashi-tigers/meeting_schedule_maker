@@ -7,7 +7,7 @@ export const baseButton = style({
   justifyContent: 'center',
   gap: vars.space.small,
   padding: '8px 16px',
-  borderRadius: '6px',
+  borderRadius: vars.borderRadius.medium, // ★直書きの6pxからvarsに変更
   fontSize: '0.875rem',
   fontWeight: 600,
   cursor: 'pointer',
@@ -22,37 +22,40 @@ export const baseButton = style({
 });
 
 export const variant = styleVariants({
-  add: {
+  primary: {
     backgroundColor: vars.color.primary,
-    color: 'white',
-    ':hover': { opacity: 0.9 },
+    color: vars.color.white,
+    ':hover': { backgroundColor: vars.color.primaryHover },
   },
-  confirm: {
-    backgroundColor: vars.color.primary,
-    color: 'white',
-    ':hover': { opacity: 0.9 },
+  secondary: {
+    backgroundColor: vars.color.hoverGray,
+    color: vars.color.textPrimary,
+    ':hover': { backgroundColor: vars.color.border },
   },
-  edit: {
-    backgroundColor: 'white',
-    color: vars.color.textMain,
+  outline: {
+    backgroundColor: vars.color.white,
+    color: vars.color.textPrimary,
     borderColor: vars.color.border,
     ':hover': { backgroundColor: vars.color.hoverGray },
   },
-  cancel: {
-    backgroundColor: 'white',
-    color: vars.color.textMuted,
-    borderColor: vars.color.border,
-    ':hover': { backgroundColor: vars.color.hoverGray },
-  },
-  delete: {
-    backgroundColor: 'white',
-    color: '#E53E3E', // Danger Red
-    borderColor: '#E53E3E',
+  danger: {
+    backgroundColor: vars.color.white,
+    color: vars.color.danger,
+    borderColor: vars.color.danger,
     ':hover': { 
       backgroundColor: '#FFF5F5',
-      borderColor: '#C53030'
+      borderColor: vars.color.dangerHover,
+      color: vars.color.dangerHover,
     },
   },
+  ghost: {
+    backgroundColor: 'transparent',
+    color: vars.color.textSecondary,
+    ':hover': {
+      backgroundColor: vars.color.hoverGray,
+      color: vars.color.textPrimary,
+    }
+  }
 });
 
 // アイコン専用のサイズ調整など

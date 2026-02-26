@@ -6,7 +6,7 @@ import { getApplicantById } from './applicantUtils.ts';
 // -------------------------------------------------------------------------
 // 1. 基本パーツ（変更なし）
 // -------------------------------------------------------------------------
-export const isPreferred = (applicant: Applicant, slotName: string): boolean => {
+export const isPreferred = (applicant: Applicant | undefined | null, slotName: string): boolean => {
     if (!applicant || !applicant.preferred_dates) {
         return false;
     }

@@ -25,7 +25,7 @@ export const field = style({
 export const label = style({
   fontSize: '0.875rem',
   fontWeight: 'bold',
-  color: vars.color.textMain,
+  color: vars.color.textPrimary,
 });
 
 

@@ -215,25 +215,6 @@ export const primaryButton = style({
   }
 });
 
-export const syncButton = style([s.baseButton, {
-  width: '100%',
-  backgroundColor: vars.color.primary,
-  color: 'white'
-}]);
-
-export const pullButton = style([s.baseButton, {
-  width: '100%',
-  backgroundColor: '#fff',
-  color: vars.color.primary,
-  border: `2px solid ${vars.color.primary}`,
-  boxShadow: 'none',
-  ':hover': {
-    backgroundColor: '#f0f9ff',
-    opacity: 1,
-    transform: 'translateY(-1px)',
-  }
-}]);
-
 export const errorText = style({
   color: '#ef4444',
   fontSize: '13px',

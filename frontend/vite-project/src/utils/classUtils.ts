@@ -7,7 +7,7 @@
  * @param {string} classNumber 組 (例: "1")
  * @returns {string} クラス名のフル文字列 (例: "5年1組")
  */
-export const combineClass = (grade, classNumber) => {
+export const combineClass = (grade: any, classNumber: any) => {
     const trimmedGrade = grade ? String(grade).trim() : '';
     const trimmedClassNumber = classNumber ? String(classNumber).trim() : '';
 
@@ -25,7 +25,7 @@ export const combineClass = (grade, classNumber) => {
  * @param {string} className - 例: '5年1組'
  * @returns {{grade: string, classNumber: string}} 学年と組のオブジェクト
  */
-export const splitClass = (className) => {
+export const splitClass = (className: any) => {
     if (!className) {
         return { grade: '', classNumber: '' };
     }

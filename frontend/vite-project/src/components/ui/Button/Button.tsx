@@ -2,7 +2,13 @@
 import React from 'react';
 import * as s from './Button.css';
 
-type ButtonVariant = 'add' | 'edit' | 'delete' | 'confirm' | 'cancel';
+// 提案するButtonVariant
+type ButtonVariant = 
+  | 'primary'   // 最も目立たせるメインアクション（青背景・白文字）。旧: add, confirm
+  | 'secondary' // サブアクション（薄いグレー背景）。目立たせたくないけど枠は欲しい時
+  | 'outline'   // 枠線のみのアクション（白背景・色付き枠）。旧: edit, cancel
+  | 'danger'    // 危険な操作（赤背景 または 白背景＋赤文字）。旧: delete
+  | 'ghost';    // 背景も枠線もないテキストだけのボタン（ホバーで少しグレーになる）
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -11,7 +17,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button: React.FC<ButtonProps> = ({ 
-  variant = 'confirm', 
+  variant = 'primary', 
   leftIcon, 
   children, 
   className, 

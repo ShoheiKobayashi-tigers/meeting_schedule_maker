@@ -116,7 +116,7 @@ export const SiblingForm: React.FC<Props> = ({
             <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>未選択</span>
           )}
         </div>
-        <Button type="button" variant="edit" onClick={() => setIsModalOpen(true)}>
+        <Button type="button" variant="outline" onClick={() => setIsModalOpen(true)}>
           割当枠を選択する
         </Button>
       </div>
@@ -131,8 +131,8 @@ export const SiblingForm: React.FC<Props> = ({
       />
 
       <div className={s.buttonGroup}>
-        <Button variant="cancel" onClick={onCancel} type="button">キャンセル</Button>
-        <Button variant="confirm" type="submit" disabled={isSubmitting}>{submitLabel}</Button>
+        <Button variant="outline" onClick={onCancel} type="button">キャンセル</Button>
+        <Button variant="primary" type="submit" disabled={isSubmitting}>{submitLabel}</Button>
       </div>
     </form>
   );

@@ -7,7 +7,7 @@ export const panelContainer = style({
   overflowX: 'auto',
 });
 
-export const panelTitle = s.basePanelTitle;
+export const panelTitle = s.panelTitle;
 
 export const scrollWrapper = style({
     overflow: 'auto', // 縦横両方のスクロールに対応

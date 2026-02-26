@@ -122,15 +122,15 @@ export const ManualInputModal: React.FC<Props> = ({
 
          {/* フッター： 左(前へ)・中央(閉じる)・右(次へ) */}
          <div className={s.footer}>
-           <Button variant="confirm" onClick={handlePrev} disabled={!hasPrev}>
+           <Button variant="primary" onClick={handlePrev} disabled={!hasPrev}>
              ◀ 前の児童
            </Button>
            
-           <Button variant="cancel" onClick={handleClose}>
+           <Button variant="outline" onClick={handleClose}>
              一覧に戻る
            </Button>
            
-           <Button variant="confirm" onClick={handleNext} disabled={!hasNext}>
+           <Button variant="primary" onClick={handleNext} disabled={!hasNext}>
              次の児童 ▶
            </Button>
          </div>

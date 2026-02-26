@@ -68,7 +68,7 @@ export const listItem = style({
     borderBottom: 'none',
   },
   ':hover': {
-    backgroundColor: vars.color.backgroundHover,
+    backgroundColor: vars.color.hoverGray,
   },
 });
 

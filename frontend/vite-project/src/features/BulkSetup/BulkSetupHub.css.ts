@@ -52,14 +52,14 @@ export const stepItem = style({
   transition: 'all 0.2s ease',
   borderLeft: '4px solid transparent',
   ':hover': {
-    backgroundColor: vars.color.backgroundHover,
+    backgroundColor: vars.color.hoverGray,
   },
 });
 
 export const stepItemActive = style([
   stepItem,
   {
-    backgroundColor: vars.color.backgroundActive, // ほんのり色をつける
+    backgroundColor: vars.color.border, // ほんのり色をつける
     borderLeft: `4px solid ${vars.color.primary}`, // 左端にアクセントカラー
     fontWeight: 'bold',
   }
@@ -99,7 +99,7 @@ export const closeButton = style({
   fontSize: '14px',
   transition: 'all 0.2s',
   ':hover': {
-    backgroundColor: vars.color.backgroundHover,
+    backgroundColor: vars.color.hoverGray,
     borderColor: vars.color.textSecondary,
   },
 });
