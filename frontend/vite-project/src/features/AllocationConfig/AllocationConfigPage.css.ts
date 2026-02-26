@@ -1,56 +1,44 @@
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../styles/vars.css';
-import * as s from '../../styles/layout.css'
 
-export const container = style([s.basePanelCard]);
-export const header = style([s.panelHeader]);
-export const title = style([s.panelTitle]);
-// 余白ありのスクロールエリアを適用
-export const mainContent = style([s.panelScrollArea]);
-
-export const overlay = style({
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  backgroundColor: '#fff',
-  zIndex: 2000,
-  display: 'flex',
-  flexDirection: 'column',
-});
+// ※ container, header, title, mainContent, overlay等の骨格定義は削除しました
 
 export const description = style({
-  fontSize: '14px',
+  fontSize: '0.875rem',
   color: vars.color.textSecondary,
-  margin: 0,
+  margin: `${vars.space.small} 0 0 0`,
+  lineHeight: '1.5',
 });
 
-// 全体設定エリア
+// 全体設定エリア（スクロール外の固定領域にするため sticky を外しました）
 export const globalSettings = style({
-  padding: '20px',
+  padding: `${vars.space.small} ${vars.space.large}`,
   backgroundColor: '#f8fafc',
   borderBottom: `1px solid ${vars.color.border}`,
   display: 'flex',
   alignItems: 'center',
-  gap: '16px',
-  position: 'sticky',
-  top: 0,
-  zIndex: 20,
+  gap: vars.space.medium,
+  flexShrink: 0, // 画面が小さくても潰れないようにする
 });
 
 export const settingLabel = style({
   fontWeight: 'bold',
-  fontSize: '14px',
-  color: '#334155',
+  fontSize: '0.9rem',
+  color: vars.color.textPrimary,
 });
 
 export const select = style({
-  padding: '8px 12px',
-  borderRadius: '6px',
+  padding: '6px 12px',
+  borderRadius: vars.borderRadius.small,
   border: `1px solid ${vars.color.border}`,
-  fontSize: '14px',
+  fontSize: '0.9rem',
   cursor: 'pointer',
+  backgroundColor: vars.color.white,
+});
+
+export const helpText = style({
+  fontSize: '0.75rem',
+  color: vars.color.textSecondary,
 });
 
 // テーブルエリア
@@ -61,28 +49,28 @@ export const table = style({
 
 export const th = style({
   position: 'sticky',
-  top: '74px', // globalSettings の高さ分下げる
+  top: 0, // ★ 全体設定を外に出したので、0px でピタッと止まるようになりました！
   backgroundColor: '#f1f5f9',
-  padding: '12px 16px',
-  textAlign: 'left',
-  fontSize: '13px',
+  padding: vars.space.small,
+  textAlign: 'center',
+  fontSize: '0.85rem',
   fontWeight: 'bold',
-  color: '#475569',
+  color: vars.color.textSecondary,
   borderBottom: `2px solid ${vars.color.border}`,
   zIndex: 10,
 });
 
 export const tr = style({
-  borderBottom: '1px solid #e2e8f0',
+  borderBottom: `1px solid ${vars.color.border}`,
   ':hover': {
     backgroundColor: '#f8fafc',
   },
 });
 
 export const td = style({
-  padding: '12px 16px',
-  fontSize: '14px',
-  color: '#334155',
+  padding: vars.space.medium,
+  fontSize: '0.9rem',
+  color: vars.color.textPrimary,
   verticalAlign: 'middle',
 });
 
@@ -92,7 +80,7 @@ export const checkCell = style({
   cursor: 'pointer',
   transition: 'background-color 0.2s',
   ':hover': {
-    backgroundColor: '#e2e8f0', // デフォルトホバー
+    backgroundColor: '#e2e8f0', 
   },
 });
 
@@ -104,10 +92,20 @@ export const checkbox = style({
 
 export const nameCell = style({
   display: 'flex',
-  flexDirection: 'column',
+  gap: '2px',
 });
 
 export const studentId = style({
-  fontSize: '11px',
-  color: '#94a3b8',
+  fontSize: '0.75rem',
+  color: vars.color.textMuted,
+});
+
+// 画面下部のボタンエリア用
+export const footer = style({
+  padding: `${vars.space.small} ${vars.space.large} ${vars.space.medium}`,
+  borderTop: `1px solid ${vars.color.border}`,
+  display: 'flex',
+  justifyContent: 'center',
+  backgroundColor: vars.color.white,
+  flexShrink: 0,
 });

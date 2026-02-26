@@ -3,6 +3,7 @@ import React from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { Button } from '../../components/ui/Button/Button';
 import * as s from './AllocationConfigPage.css';
+import * as layout from '../../styles/layout.css';
 
 export const AllocationConfigPage: React.FC = () => {
   // Store から必要な値を取得
@@ -38,56 +39,53 @@ export const AllocationConfigPage: React.FC = () => {
   };
 
   return (
-    <div className={s.container}>
+    <div className={layout.basePanelCard}>
         
-        {/* ヘッダー */}
-        <header className={s.header}>
-          <div>
-            <h2 className={s.title}>自動割り当て詳細設定</h2>
-            <p className={s.description}>
-              次回の自動割り当て実行時に優先的に考慮される「全体ルール」と「個別ルール」を設定します。<br/>
-              ※ここでチェックを入れた生徒の条件が優先されますが、枠の状況によっては必ずしも希望通りにならない場合があります。
-            </p>
-          </div>
-        </header>
+        {/* 1. 固定領域：タイトルと説明 */}
+        <div className={layout.panelHeader} style={{ flexDirection: 'column', alignItems: 'flex-start', paddingBottom: '16px' }}>
+          <h2 className={layout.panelTitle}>自動割り当て詳細設定</h2>
+          <p className={s.description}>
+            次回の自動割り当て実行時に優先的に考慮される「全体ルール」と「個別ルール」を設定します。<br/>
+            ※ここでチェックを入れた生徒の条件が優先されますが、枠の状況によっては必ずしも希望通りにならない場合があります。
+          </p>
+        </div>
 
-        {/* メインコンテンツ（スクロール領域） */}
-        <div className={s.mainContent}>
-          
-          {/* 1. 全体ルール設定エリア */}
-          <div className={s.globalSettings}>
-            <span className={s.settingLabel}>👨‍👩‍👧‍👦 兄弟・双子の配置間隔ルール:</span>
-            <select 
-              className={s.select}
-              value={autoAssignmentConfig.sibling_slot_gap} // ★Storeの値を反映
-              onChange={(e) => setAutoAssignmentConfig({sibling_slot_gap: Number(e.target.value)})}
-            >
-              <option value={1}>連続（待ち時間なし）</option>
-              <option value={2}>待ち時間 1枠分まで許可 (推奨)</option>
-              <option value={3}>待ち時間 2枠分まで許可</option>
-              <option value={4}>待ち時間 3枠分まで許可</option>
-              <option value={99}>制限なし（同じ日ならOK）</option>
-            </select>
-            <span style={{ fontSize: '12px', color: '#64748b' }}>
-              ※同じ家族設定を持つ児童同士の割り当て間隔を制御します。
-            </span>
-          </div>
+        {/* 2. 固定領域：全体ルール設定エリア */}
+        <div className={s.globalSettings}>
+          <span className={s.settingLabel}>👨‍👩‍👧‍👦 兄弟・双子の配置間隔ルール:</span>
+          <select 
+            className={s.select}
+            value={autoAssignmentConfig.sibling_slot_gap}
+            onChange={(e) => setAutoAssignmentConfig({sibling_slot_gap: Number(e.target.value)})}
+          >
+            <option value={1}>連続（待ち時間なし）</option>
+            <option value={2}>待ち時間 1枠分まで許可 (推奨)</option>
+            <option value={3}>待ち時間 2枠分まで許可</option>
+            <option value={4}>待ち時間 3枠分まで許可</option>
+            <option value={99}>制限なし（同じ日ならOK）</option>
+          </select>
+          <span className={s.helpText}>
+            ※同じ家族設定を持つ児童同士の割り当て間隔を制御します。
+          </span>
+        </div>
 
-          {/* 2. 個別ルール設定テーブル */}
+        {/* 3. スクロール領域：個別ルール設定テーブル */}
+        {/* テーブルが端まで綺麗に広がるように padding: 0 を指定 */}
+        <div className={layout.panelScrollArea} style={{ padding: 0 }}>
           <table className={s.table}>
             <thead>
               <tr>
-                <th className={s.th} style={{ width: '60px' }}>No.</th>
-                <th className={s.th}>氏名 / 学籍番号</th>
-                <th className={s.th} style={{ textAlign: 'center' }}>
+                <th className={s.th} style={{ width: '100px' }}>出席番号</th>
+                <th className={s.th} style={{ textAlign: 'left'}}>氏名</th>
+                <th className={s.th} style={{ width: '130px' }}>
                   📌 固定<br/>
                   <span style={{fontWeight:'normal', fontSize:'10px'}}>現在位置から動かさない</span>
                 </th>
-                <th className={s.th} style={{ textAlign: 'center' }}>
+                <th className={s.th} style={{ width: '130px'}}>
                   🔚 トリ<br/>
                   <span style={{fontWeight:'normal', fontSize:'10px'}}>その日の最後に配置</span>
                 </th>
-                <th className={s.th} style={{ textAlign: 'center' }}>
+                <th className={s.th} style={{ width: '130px'}}>
                   ☕ 休憩<br/>
                   <span style={{fontWeight:'normal', fontSize:'10px'}}>終了後に1枠空ける</span>
                 </th>
@@ -101,7 +99,7 @@ export const AllocationConfigPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                applicants.map((app, index) => {
+                applicants.map((app) => {
                   // ★この生徒が「他クラスの兄弟」または「同クラスの双子」を持っているか判定
                   const hasLinkedSibling = !!app.family_id && (
                     siblings.some(s => s.family_id === app.family_id) || 
@@ -113,11 +111,10 @@ export const AllocationConfigPage: React.FC = () => {
 
                   return (
                     <tr key={app.id} className={s.tr}>
-                      <td className={s.td}>{index + 1}</td>
+                      <td className={s.td} style={{textAlign: 'center'}}>{app.student_id}</td>
                       <td className={s.td}>
                         <div className={s.nameCell}>
                           <span style={{ fontWeight: 'bold' }}>{app.family_name} {app.first_name}</span>
-                          <span className={s.studentId}>{app.student_id}</span>
                           {hasLinkedSibling && (
                             <span style={{fontSize: '10px', color: '#ea580c', marginLeft: '8px'}}>※兄弟あり</span>
                           )}
@@ -185,12 +182,12 @@ export const AllocationConfigPage: React.FC = () => {
           </table>
         </div>
         
-      {/* ★ 新設: 画面下部に「保存して次へ」ボタンを配置 */}
-      <div style={{ padding: '24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'center' }}>
-        <Button variant="primary" onClick={() => setActiveSubStep('4-2')}>
-          設定を保存して、スケジュールの割り当てへ進む
-        </Button>
-      </div>
+        {/* 4. 固定領域：画面下部の「保存して次へ」ボタン */}
+        <div className={s.footer}>
+          <Button variant="primary" onClick={() => setActiveSubStep('4-2')}>
+            設定を保存して、スケジュールの割り当てへ進む
+          </Button>
+        </div>
 
     </div>
   );
