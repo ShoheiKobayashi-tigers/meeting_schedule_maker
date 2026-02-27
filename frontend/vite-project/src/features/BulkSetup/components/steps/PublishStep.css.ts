@@ -1,42 +1,13 @@
-// features/BulkSetup/components/steps/PublishStep.css.ts
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../../../styles/vars.css';
-import * as s from '../../../../styles/layout.css'
 
-export const container = style({
-  paddingBottom: '1300px',
-  margin: '0 auto',
-  height: '100%',
-  boxSizing: 'border-box',
-  fontFamily: 'sans-serif',
-});
+// layout.css.ts に任せる container, header, title 等は削除しました
 
-export const header = style({
-  marginBottom: '40px',
-  textAlign: 'left',
-  borderBottom: `1px solid ${vars.color.border}`,
-  paddingBottom: '24px',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'end',
-});
-
-export const title = style({
-  fontSize: '28px',
-  fontWeight: '800',
-  color: '#1e293b',
-  marginBottom: '12px',
-});
-
-export const statusSection = style({
-  marginBottom: '8px',
-});
-
-// レイアウトコンテナ
 export const layoutContainer = style({
   display: 'flex',
   flexDirection: 'column',
   gap: '40px',
+  paddingTop: '24px', // スクロールエリア内の上部余白
 });
 
 // 上段：編集とプレビュー
@@ -62,14 +33,14 @@ export const editColumn = style({
 export const sectionLabel = style({
   fontWeight: 'bold',
   fontSize: '16px',
-  color: '#334155',
+  color: vars.color.textPrimary,
   marginBottom: '8px',
 });
 
 export const messageTextarea = style({
   width: '100%',
   padding: '16px',
-  borderRadius: '12px',
+  borderRadius: vars.borderRadius.medium,
   border: `1px solid ${vars.color.border}`,
   fontSize: '15px',
   lineHeight: '1.7',
@@ -77,7 +48,7 @@ export const messageTextarea = style({
   minHeight: '400px',
   boxSizing: 'border-box',
   fontFamily: 'inherit',
-  backgroundColor: '#fff',
+  backgroundColor: vars.color.white,
   ':focus': {
     borderColor: vars.color.primary,
     outline: 'none',
@@ -100,7 +71,7 @@ export const phoneFrame = style({
   border: '14px solid #2d3748',
   borderRadius: '40px',
   overflow: 'hidden',
-  backgroundColor: '#fff',
+  backgroundColor: vars.color.white,
   boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)',
   position: 'relative',
 });
@@ -109,7 +80,7 @@ export const phoneScreen = style({
   width: '100%',
   height: '100%',
   overflowY: 'auto',
-  backgroundColor: '#fff',
+  backgroundColor: vars.color.white,
   paddingTop: '20px',
 });
 
@@ -117,7 +88,7 @@ export const phoneScreen = style({
 export const bottomSection = style({
   backgroundColor: '#f8fafc',
   padding: '32px',
-  borderRadius: '16px',
+  borderRadius: vars.borderRadius.medium,
   border: `1px solid ${vars.color.border}`,
 });
 
@@ -139,22 +110,13 @@ export const controlGroup = style({
   gap: '16px',
 });
 
-export const controlTitle = style({
-  fontSize: '18px',
-  fontWeight: 'bold',
-  margin: 0,
-  paddingBottom: '16px',
-  borderBottom: '1px solid #f1f5f9',
-  color: '#1e293b',
-});
-
 export const urlBox = style({
   padding: '12px 16px',
-  backgroundColor: '#fff',
-  borderRadius: '8px',
-  border: '1px solid #e2e8f0',
+  backgroundColor: vars.color.white,
+  borderRadius: vars.borderRadius.small,
+  border: `1px solid ${vars.color.border}`,
   fontSize: '14px',
-  color: '#334155',
+  color: vars.color.textPrimary,
   fontFamily: 'monospace',
   wordBreak: 'break-all',
 });
@@ -164,9 +126,9 @@ export const switchContainer = style({
   alignItems: 'center',
   gap: '16px',
   padding: '16px',
-  backgroundColor: '#fff',
-  borderRadius: '8px',
-  border: '1px solid #e2e8f0',
+  backgroundColor: vars.color.white,
+  borderRadius: vars.borderRadius.small,
+  border: `1px solid ${vars.color.border}`,
 });
 
 export const checkbox = style({
@@ -182,46 +144,13 @@ export const checkboxLabel = style({
   cursor: 'pointer',
 });
 
-export const statusBadgeText = style({
-  fontSize: '13px',
-  fontWeight: 'bold',
-  minWidth: '60px',
-  textAlign: 'right',
-});
-
-export const primaryButton = style({
-  width: '100%',
-  padding: '16px',
-  backgroundColor: '#0070f3',
-  color: 'white',
-  border: 'none',
-  borderRadius: '12px',
-  fontWeight: 'bold',
-  fontSize: '15px',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  boxShadow: '0 4px 6px rgba(0, 112, 243, 0.2)',
-  ':disabled': {
-    backgroundColor: '#94a3b8',
-    cursor: 'not-allowed',
-    boxShadow: 'none',
-  },
-  ':hover': {
-    transform: 'translateY(-1px)',
-    boxShadow: '0 6px 12px rgba(0, 112, 243, 0.3)',
-  },
-  ':active': {
-    transform: 'translateY(0)',
-  }
-});
-
 export const errorText = style({
-  color: '#ef4444',
+  color: vars.color.danger,
   fontSize: '13px',
   marginTop: '12px',
   padding: '8px',
   backgroundColor: '#fef2f2',
-  borderRadius: '6px',
+  borderRadius: vars.borderRadius.small,
   lineHeight: '1.5',
   border: '1px solid #fecaca',
 });

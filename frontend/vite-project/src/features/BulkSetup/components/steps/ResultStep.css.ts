@@ -1,58 +1,34 @@
 import { style } from "@vanilla-extract/css";
 import { vars } from "../../../../styles/vars.css";
-import * as s from "../../BulkSetupHub.css";
 
-export const container = style({
-  maxWidth: "1000px",
-  margin: "0 auto",
-  fontFamily: "sans-serif",
-});
-
-export const header = style({
-  marginBottom: "40px",
-  textAlign: "left",
-  borderBottom: `1px solid ${vars.color.border}`,
-  paddingBottom: "24px",
-});
-
-export const title = style({
-  fontSize: "28px",
-  fontWeight: "800",
-  color: "#1e293b",
-  marginBottom: "12px",
-});
-
-export const description = style({
-  color: "#64748b",
-  fontSize: "15px",
-  lineHeight: "1.6",
-});
+// layout.css.ts に任せる container, header, title, description 等は削除しました
 
 export const formGrid = style({
   display: "flex",
   flexDirection: "column",
   gap: "24px",
-  marginBottom: "48px",
+  marginBottom: "32px",
+  padding: `0 ${vars.space.large}`, // スクロールエリア内の左右余白
 });
 
 export const label = style({
   display: "flex",
   flexDirection: "column",
-  gap: "8px",
-  fontSize: "14px",
+  gap: vars.space.small,
+  fontSize: "0.9rem",
   fontWeight: "bold",
-  color: "#334155",
+  color: vars.color.textPrimary,
 });
 
 export const input = style({
   padding: "12px 16px",
-  borderRadius: "8px",
-  border: "1px solid #e2e8f0",
-  fontSize: "15px",
+  borderRadius: vars.borderRadius.small,
+  border: `1px solid ${vars.color.border}`,
+  fontSize: "1rem",
   width: "100%",
   boxSizing: "border-box",
   transition: "all 0.2s ease",
-  backgroundColor: "#fff",
+  backgroundColor: vars.color.white,
   ":focus": {
     outline: "none",
     borderColor: vars.color.primary,
@@ -69,9 +45,31 @@ export const textarea = style([
   },
 ]);
 
-// --- ダウンロードエリアのリッチ化 ---
-export const downloadArea = s.downloadArea;
-export const statusBadge = s.statusBadge;
-export const downloadIcon = s.downloadIcon;
-export const downloadTitle = s.downloadTitle;
-export const downloadButton = s.downloadButton;
+// --- ダウンロードエリア（BulkSetupHubへの依存を断ち切り、ここで独立定義） ---
+export const downloadArea = style({
+  backgroundColor: "#f8fafc",
+  borderRadius: vars.borderRadius.medium,
+  padding: "32px",
+  textAlign: "center",
+  margin: `0 ${vars.space.large} 32px`,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "16px",
+});
+
+export const statusBadge = style({
+  padding: "6px 16px",
+  borderRadius: "20px",
+  backgroundColor: vars.color.white,
+  color: "#0284c7",
+  fontSize: "0.85rem",
+  fontWeight: "800",
+  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+  display: "inline-block",
+});
+
+export const downloadIcon = style({
+  fontSize: "48px",
+  filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))",
+});

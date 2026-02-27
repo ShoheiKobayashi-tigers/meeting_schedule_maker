@@ -1,64 +1,36 @@
-// features/BulkSetup/components/steps/DocumentStep.css.ts
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../../../styles/vars.css';
-import * as s from '../../BulkSetupHub.css'
 
-export const container = style({
-  maxWidth: '1000px',
-  margin: '0 auto',
-  fontFamily: 'sans-serif',
-});
-
-export const header = style({
-  marginBottom: '40px',
-  textAlign: 'left', 
-  borderBottom: `1px solid ${vars.color.border}`,
-  paddingBottom: '24px',
-});
-
-export const title = style({
-  fontSize: '28px',
-  fontWeight: '800',
-  color: '#1e293b',
-  marginBottom: '12px',
-});
-
-export const description = style({
-  color: '#64748b',
-  fontSize: '15px',
-  lineHeight: '1.6',
-});
+// layout.css.ts に任せる container や header 等は削除しました
 
 export const formGrid = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '24px',
-  marginBottom: '48px',
-});
-export const column = style({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '24px',
+  gap: vars.space.large,
+  marginBottom: '32px',
+  padding: vars.space.large,
+  backgroundColor: vars.color.white,
+  borderBottom: `1px solid ${vars.color.border}`, // 次のエリアとの区切り
 });
 
 export const label = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: '8px',
-  fontSize: '14px',
+  gap: vars.space.small,
+  fontSize: '0.9rem',
   fontWeight: 'bold',
-  color: '#334155',
+  color: vars.color.textPrimary,
 });
 
 export const input = style({
   padding: '12px 16px',
-  borderRadius: '8px',
-  border: '1px solid #e2e8f0',
-  fontSize: '15px',
+  borderRadius: vars.borderRadius.small,
+  border: `1px solid ${vars.color.border}`,
+  fontSize: '1rem',
   width: '100%',
   boxSizing: 'border-box',
   transition: 'all 0.2s ease',
-  backgroundColor: '#fff',
+  backgroundColor: vars.color.white,
   ':focus': {
     outline: 'none',
     borderColor: vars.color.primary,
@@ -72,24 +44,39 @@ export const textarea = style([input, {
   minHeight: '120px',
 }]);
 
-// --- ダウンロードエリアのリッチ化 ---
-export const downloadArea = s.downloadArea;
-
-export const statusBadge = s.statusBadge
-
-export const downloadIcon = s.downloadIcon
-
-export const downloadTitle = s.downloadTitle
-
-export const downloadButton = s.downloadButton
-
-
-
-export const nextButtonWrapper = style({
-  textAlign: 'right',
-  paddingTop: '24px',
+// --- ダウンロードエリア ---
+export const downloadArea = style({
+  backgroundColor: '#f8fafc',
+  borderRadius: vars.borderRadius.medium,
+  padding: '32px',
+  textAlign: 'center',
+  margin: `0 ${vars.space.large} 32px`, // 左右に余白を持たせて配置
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '16px',
 });
 
-export const nextButton = style([s.baseButton, {
-  // 必要であれば個別の調整
-}]);
+export const statusBadge = style({
+  padding: '6px 16px',
+  borderRadius: '20px',
+  backgroundColor: vars.color.white,
+  color: '#0284c7', // 爽やかな青
+  fontSize: '0.85rem',
+  fontWeight: '800',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+  display: 'inline-block',
+});
+
+export const downloadIcon = style({
+  fontSize: '48px',
+  filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))',
+});
+
+export const footer = style({
+  padding: vars.space.large,
+  borderTop: `1px solid ${vars.color.border}`,
+  display: 'flex',
+  justifyContent: 'flex-end', // 右寄せ
+  backgroundColor: vars.color.white,
+});
