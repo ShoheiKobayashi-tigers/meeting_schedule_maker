@@ -7,7 +7,7 @@ export const guideMessage = style({
   color: vars.color.textSecondary,
   fontSize: '0.875rem',
   lineHeight: '1.4',
-  marginBottom: vars.space.medium,
+  margin: vars.space.xs,
 });
 
 export const actionArea = style({

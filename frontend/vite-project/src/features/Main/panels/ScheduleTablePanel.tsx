@@ -11,6 +11,7 @@ import { simulateAutoAssignment } from '../../../utils/autoAssignment';
 import { ScheduleBaseTable } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { Button } from '../../../components/ui/Button/Button';
 import * as s from './ScheduleTablePanel.css';
+import * as layout from '../../../styles/layout.css'
 
 export const ScheduleTablePanel: React.FC = () => {
   // === Storeからデータ(db)と状態(ui)を取得 ===
@@ -51,7 +52,7 @@ export const ScheduleTablePanel: React.FC = () => {
   // === ヘルパー関数 ===
   // 児童名を取得するロジック
   if (scheduleData.rows.length === 0 || scheduleData.cols.length === 0) {
-    return <div className={s.container}>枠が設定されていません。</div>;
+    return <div className={layout.basePanelCard}>枠が設定されていません。</div>;
   }
 
   // 兄弟情報をマップ化（表示用のラベルをキーにする）
@@ -67,10 +68,10 @@ export const ScheduleTablePanel: React.FC = () => {
   }, [siblings]);
 
   return (
-    <div className={s.container}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+    <div className={layout.basePanelCard}>
+      <div className={layout.panelHeader}>
         {/* titleクラスのマージンが邪魔をしてズレるのを防ぐため、margin: 0 を上書きしています */}
-        <h1 className={s.title} style={{ margin: 0 }}>
+        <h1 className={layout.panelTitle} style={{ margin: 0 }}>
           スケジュールボード
         </h1> 
         <Button variant="danger" onClick={handleClearAll}>
@@ -81,31 +82,33 @@ export const ScheduleTablePanel: React.FC = () => {
         </Button>
 
       </div>
-      <ScheduleBaseTable 
-        grid={grid}
-        renderCell={(cell, cellId) => {
-          const assignedSiblings = siblingMap[`${cell.colLabel} ${cell.rowLabel}`] || [];
-          const applicant = cell.assignment ? getApplicantById(cell.assignment, applicants) : undefined;
+      <div className={layout.panelScrollArea}>
+        <ScheduleBaseTable 
+          grid={grid}
+          renderCell={(cell, cellId) => {
+            const assignedSiblings = siblingMap[`${cell.colLabel} ${cell.rowLabel}`] || [];
+            const applicant = cell.assignment ? getApplicantById(cell.assignment, applicants) : undefined;
 
-          return (
-            <ScheduleSlot
-              applicantId={cell.assignment}
-              applicantName={applicant ? `${applicant.family_name} ${applicant.first_name}` : ''}
-              isDragging={draggingApplicantId === cell.assignment && !!cell.assignment}
-              assignedSiblings={assignedSiblings}
-              // useProcessedSchedule の string 型を ScheduleSlot の期待する型へ安全にキャスト
-              status={cell.status as any} 
-              hasError={!!(cell.assignment && cell.status === 'admin_block')}
-              onClick={() => handleSlotClick({ rowIndex: cell.rowIndex, colIndex: cell.colIndex })}
-              onDragStart={(e) => cell.assignment && handleDragStart(e, cell.assignment, cellId)}
-              onDragEnd={handleDragEnd}
-              onDragEnter={(e) => handleDragEnter(e, cellId)}
-              // useDnD.ts の定義に合わせて 3引数 (e, targetId, droppedOnId) で渡す
-              onDrop={(e) => handleDrop(e, cellId, null)}
-            />
-          );
-        }}
-      />
+            return (
+              <ScheduleSlot
+                applicantId={cell.assignment}
+                applicantName={applicant ? `${applicant.family_name} ${applicant.first_name}` : ''}
+                isDragging={draggingApplicantId === cell.assignment && !!cell.assignment}
+                assignedSiblings={assignedSiblings}
+                // useProcessedSchedule の string 型を ScheduleSlot の期待する型へ安全にキャスト
+                status={cell.status as any} 
+                hasError={!!(cell.assignment && cell.status === 'admin_block')}
+                onClick={() => handleSlotClick({ rowIndex: cell.rowIndex, colIndex: cell.colIndex })}
+                onDragStart={(e) => cell.assignment && handleDragStart(e, cell.assignment, cellId)}
+                onDragEnd={handleDragEnd}
+                onDragEnter={(e) => handleDragEnter(e, cellId)}
+                // useDnD.ts の定義に合わせて 3引数 (e, targetId, droppedOnId) で渡す
+                onDrop={(e) => handleDrop(e, cellId, null)}
+              />
+            );
+          }}
+        />
+      </div>
     </div>
   );
 };

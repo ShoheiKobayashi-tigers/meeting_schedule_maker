@@ -49,9 +49,9 @@ export const ApplicantListPanel: React.FC = () => {
             return `面談枠をクリックして「${name}」さんを割り当ててください。`;
         }
         if (draggingApplicantId) {
-            return `児童リストか面談枠にドロップをして割り当て/入れ替え/解除をしてください。`;
+            return `児童リストか面談枠にドロップして、移動させてください。`;
         }
-        return '児童または面談枠をクリックまたはドラッグしてください';
+        return '児童または面談枠を、クリックまたはドラッグしてください';
     };
 
     return (
@@ -60,13 +60,13 @@ export const ApplicantListPanel: React.FC = () => {
             onDragOver={handleDragOver}
         >
             {/* 1. 固定領域：ヘッダーとガイドメッセージ */}
-            <div className={layout.panelHeader}>
+            <div className={layout.panelHeader} style={{ flexDirection: 'column', alignItems: 'flex-start', paddingBottom: 0 }}>
                 <h2 className={layout.panelTitle}>
                     未割り当ての児童リスト
                 </h2>
-                <p className={s.guideMessage}>
+                <div className={s.guideMessage}>
                     {getGuideMessage()}
-                </p>
+                </div>
             </div>
 
             {/* 2. スクロール領域：児童リスト */}
