@@ -60,8 +60,8 @@ export const ApplicantListPanel: React.FC = () => {
             onDragOver={handleDragOver}
         >
             {/* 1. 固定領域：ヘッダーとガイドメッセージ */}
-            <div className={layout.panelHeader} style={{ flexDirection: 'column', alignItems: 'flex-start', borderBottom: 'none', paddingBottom: 0 }}>
-                <h2 className={layout.panelTitle} style={{ fontSize: '1.25rem', marginBottom: '8px' }}>
+            <div className={layout.panelHeader}>
+                <h2 className={layout.panelTitle}>
                     未割り当ての児童リスト
                 </h2>
                 <p className={s.guideMessage}>
@@ -70,7 +70,7 @@ export const ApplicantListPanel: React.FC = () => {
             </div>
 
             {/* 2. スクロール領域：児童リスト */}
-            <div className={layout.panelScrollArea} style={{ padding: '0 1.5rem' }}>
+            <div className={layout.panelScrollArea}>
                 {displayedApplicants.map((applicant) => {
                     // 1. IDがない場合は表示対象外とする（型ガード）
                     if (!applicant.id) return null;
