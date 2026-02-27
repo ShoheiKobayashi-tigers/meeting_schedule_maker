@@ -1,5 +1,6 @@
 // src/App.tsx
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { useAppStore } from './store/useAppStore';
 import { Navigation } from './components/Navigation';
 import { SettingMenu } from './components/ui/SettingMenu/SettingMenu';
@@ -36,14 +37,10 @@ import { ImportStudentModal } from './features/Students/components/modals/Import
 
 import * as layout from './styles/layout.css'
 
-export const App: React.FC = () => {
-    // 1. URLパスによる保護者用画面の判定
-    const path = window.location.pathname;
-    if (path.startsWith('/p/')) {
-        return <GuardianPortal />;
-    }
-
-    // 2. 先生用画面のステート取得
+// ----------------------------------------------------
+// 新設: 先生用のメイン画面を独立したコンポーネントにする
+// ----------------------------------------------------
+const TeacherApp: React.FC = () => {
     const workspaceId = useAppStore((state) => state.db.workspaceId);
     const { activeStep, activeSubStep, step3Mode } = useAppStore((state) => state.ui);
     const setActiveSubStep = useAppStore((state) => state.setActiveSubStep);
@@ -146,5 +143,20 @@ export const App: React.FC = () => {
             <ConfirmationModal />
             <AutoAssignConfirmModal/>
         </div>
+    );
+};
+
+// ----------------------------------------------------
+// アプリの根幹: URLに応じて表示する画面を切り替える
+// ----------------------------------------------------
+export const App: React.FC = () => {
+    return (
+        <Routes>
+            {/* "/p/〇〇" のURLにアクセスした場合は保護者画面を表示 */}
+            <Route path="/p/:workspaceId" element={<GuardianPortal />} />
+            
+            {/* それ以外のURL ("/" など) にアクセスした場合は先生画面を表示 */}
+            <Route path="/*" element={<TeacherApp />} />
+        </Routes>
     );
 };

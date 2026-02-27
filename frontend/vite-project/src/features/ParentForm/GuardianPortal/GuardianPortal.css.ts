@@ -1,78 +1,144 @@
-// features/ParentForm/GuardianPortal.css.ts
 import { style } from '@vanilla-extract/css';
 import { vars } from '../../../styles/vars.css';
 
-export const container = style({
-  minHeight: '100vh',
+// 画面全体（縦・横どちらでも画面いっぱいに広がる）
+export const pageContainer = style({
+  minHeight: '100dvh', // ★100vhではなく100dvhにすることでスマホブラウザのバーを考慮
+  backgroundColor: '#f1f5f9',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'stretch', // 横向き時に上下いっぱいまで広げる
+  fontFamily: 'sans-serif',
+});
+
+// メインのスマホサイズコンテナ
+export const mainContent = style({
+  width: '100%',
+  maxWidth: '600px', // iPad等で見ても広がりすぎないように
+  backgroundColor: vars.color.white,
+  display: 'flex',
+  flexDirection: 'column',
+  boxShadow: '0 0 20px rgba(0,0,0,0.05)',
+  // スマホ縦画面ではカードっぽく、横画面では全画面になるように調整
+  '@media': {
+    'screen and (min-width: 600px)': {
+      margin: '2vh auto',
+      borderRadius: vars.borderRadius.large,
+      overflow: 'hidden',
+    }
+  }
+});
+
+// ヘッダー（タイトルなど）
+export const header = style({
+  padding: '16px 20px',
+  backgroundColor: vars.color.white,
+  borderBottom: `1px solid ${vars.color.border}`,
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+  zIndex: 10,
+});
+
+export const headerTitle = style({
+  margin: 0,
+  fontSize: '1.1rem',
+  color: vars.color.textPrimary,
+});
+
+// 選択中の件数バッジ
+export const selectionBadge = style({
+  fontSize: '0.85rem',
+  color: vars.color.textSecondary,
+  backgroundColor: '#f1f5f9',
+  padding: '6px 12px',
+  borderRadius: '20px',
+});
+
+// サブヘッダー（説明文）
+export const subHeader = style({
+  padding: '12px 20px',
+  backgroundColor: '#f8fafc',
+  borderBottom: `1px solid ${vars.color.border}`,
+  fontSize: '0.85rem',
+  color: vars.color.textSecondary,
+  lineHeight: '1.5',
+});
+
+// テーブルやコンテンツが入るスクロール領域（flex: 1 で残りの高さをすべて埋める）
+export const scrollArea = style({
+  flex: 1,
+  overflow: 'auto', // ★ここがミソ。縦横どちらでも中身がはみ出たらスクロールする
+  padding: '16px',
+});
+
+// フッター（ボタンエリア）
+export const footer = style({
+  padding: '16px 20px',
+  backgroundColor: vars.color.white,
+  borderTop: `1px solid ${vars.color.border}`,
+  display: 'flex',
+  gap: '12px',
+  boxShadow: '0 -4px 6px rgba(0,0,0,0.02)',
+  zIndex: 10,
+});
+
+// --- テーブルのセルスタイル ---
+export const cellBase = style({
+  height: '100%',
+  width: '100%',
+  minHeight: '60px',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: '20px',
-  backgroundColor: '#f8f9fa',
+  borderRadius: '4px',
+  transition: 'all 0.2s ease',
+  userSelect: 'none',
 });
 
-export const card = style({
-  width: '100%',
-  maxWidth: '400px',
-  backgroundColor: '#fff',
-  padding: '32px',
-  borderRadius: '12px',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-});
+export const cellSelectable = style([cellBase, {
+  cursor: 'pointer',
+  backgroundColor: 'transparent',
+}]);
 
-export const schoolName = style({
-  fontSize: '14px',
-  color: '#666',
-  textAlign: 'center',
-  marginBottom: '8px',
-});
+export const cellSelected = style([cellBase, {
+  cursor: 'pointer',
+  backgroundColor: '#d1fae5',
+}]);
 
-export const title = style({
-  fontSize: '1.25rem',
-  fontWeight: 'bold',
-  textAlign: 'center',
-  marginBottom: '24px',
-  color: vars.color.textPrimary,
-});
+export const cellConfirmDisabled = style([cellBase, {
+  backgroundColor: '#f8fafc',
+  color: '#cbd5e1',
+  fontSize: '20px',
+}]);
 
-export const form = style({
+export const cellConfirmSelected = style([cellBase, {
+  backgroundColor: '#d1fae5',
+  border: '1px solid #10b981',
+}]);
+
+// --- セル内の要素 ---
+export const checkCircle = style({
+  width: '28px',
+  height: '28px',
+  borderRadius: '50%',
   display: 'flex',
-  flexDirection: 'column',
-  gap: '16px',
-});
-
-export const input = style({
-  padding: '16px',
-  fontSize: '24px',
-  textAlign: 'center',
-  letterSpacing: '0.5em',
-  border: `2px solid #ddd`,
-  borderRadius: '8px',
-  textTransform: 'uppercase',
-  ':focus': {
-    borderColor: vars.color.primary,
-    outline: 'none',
-  },
-});
-
-export const errorText = style({
-  color: '#e53e3e',
-  fontSize: '12px',
-  textAlign: 'center',
-});
-
-export const submitButton = style({
-  backgroundColor: vars.color.primary,
-  color: '#fff',
-  padding: '16px',
-  borderRadius: '8px',
-  border: 'none',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: vars.color.white,
   fontSize: '16px',
   fontWeight: 'bold',
-  cursor: 'pointer',
-  transition: 'opacity 0.2s',
-  ':disabled': {
-    opacity: 0.5,
-  },
+});
+
+// 完了画面のレイアウト
+export const completeContainer = style({
+  padding: '60px 20px',
+  textAlign: 'center',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flex: 1,
 });
