@@ -33,7 +33,7 @@ export const GuardianLoginView: React.FC<Props> = ({
       {hasInfo && (
         <div style={{ marginBottom: '32px' }}>
           <h1 className={s.infoTitle}>
-            <span style={{ fontSize: '1.2rem' }}>🗓️</span> {eventName}
+            {eventName}
           </h1>
           <h2 style={{ fontSize: '1rem', color: '#334155', margin: 0 }}>
             対象: {classNameStr} の保護者の皆様

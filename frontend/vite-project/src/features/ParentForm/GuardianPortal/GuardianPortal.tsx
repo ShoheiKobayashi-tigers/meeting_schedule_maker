@@ -7,7 +7,6 @@ import { GuardianLoginView } from '../components/GuardianLoginView';
 import { Button } from '../../../components/ui/Button/Button';
 
 import * as s from './GuardianPortal.css'; // ★ スタイルを適用
-import * as layout from '../../../styles/layout.css'
 
 // --- 型定義 ---
 interface VerifyResponse {
@@ -299,7 +298,7 @@ export const GuardianPortal: React.FC = () => {
         {/* 2. 日程選択画面 */}
         {currentStep === 'SELECT' && (
           <>
-            <header className={layout.panelHeader}>
+            <header className={s.header}>
               <h2 className={s.headerTitle}>希望日程入力</h2>
               <div className={s.selectionBadge}>
                 選択中: <strong style={{ color: '#0070f3', fontSize: '1rem' }}>{selections.length}</strong> 枠
@@ -324,11 +323,12 @@ export const GuardianPortal: React.FC = () => {
         {/* 3. 確認画面 */}
         {currentStep === 'CONFIRM' && (
           <>
-            <div className={layout.panelHeader} style={{ justifyContent: 'center', flexDirection: 'column' }}>
+            <div className={s.header}>
               <h2 className={s.headerTitle}>内容確認</h2>
-              <p style={{ margin: '8px 0 0', color: '#64748b', fontSize: '0.85rem' }}>以下の内容で送信します。</p>
             </div>
-
+            <div className={s.subHeader}>
+              以下の内容で送信します。
+            </div>
             <div className={s.scrollArea}>
               <ScheduleBaseTable grid={gridData} renderCell={renderConfirmCell} />
             </div>

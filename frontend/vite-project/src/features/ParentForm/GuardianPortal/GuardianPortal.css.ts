@@ -12,19 +12,30 @@ export const pageContainer = style({
 });
 
 // メインのスマホサイズコンテナ
+// メインのコンテナ
 export const mainContent = style({
   width: '100%',
-  maxWidth: '600px', // iPad等で見ても広がりすぎないように
+  // デフォルト（スマホの縦画面）はフルスクリーン
   backgroundColor: vars.color.white,
   display: 'flex',
   flexDirection: 'column',
   boxShadow: '0 0 20px rgba(0,0,0,0.05)',
-  // スマホ縦画面ではカードっぽく、横画面では全画面になるように調整
+  
   '@media': {
-    'screen and (min-width: 600px)': {
+    // 【タブレット等の縦長画面】画面が広くても縦長の場合は「カード型」に留める
+    'screen and (min-width: 768px) and (orientation: portrait)': {
+      maxWidth: '600px',
       margin: '2vh auto',
       borderRadius: vars.borderRadius.large,
       overflow: 'hidden',
+      height: '96dvh', // 上下のマージン分(2vh * 2)を引く
+    },
+    // 【PC・スマホ横画面】横向き判定時は制限を解除し「横いっぱいフルスクリーン」にする！
+    'screen and (orientation: landscape)': {
+      maxWidth: '100%', // 幅の制限を解除
+      margin: 0,
+      borderRadius: 0, // フルスクリーンなので角丸もなし
+      height: '100dvh',
     }
   }
 });
