@@ -34,37 +34,7 @@ import { BulkSetupHub } from './features/BulkSetup/BulkSetupHub';
 // (旧StudentSetting内にあったモーダルをAppに移動)
 import { ImportStudentModal } from './features/Students/components/modals/ImportStudentModal';
 
-// --- 安全なレイアウトスタイル ---
-const containerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column', 
-  height: '100vh',
-  backgroundColor: '#f8fafc',
-};
-
-const topBarStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '0 24px',
-  height: '48px',
-  backgroundColor: '#ffffff',
-};
-
-const appTitleStyle: React.CSSProperties = {
-  fontWeight: 'bold', 
-  fontSize: '1.2rem', 
-  color: '#0ea5e9',
-  margin: 0,
-};
-
-const scrollAreaStyle: React.CSSProperties = {
-  flex: 1,
-  overflowY: 'auto',
-  padding: '24px',
-  display: 'flex',
-  flexDirection: 'column', // パネルが高さ一杯に広がるように追加
-};
+import * as layout from './styles/layout.css'
 
 export const App: React.FC = () => {
     // 1. URLパスによる保護者用画面の判定
@@ -84,10 +54,10 @@ export const App: React.FC = () => {
 
     // 3. 先生用メインレイアウト
     return (
-        <div style={containerStyle}>
+        <div className={layout.appContainer}>
             {/* 一番上のバー（タイトルと設定） */}
-            <header style={topBarStyle}>
-                <h1 style={appTitleStyle}>面談スケジュールメーカー</h1>
+            <header className={layout.appHeader}>
+                <h1 className={layout.appTitle}>面談スケジュールメーカー</h1>
                 <SettingMenu />
             </header>
 
@@ -95,7 +65,7 @@ export const App: React.FC = () => {
             <Navigation />
 
             {/* メイン表示領域（フェーズ1では既存コンポーネントをそのまま描画） */}
-            <main style={scrollAreaStyle}>
+            <main className={layout.appMainArea}>
                 
                 {/* =========================================
                     Step 1: 名簿の準備
@@ -121,7 +91,7 @@ export const App: React.FC = () => {
                     Step 3: 希望日程の回収
                 ========================================= */}
                 {activeStep === 'step3' && (
-                    <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column',height: '100%', overflow: 'hidden' }}>
                         
                         {/* モード未選択時: 背景に3A-1を置き、上にModalを被せる */}
                         {step3Mode === null && (
