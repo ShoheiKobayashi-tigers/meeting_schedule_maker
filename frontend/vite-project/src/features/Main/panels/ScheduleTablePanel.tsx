@@ -10,7 +10,7 @@ import { getApplicantById } from '../../../utils/applicantUtils';
 import { simulateAutoAssignment } from '../../../utils/autoAssignment';
 import { ScheduleBaseTable } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { Button } from '../../../components/ui/Button/Button';
-import * as s from './ScheduleTablePanel.css';
+
 import * as layout from '../../../styles/layout.css'
 
 export const ScheduleTablePanel: React.FC = () => {
