@@ -57,7 +57,9 @@ export const SiblingSettingPanel: React.FC = () => {
   if (mode === 'add' || mode === 'edit') {
     return (
       <div className={layout.basePanelCard}>
-        <h3 className={layout.panelTitle}>{mode === 'add' ? '兄弟の追加' : '兄弟の編集'}</h3>
+        <div className={layout.panelHeader}>
+          <h3 className={layout.panelTitle}>{mode === 'add' ? '兄弟の追加' : '兄弟の編集'}</h3>
+        </div>
         <SiblingForm 
           initialData={selectedSibling}
           onSubmit={onFormSubmit}
