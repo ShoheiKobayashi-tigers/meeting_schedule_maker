@@ -3,7 +3,7 @@ import { useAppStore } from '../../store/useAppStore';
 import * as s from './StartScreen.css'; // cssファイルは後述
 
 export const StartScreen: React.FC = () => {
-  const { db, resetAll, setSessionActive } = useAppStore();
+  const { db, resetAll, setHasEntered } = useAppStore();
   const [hasData, setHasData] = useState(false);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export const StartScreen: React.FC = () => {
   }, [db]);
 
   const handleContinue = () => {
-    setSessionActive(); // 状態維持のままフラグだけON
+    setHasEntered(true); // 状態維持のままフラグだけON
   };
 
   const handleNewGame = () => {

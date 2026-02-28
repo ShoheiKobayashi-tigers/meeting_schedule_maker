@@ -164,6 +164,7 @@ interface DbState {
 }
 
 interface UiState {
+  hasEntered: boolean;
   activeStep: AppStepId;  // ★追加
   activeSubStep: string;  // ★追加
   step3Mode: Step3Mode;   // ★追加  
@@ -189,11 +190,9 @@ interface AppState {
   // === Group 2: 一時的なUI状態 (UI) ===
   ui: UiState;
 
-  isSessionActive: boolean; // スタート画面の制御フラグ
-  setSessionActive: () => void; // 「続きから」ボタン用
-
   // === Actions (操作) ===
   // UI操作
+  setHasEntered: (val: boolean) => void;
   setActiveStep: (step: AppStepId) => void;      // ★追加
   setActiveSubStep: (subStep: string) => void;   // ★追加
   setStep3Mode: (mode: Step3Mode) => void;       // ★追加
@@ -290,6 +289,7 @@ export const useAppStore = create<AppState>()(
 
         // 2. 初期状態 (UI)
         ui: {
+          hasEntered: false,
           activeStep: 'step1',    // ★追加
           activeSubStep: '1-1',   // ★追加
           step3Mode: null,        // ★追加
@@ -311,10 +311,10 @@ export const useAppStore = create<AppState>()(
           isAllocationConfigOpen: false,
           autoAssignConfirmModal: { isOpen: false, result: null },
         },
-
-        isSessionActive: false,
-
-        setSessionActive: () => set({ isSessionActive: true }),
+        
+        setHasEntered: (val: boolean) => set((state) => ({
+          ui: { ...state.ui, hasEntered: val }
+        })),
 
         // --- Actions ---
         setInterviewDuration: (duration: number) =>
@@ -385,7 +385,7 @@ export const useAppStore = create<AppState>()(
           return success;
         },
 
-handleDeleteCol: (targetCol: string) =>
+        handleDeleteCol: (targetCol: string) =>
           set((state) => {
             const { cols, availability, assignments } = state.db.scheduleData;
             // ★ 受け取った値から、元データ内の本当のインデックスを探す
@@ -753,6 +753,7 @@ handleDeleteCol: (targetCol: string) =>
               autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
             },
             ui: {
+              hasEntered: false,
               activeStep: 'step1',    // ★追加
               activeSubStep: '1-1',   // ★追加
               step3Mode: null,        // ★追加
@@ -774,7 +775,6 @@ handleDeleteCol: (targetCol: string) =>
               isAllocationConfigOpen: false,
               autoAssignConfirmModal: { isOpen: false, result: null },
             },
-            isSessionActive: true,
           }),
 
         // 汎用確認モーダルを開くアクション
