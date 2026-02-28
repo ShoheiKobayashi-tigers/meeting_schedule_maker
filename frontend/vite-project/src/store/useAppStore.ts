@@ -270,7 +270,7 @@ export const useAppStore = create<AppState>()(
           siblings: INITIAL_SIBLINGS,
           scheduleData: INITIAL_SCHEDULE,
           schoolSettings: DEFAULT_SCHOOL_SETTINGS,
-          workspaceId: "testNanoId",
+          workspaceId: nanoid(),
           autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
         },
 
@@ -746,6 +746,7 @@ export const useAppStore = create<AppState>()(
         resetAll: () =>
           set({
             db: {
+              workspaceId: nanoid(),
               applicants: INITIAL_APPLICANTS,
               siblings: INITIAL_SIBLINGS,
               scheduleData: INITIAL_SCHEDULE,

@@ -22,8 +22,10 @@ export const StartScreen: React.FC = () => {
       if (!window.confirm("現在保存されているデータは消去されます。よろしいですか？")) {
         return;
       }
+      setHasEntered(true);
     }
     resetAll(); // データ全消去して開始
+    setHasEntered(true);
   };
 
   return (
