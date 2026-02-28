@@ -29,8 +29,8 @@ export const StartScreen: React.FC = () => {
   return (
     <div className={s.container}>
       <div className={s.card}>
-        <h1 className={s.title}>面談スケジュール調整システム</h1>
-        <p className={s.subtitle}>Guardian Schedule Manager</p>
+        <h1 className={s.title}>個人面談・三者面談 スケジュールメーカー</h1>
+        <p className={s.subtitle}>Meeting Schedule Maker</p>
 
         <div className={s.buttonGroup}>
           <button 
