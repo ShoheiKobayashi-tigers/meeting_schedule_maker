@@ -11,6 +11,7 @@ import { simulateAutoAssignment } from '../../../utils/autoAssignment';
 import { ScheduleBaseTable } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { Button } from '../../../components/ui/Button/Button';
 
+import * as s from './ScheduleTablePanel.css'
 import * as layout from '../../../styles/layout.css'
 
 export const ScheduleTablePanel: React.FC = () => {
@@ -74,13 +75,14 @@ export const ScheduleTablePanel: React.FC = () => {
         <h1 className={layout.panelTitle} style={{ margin: 0 }}>
           スケジュールボード
         </h1> 
-        <Button variant="danger" onClick={handleClearAll}>
-                ⚠️ 全割り当て解除(テスト用)
-            </Button>
-        <Button variant="outline" onClick={handleAutoAssignClick}>
-          ✨ 自動割り当てを実行
-        </Button>
-
+        <div className={s.actionButtonGroup}>
+          <Button variant="danger" onClick={handleClearAll}>
+                  全割り当て解除
+          </Button>
+          <Button variant="outline" onClick={handleAutoAssignClick}>
+            ✨ 自動割り当てを実行
+          </Button>
+        </div>
       </div>
       <div className={layout.panelScrollArea}>
         <ScheduleBaseTable 
