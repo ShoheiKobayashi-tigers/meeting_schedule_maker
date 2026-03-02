@@ -1,1 +1,3 @@
-export const SlotsPage = () => <div><h2>2-2: 枠の調整・ブロック</h2></div>;
+// src/pages/app/step2-schedule/SlotsPage.tsx
+import { SlotSettingPanel } from '../../../features/Schedule/panels/SlotSettingPanel';
+export const SlotsPage = () => <SlotSettingPanel />;

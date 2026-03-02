@@ -1,1 +1,3 @@
-export const ResultPage = () => <div><h2>5-1: 結果お知らせ出力</h2></div>;
+// src/pages/app/step5-export/ResultPage.tsx
+import { ResultStep } from '../../../features/BulkSetup/components/steps/ResultStep';
+export const ResultPage = () => <ResultStep />;

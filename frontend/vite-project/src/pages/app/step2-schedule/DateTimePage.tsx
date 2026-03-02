@@ -1,1 +1,3 @@
-export const DateTimePage = () => <div><h2>2-1: 実施日時の設定</h2></div>;
+// src/pages/app/step2-schedule/DateTimePage.tsx
+import { ScheduleSettingPanel } from '../../../features/Schedule/panels/ScheduleSettingPanel';
+export const DateTimePage = () => <ScheduleSettingPanel />;

@@ -36,9 +36,10 @@ export const Navigation: React.FC = () => {
   if (path === '/app/step1/siblings') activeSubStep = '1-2';
   if (path === '/app/step2/datetime') activeSubStep = '2-1';
   if (path === '/app/step2/slots') activeSubStep = '2-2';
-  if (path.includes('/app/step3/manual')) activeSubStep = '3A-1'; // 3B-3も同じ画面を使い回す
+  if (path === '/app/step3/manual') activeSubStep = '3A-1'; // 3B-3も同じ画面を使い回す
   if (path === '/app/step3/form/document') activeSubStep = '3B-1';
   if (path === '/app/step3/form/publish') activeSubStep = '3B-2';
+  if (path === '/app/step3/form/manual') activeSubStep = '3B-3';
   if (path === '/app/step4/config') activeSubStep = '4-1';
   if (path === '/app/step4/board') activeSubStep = '4-2';
   if (path === '/app/step5/result') activeSubStep = '5-1';
@@ -63,7 +64,7 @@ export const Navigation: React.FC = () => {
       if (step3Mode === 'form') return [
         { id: '3B-1', label: '3B-1. お便り作成・印刷', path: '/app/step3/form/document' },
         { id: '3B-2', label: '3B-2. フォーム公開・同期', path: '/app/step3/form/publish' },
-        { id: '3B-3', label: '3B-3. 回収状況確認・手入力', path: '/app/step3/manual' } 
+        { id: '3B-3', label: '3B-3. 回収状況確認・手入力', path: '/app/step3/form/manual' }
       ];
       return [];
     }

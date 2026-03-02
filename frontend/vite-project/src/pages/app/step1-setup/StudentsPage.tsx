@@ -1,1 +1,3 @@
-export const StudentsPage = () => <div><h2>1-1: 児童リスト登録</h2></div>;
+// src/pages/app/step1-setup/StudentsPage.tsx
+import { ApplicantSettingPanel } from '../../../features/Students/panels/ApplicantSettingPanel';
+export const StudentsPage = () => <ApplicantSettingPanel />;

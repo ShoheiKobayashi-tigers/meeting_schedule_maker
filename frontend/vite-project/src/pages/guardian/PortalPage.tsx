@@ -1,1 +1,2 @@
-export const PortalPage = () => <div><h1>保護者用ポータル画面</h1></div>;
+import { GuardianPortal } from '../../features/ParentForm/GuardianPortal/GuardianPortal';
+export const PortalPage = () => <GuardianPortal />;

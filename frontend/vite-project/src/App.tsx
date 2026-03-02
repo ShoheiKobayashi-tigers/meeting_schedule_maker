@@ -52,6 +52,7 @@ export const App: React.FC = () => {
         <Route path="step3/manual" element={<ManualInputPage />} />
         <Route path="step3/form/document" element={<DocumentPage />} />
         <Route path="step3/form/publish" element={<PublishPage />} />
+        <Route path="step3/form/manual" element={<ManualInputPage />} />
 
         {/* Step 4: スケジュール割当 */}
         <Route path="step4/config" element={<ConfigPage />} />

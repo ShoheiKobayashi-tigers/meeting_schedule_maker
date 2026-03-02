@@ -1,1 +1,2 @@
-export const StartPage = () => <div><h2>スタート画面（旧StartScreen）</h2><a href='/app/step1/students'>Step1へ進む</a></div>;
+import { StartScreen } from '../../features/StartScreen/StartScreen';
+export const StartPage = () => <StartScreen />;

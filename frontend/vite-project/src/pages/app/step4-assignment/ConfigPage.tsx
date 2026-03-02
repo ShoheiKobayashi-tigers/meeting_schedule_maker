@@ -1,1 +1,3 @@
-export const ConfigPage = () => <div><h2>4-1: 自動割り当て</h2></div>;
+// src/pages/app/step4-assignment/ConfigPage.tsx
+import { AllocationConfigPage } from '../../../features/AllocationConfig/AllocationConfigPage';
+export const ConfigPage = () => <AllocationConfigPage />;

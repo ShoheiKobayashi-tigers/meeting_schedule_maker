@@ -1,1 +1,3 @@
-export const PublishPage = () => <div><h2>3B-2: フォーム公開・同期</h2></div>;
+// src/pages/app/step3-collection/PublishPage.tsx
+import { PublishStep } from '../../../features/BulkSetup/components/steps/PublishStep';
+export const PublishPage = () => <PublishStep />;
