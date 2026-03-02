@@ -103,9 +103,7 @@ interface DbState {
 
 interface UiState {
   hasEntered: boolean;
-  activeStep: AppStepId;  // ★追加
-  activeSubStep: string;  // ★追加
-  step3Mode: Step3Mode;   // ★追加  
+  step3Mode: Step3Mode;
   interviewDuration: number;
   selectedSlot: SlotIndex | null;
   selectedApplicantId: string | null;
@@ -131,9 +129,7 @@ interface AppState {
   // === Actions (操作) ===
   // UI操作
   setHasEntered: (val: boolean) => void;
-  setActiveStep: (step: AppStepId) => void;      // ★追加
-  setActiveSubStep: (subStep: string) => void;   // ★追加
-  setStep3Mode: (mode: Step3Mode) => void;       // ★追加
+  setStep3Mode: (mode: Step3Mode) => void;
   setSelectedSlot: (slot: SlotIndex | null) => void;
   setSelectedApplicantId: (id: string | null) => void;
   setDraggingApplicantId: (id: string | null) => void;
@@ -228,8 +224,6 @@ export const useAppStore = create<AppState>()(
         // 2. 初期状態 (UI)
         ui: {
           hasEntered: false,
-          activeStep: 'step1',    // ★追加
-          activeSubStep: '1-1',   // ★追加
           step3Mode: null,        // ★追加
           interviewDuration: 15,
           selectedSlot: null,
@@ -389,8 +383,6 @@ export const useAppStore = create<AppState>()(
         },
 
         // UI Setters (ネストした ui オブジェクトを更新)
-        setActiveStep: (step) => set((state) => ({ ui: { ...state.ui, activeStep: step } })),       // ★追加
-        setActiveSubStep: (subStep) => set((state) => ({ ui: { ...state.ui, activeSubStep: subStep } })), // ★追加
         setStep3Mode: (mode) => set((state) => ({ ui: { ...state.ui, step3Mode: mode } })),         // ★追加
         setSelectedSlot: (slot) =>
           set((state) => ({ ui: { ...state.ui, selectedSlot: slot } })),
@@ -693,8 +685,6 @@ export const useAppStore = create<AppState>()(
             },
             ui: {
               hasEntered: false,
-              activeStep: 'step1',    // ★追加
-              activeSubStep: '1-1',   // ★追加
               step3Mode: null,        // ★追加
               interviewDuration: 15,
               selectedSlot: null,
