@@ -1,5 +1,5 @@
 import { style } from '@vanilla-extract/css';
-import { vars } from '../../styles/vars.css';
+import { vars } from '../../../styles/vars.css';
 
 // ※ container, header, title, mainContent, overlay等の骨格定義は削除しました
 

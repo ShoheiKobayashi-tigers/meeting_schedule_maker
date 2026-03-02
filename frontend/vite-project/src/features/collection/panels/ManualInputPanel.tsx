@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useProcessedApplicants } from '../../hooks/useProcessedApplicants';
-import { ManualInputModal } from './ManualInputModal';
+import { useProcessedApplicants } from '../../../hooks/useProcessedApplicants';
+import { ManualInputModal } from '../parts/ManualInputModal';
 import * as s from './ManualInputPanel.css';
-import * as layout from '../../styles/layout.css';
+import * as layout from '../../../styles/layout.css';
 
 export const ManualInputPanel: React.FC = () => {
   // ソート済みの名簿を取得（名簿順に次へ/前へ進めるため）

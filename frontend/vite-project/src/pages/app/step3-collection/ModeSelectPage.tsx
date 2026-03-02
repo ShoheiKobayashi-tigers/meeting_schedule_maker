@@ -1,6 +1,6 @@
 // src/pages/app/step3-collection/ModeSelectPage.tsx
 import { ModeSelectModal } from '../../../components/modals/ModeSelectModal';
-import { DocumentStep } from '../../../features/BulkSetup/components/steps/DocumentStep';
+import { DocumentStep } from '../../../features/collection/panels/DocumentStep';
 
 export const ModeSelectPage = () => (
     <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>

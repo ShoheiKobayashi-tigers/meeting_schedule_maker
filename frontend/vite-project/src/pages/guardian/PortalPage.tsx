@@ -1,2 +1,2 @@
-import { GuardianPortal } from '../../features/ParentForm/GuardianPortal/GuardianPortal';
+import { GuardianPortal } from "../../features/guardian-form/GuardianPortal/GuardianPortal";
 export const PortalPage = () => <GuardianPortal />;

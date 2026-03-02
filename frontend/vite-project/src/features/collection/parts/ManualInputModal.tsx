@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAppStore } from '../../store/useAppStore';
-import { useProcessedSchedule } from '../../hooks/useProcessedSchedule';
-import { ScheduleBaseTable, GridCell } from '../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
-import { Button } from '../../components/ui/Button/Button';
+import { useAppStore } from '../../../store/useAppStore';
+import { useProcessedSchedule } from '../../../hooks/useProcessedSchedule';
+import { ScheduleBaseTable, GridCell } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
+import { Button } from '../../../components/ui/Button/Button';
 import * as s from './ManualInputModal.css';
 
 interface Props {

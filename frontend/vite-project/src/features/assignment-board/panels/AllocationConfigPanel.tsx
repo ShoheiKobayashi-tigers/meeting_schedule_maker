@@ -1,18 +1,20 @@
 // src/features/AllocationConfig/AllocationConfigPage.tsx
 import React from 'react';
-import { useAppStore } from '../../store/useAppStore';
-import { Button } from '../../components/ui/Button/Button';
-import * as s from './AllocationConfigPage.css';
-import * as layout from '../../styles/layout.css';
+import { useNavigate } from 'react-router-dom';
+import { useAppStore } from '../../../store/useAppStore';
+import { Button } from '../../../components/ui/Button/Button';
+import * as s from './AllocationConfigPanel.css';
+import * as layout from '../../../styles/layout.css';
 
-export const AllocationConfigPage: React.FC = () => {
+export const AllocationConfigPanel: React.FC = () => {
+  const navigate = useNavigate(); // 🌟 追加：移動用の関数を取得
+
   // Store から必要な値を取得
   const { applicants, siblings, autoAssignmentConfig } =
     useAppStore((state) => state.db);
   const {
     setAutoAssignmentConfig,
     saveApplicant,
-    setActiveSubStep
   } = useAppStore((state) => state);
 
   // 兄弟制限の全体ルールが適用されているか（制限なし:99 以外なら適用中）
@@ -184,7 +186,10 @@ export const AllocationConfigPage: React.FC = () => {
         
         {/* 4. 固定領域：画面下部の「保存して次へ」ボタン */}
         <div className={s.footer}>
-          <Button variant="primary" onClick={() => setActiveSubStep('4-2')}>
+          <Button 
+            variant="primary" 
+            onClick={() => navigate('/app/step4/board')} // 🌟 Routerを使って4-2の画面へ移動！
+          >
             設定を保存して、スケジュールの割り当てへ進む
           </Button>
         </div>

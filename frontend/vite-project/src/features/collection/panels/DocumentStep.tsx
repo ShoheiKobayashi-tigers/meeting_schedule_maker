@@ -1,10 +1,10 @@
 import React from 'react';
-import { useAppStore } from '../../../../store/useAppStore';
-import { generateHandoutDocx } from '../../../../utils/docxUtils';
-import { Button } from '../../../../components/ui/Button/Button'; // ★共通ボタンを利用
+import { useAppStore } from '../../../store/useAppStore';
+import { generateHandoutDocx } from '../../../utils/docxUtils';
+import { Button } from '../../../components/ui/Button/Button'; // ★共通ボタンを利用
 
 import * as s from './DocumentStep.css';
-import * as layout from '../../../../styles/layout.css'; // ★お道具箱を利用
+import * as layout from '../../../styles/layout.css'; // ★お道具箱を追加
 
 export const DocumentStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
   const { schoolSettings, applicants, workspaceId } = useAppStore(state => state.db);

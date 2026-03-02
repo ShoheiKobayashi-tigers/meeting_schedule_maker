@@ -1,5 +1,5 @@
 import { style } from '@vanilla-extract/css';
-import { vars } from '../../../../styles/vars.css';
+import { vars } from '../../../styles/vars.css';
 
 // layout.css.ts に任せる container, header, title 等は削除しました
 

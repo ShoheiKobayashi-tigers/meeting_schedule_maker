@@ -1,11 +1,11 @@
 import React from 'react';
-import { useAppStore } from '../../../../store/useAppStore';
-import { useCloudSync } from '../../hooks/useCloudSync';
-import { Button } from '../../../../components/ui/Button/Button';
-import { GuardianLoginView } from '../../../ParentForm/components/GuardianLoginView';
+import { useAppStore } from '../../../store/useAppStore';
+import { useCloudSync } from '../hooks/useCloudSync';
+import { Button } from '../../../components/ui/Button/Button';
+import { GuardianLoginView } from '../../guardian-form/components/GuardianLoginView';
 
-import * as s from './PublishStep.css';
-import * as layout from '../../../../styles/layout.css'; // ★お道具箱を利用
+import * as s from './PublishStep.css'
+import * as layout from '../../../styles/layout.css'; // ★お道具箱を追加
 
 export const PublishStep: React.FC = () => {
   // --- ロジック部分は一切変更なし ---

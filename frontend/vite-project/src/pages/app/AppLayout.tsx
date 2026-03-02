@@ -5,7 +5,7 @@ import { Navigation } from '../../components/Navigation';
 import { Button } from '../../components/ui/Button/Button';
 
 // --- グローバルモーダル群のインポート ---
-import { ImportStudentModal } from '../../features/Students/components/modals/ImportStudentModal';
+import { ImportStudentModal } from '../../features/students-manage/components/modals/ImportStudentModal';
 import { ConfirmationModal } from '../../components/modals/ConfirmationModal';
 import { AutoAssignConfirmModal } from '../../components/modals/AutoAssignConfirmModal';
 

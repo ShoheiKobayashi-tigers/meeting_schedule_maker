@@ -1,10 +1,10 @@
 import React from "react";
-import { useAppStore } from "../../../../store/useAppStore";
-import { generateScheduleTableDocx } from "../../../../utils/docxUtils";
-import { Button } from "../../../../components/ui/Button/Button"; // ★共通ボタンを追加
+import { useAppStore } from "../../../store/useAppStore";
+import { generateScheduleTableDocx } from "../../../utils/docxUtils";
+import { Button } from "../../../components/ui/Button/Button"; // ★共通ボタンを追加
 
 import * as s from "./ResultStep.css";
-import * as layout from "../../../../styles/layout.css"; // ★お道具箱を追加
+import * as layout from '../../../styles/layout.css'; // ★お道具箱を追加
 
 export const ResultStep: React.FC = () => {
   // === ロジック部分は一切変更なし ===
