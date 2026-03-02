@@ -1,0 +1,1 @@
+export const ConfigPage = () => <div><h2>4-1: 自動割り当て</h2></div>;

@@ -1,0 +1,1 @@
+export const PublishPage = () => <div><h2>3B-2: フォーム公開・同期</h2></div>;

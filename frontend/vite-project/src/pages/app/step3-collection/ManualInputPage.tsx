@@ -1,0 +1,1 @@
+export const ManualInputPage = () => <div><h2>3A-1/3B-3: 希望日程の手入力</h2></div>;

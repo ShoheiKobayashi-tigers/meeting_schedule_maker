@@ -1,0 +1,1 @@
+export const LandingPage = () => <div><h1>LP（表紙）画面</h1><a href='/app'>アプリへ</a></div>;

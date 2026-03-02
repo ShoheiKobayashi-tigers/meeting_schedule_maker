@@ -1,0 +1,1 @@
+import { Outlet } from 'react-router-dom'; export const AppLayout = () => <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '20px' }}><header style={{ paddingBottom: '20px', borderBottom: '2px solid #ccc', marginBottom: '20px' }}><h1>アプリ共通レイアウト（ここに後でNavigationが来ます）</h1></header><Outlet /></div>;

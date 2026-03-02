@@ -1,0 +1,1 @@
+export const ResultPage = () => <div><h2>5-1: 結果お知らせ出力</h2></div>;

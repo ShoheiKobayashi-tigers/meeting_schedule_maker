@@ -1,0 +1,1 @@
+export const DocumentPage = () => <div><h2>3B-1: お便り作成・印刷</h2></div>;

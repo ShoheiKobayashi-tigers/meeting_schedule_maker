@@ -1,0 +1,1 @@
+export const BoardPage = () => <div><h2>4-2: 手動微調整（メインボード）</h2></div>;

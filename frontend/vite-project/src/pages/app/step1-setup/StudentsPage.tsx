@@ -1,0 +1,1 @@
+export const StudentsPage = () => <div><h2>1-1: 児童リスト登録</h2></div>;

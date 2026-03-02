@@ -1,0 +1,1 @@
+export const SlotsPage = () => <div><h2>2-2: 枠の調整・ブロック</h2></div>;

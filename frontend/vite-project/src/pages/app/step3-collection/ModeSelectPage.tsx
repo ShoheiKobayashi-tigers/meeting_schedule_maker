@@ -1,0 +1,1 @@
+export const ModeSelectPage = () => <div><h2>3: 回収方法の選択</h2></div>;

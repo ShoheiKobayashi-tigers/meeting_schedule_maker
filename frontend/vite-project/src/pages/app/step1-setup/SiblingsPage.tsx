@@ -1,0 +1,1 @@
+export const SiblingsPage = () => <div><h2>1-2: 兄弟姉妹の設定</h2></div>;

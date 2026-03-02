@@ -1,0 +1,1 @@
+export const DateTimePage = () => <div><h2>2-1: 実施日時の設定</h2></div>;

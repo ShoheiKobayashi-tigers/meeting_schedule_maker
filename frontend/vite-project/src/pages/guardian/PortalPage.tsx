@@ -1,0 +1,1 @@
+export const PortalPage = () => <div><h1>保護者用ポータル画面</h1></div>;
