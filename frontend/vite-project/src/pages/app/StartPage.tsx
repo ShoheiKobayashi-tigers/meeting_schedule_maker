@@ -50,7 +50,7 @@ export const StartPage: React.FC = () => {
       if (lastRoute) {
         navigate(`/app${lastRoute}`);
       } else {
-        navigate("/app/step1/students");
+        navigate("/app/step1/datetime");
       }
     } catch (error) {
       setErrorMsg("パスワードが間違っています。");
@@ -89,7 +89,7 @@ export const StartPage: React.FC = () => {
 
     await useAppStore.persist.rehydrate();
     setHasEntered(true);
-    navigate("/app/step1/students");
+    navigate("/app/step1/datetime");
   };
 
   // 🧪 デモ開始
@@ -98,7 +98,7 @@ export const StartPage: React.FC = () => {
     loadDemoData();
     await useAppStore.persist.rehydrate();
     setHasEntered(true);
-    navigate("/demo/step1/students");
+    navigate("/demo/step1/datetime");
   };
 
   // 🗑️ 強制リセット

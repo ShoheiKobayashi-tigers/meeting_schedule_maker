@@ -202,7 +202,7 @@ export const AppLayout: React.FC = () => {
         if (window.confirm("現在保存されているデータはすべて消去されます。新しくスケジュールを作成してよろしいですか？")) {
             resetAll();
             setHasEntered(true);
-            navigate(`${basePath}/step1/students`);
+            navigate(`${basePath}/step1/datetime`);
         }
     };
 

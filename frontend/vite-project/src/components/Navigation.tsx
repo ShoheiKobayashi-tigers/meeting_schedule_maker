@@ -6,8 +6,8 @@ import * as s from './Navigation.css';
 
 // 🌟 URLから "/app" を抜き、相対パス（/step...）で定義し直す
 const STEPS = [
-  { id: 'step1', label: '1. 名簿の準備', sub: [{ id: '1-1', label: '1-1. 児童リストの登録', path: '/step1/students' }, { id: '1-2', label: '1-2. 兄弟姉妹の設定', path: '/step1/siblings' }] },
-  { id: 'step2', label: '2. 面談枠の作成', sub: [{ id: '2-1', label: '2-1. 実施日時の設定', path: '/step2/datetime' }, { id: '2-2', label: '2-2. 枠の調整・ブロック', path: '/step2/slots' }] },
+  { id: 'step1', label: '1. 面談枠の作成', sub: [{ id: '1-1', label: '1-1. 実施日時の設定', path: '/step1/datetime' }, { id: '1-2', label: '1-2. 枠の調整・ブロック', path: '/step1/slots' }] },
+  { id: 'step2', label: '2. 名簿の準備', sub: [{ id: '2-1', label: '2-1. 児童リストの登録', path: '/step2/students' }, { id: '2-2', label: '2-2. 兄弟姉妹の設定', path: '/step2/siblings' }] },
   { id: 'step3', label: '3. 希望日程の回収', sub: [] }, 
   { id: 'step4', label: '4. スケジュール割当', sub: [{ id: '4-1', label: '4-1. 自動割り当て', path: '/step4/config' }, { id: '4-2', label: '4-2. 手動微調整', path: '/step4/board' }] },
   { id: 'step5', label: '5. 確定と結果出力', sub: [{ id: '5-1', label: '5-1. 結果お知らせ出力', path: '/step5/result' }] },
@@ -22,7 +22,7 @@ export const Navigation: React.FC = () => {
   // 🌟 現在のURLがデモモードかどうかを判定し、ベースとなるパスを決定する
   const basePath = path.startsWith('/demo') ? '/demo' : '/app';
 
-  // 判定用にベースパスを取り除いた「相対パス」を作る（例: "/step1/students"）
+  // 判定用にベースパスを取り除いた「相対パス」を作る（例: "/step1/datetime"）
   const relativePath = path.replace(basePath, '');
 
   const { step3Mode } = useAppStore(state => state.db);
@@ -37,10 +37,10 @@ export const Navigation: React.FC = () => {
 
   // 🌟 URLの相対パスを見て、今どの子タブがアクティブかを判定
   let activeSubStep = '';
-  if (relativePath === '/step1/students') activeSubStep = '1-1';
-  if (relativePath === '/step1/siblings') activeSubStep = '1-2';
-  if (relativePath === '/step2/datetime') activeSubStep = '2-1';
-  if (relativePath === '/step2/slots') activeSubStep = '2-2';
+  if (relativePath === '/step1/datetime') activeSubStep = '1-1';
+  if (relativePath === '/step1/slots') activeSubStep = '1-2';
+  if (relativePath === '/step2/students') activeSubStep = '2-1';
+  if (relativePath === '/step2/siblings') activeSubStep = '2-2';
   if (relativePath === '/step3/manual') activeSubStep = '3A-1';
   if (relativePath === '/step3/form/document') activeSubStep = '3B-1';
   if (relativePath === '/step3/form/publish') activeSubStep = '3B-2';
@@ -51,8 +51,8 @@ export const Navigation: React.FC = () => {
 
   // 親タブをクリックした時の処理（🌟 basePath を先頭にくっつける）
   const handleStepClick = (stepId: string) => {
-    if (stepId === 'step1') navigate(`${basePath}/step1/students`);
-    if (stepId === 'step2') navigate(`${basePath}/step2/datetime`);
+    if (stepId === 'step1') navigate(`${basePath}/step1/datetime`);
+    if (stepId === 'step2') navigate(`${basePath}/step2/students`);
     if (stepId === 'step3') {
        if (step3Mode === 'manual') navigate(`${basePath}/step3/manual`);
        else if (step3Mode === 'form') navigate(`${basePath}/step3/form/document`);
