@@ -3,8 +3,8 @@ import { style } from '@vanilla-extract/css';
 import { vars } from '../../styles/vars.css';
 
 export const container = style({
-  height: '100vh',
-  width: '100vw',
+  height: '100%',
+  width: '100%',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',

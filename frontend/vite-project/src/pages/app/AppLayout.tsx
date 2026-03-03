@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'; 
 import { Navigation } from '../../components/Navigation';
 import { Button } from '../../components/ui/Button/Button';
+import { HomeIcon } from '../../components/ui/icons/HomeIcon';
 import { useAppStore } from '../../store/useAppStore'; 
 import { getSessionPassword } from '../../utils/secureStorage';
 
@@ -157,7 +158,7 @@ const RoadmapFeature: React.FC = () => {
                         
 
                         <div style={roadmapStyles.footer}>
-                            <Button variant="primary" onClick={() => setIsOpen(false)} style={roadmapStyles.closeButton}>
+                            <Button variant="dark" onClick={() => setIsOpen(false)} style={roadmapStyles.closeButton}>
                                 確認して閉じる
                             </Button>
                         </div>
@@ -175,13 +176,17 @@ export const AppLayout: React.FC = () => {
 
     const basePath = location.pathname.startsWith('/demo') ? '/demo' : '/app';
 
+// 🌟 現在がスタートページ（/app または /demo の直下）かどうかを判定
+    const isStartPage = location.pathname === '/app' || location.pathname === '/app/' || 
+                        location.pathname === '/demo' || location.pathname === '/demo/';
+
+    // 🌟 追い出し処理（スタートページ「以外」にいる時だけ発動）
     useEffect(() => {
-        // メモリ上にパスワードがない、または認証フラグが立っていない場合は追い出す
-        if (!getSessionPassword() || !ui.hasEntered) {
-            resetEnteredState(); // フラグを確実に落とす
-            navigate(basePath, { replace: true }); // スタート画面へ強制送還（ブラウザの「戻る」履歴も上書き）
+        if (!isStartPage && (!getSessionPassword() || !ui.hasEntered)) {
+            resetEnteredState(); 
+            navigate(basePath, { replace: true }); 
         }
-    }, [ui.hasEntered, navigate, basePath, resetEnteredState]);
+    }, [isStartPage, ui.hasEntered, navigate, basePath, resetEnteredState]);
 
     // 🌟 ヘッダーから直接データをリセットしてStep1に飛ぶ関数
     const handleReset = () => {
@@ -192,6 +197,11 @@ export const AppLayout: React.FC = () => {
         }
     };
 
+    // 🌟 スタートページ以外で認証されていない場合は何も描画しない（チラつき防止）
+    if (!isStartPage && !ui.hasEntered) {
+        return null; 
+    }
+
     return (
         <div className={layout.appContainer}>
             <header className={layout.appHeader}>
@@ -201,10 +211,7 @@ export const AppLayout: React.FC = () => {
                     title="スタート画面へ戻る"
                 >
                     {/* SVGのホームアイコン */}
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#0f172a' }}>
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
+                    <HomeIcon/>
                     <h1 className={layout.appTitle} style={{ margin: 0 }}>個人面談・三者面談 スケジュールメーカー</h1>
                 </Link>
                 <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px' }}>
@@ -217,9 +224,9 @@ export const AppLayout: React.FC = () => {
                 </div>
             </header>
 
-            <Navigation />
+            {!isStartPage && <Navigation />}
 
-            <main className={layout.appMainArea}>
+            <main className={layout.appMainArea} style={isStartPage ? { padding: 0 } : {}}>
                 <Outlet />
             </main>
 
