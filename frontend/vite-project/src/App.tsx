@@ -9,11 +9,11 @@ import { PortalPage } from "./pages/guardian/PortalPage";
 import { AppLayout } from "./pages/app/AppLayout";
 import { StartPage } from "./pages/app/StartPage";
 
-import { StudentsPage } from "./pages/app/step1-setup/StudentsPage";
-import { SiblingsPage } from "./pages/app/step1-setup/SiblingsPage";
+import { DateTimePage } from "./pages/app/step1-schedule/DateTimePage";
+import { SlotsPage } from "./pages/app/step1-schedule/SlotsPage";
 
-import { DateTimePage } from "./pages/app/step2-schedule/DateTimePage";
-import { SlotsPage } from "./pages/app/step2-schedule/SlotsPage";
+import { StudentsPage } from "./pages/app/step2-setup/StudentsPage";
+import { SiblingsPage } from "./pages/app/step2-setup/SiblingsPage";
 
 import { ModeSelectPage } from "./pages/app/step3-collection/ModeSelectPage";
 import { ManualInputPage } from "./pages/app/step3-collection/ManualInputPage";
@@ -43,12 +43,12 @@ export const App: React.FC = () => {
         <Route index element={<StartPage />} />
 
         {/* Step 1: 名簿の準備 */}
-        <Route path="step1/students" element={<StudentsPage />} />
-        <Route path="step1/siblings" element={<SiblingsPage />} />
+        <Route path="step1/datetime" element={<DateTimePage />} />
+        <Route path="step1/slots" element={<SlotsPage />} />
 
         {/* Step 2: 面談枠の作成 */}
-        <Route path="step2/datetime" element={<DateTimePage />} />
-        <Route path="step2/slots" element={<SlotsPage />} />
+        <Route path="step2/students" element={<StudentsPage />} />
+        <Route path="step2/siblings" element={<SiblingsPage />} />
 
         {/* Step 3: 希望日程の回収 */}
         <Route path="step3" element={<ModeSelectPage />} />
@@ -73,12 +73,12 @@ export const App: React.FC = () => {
         <Route index element={<StartPage />} />
 
         {/* Step 1: 名簿の準備 */}
-        <Route path="step1/students" element={<StudentsPage />} />
-        <Route path="step1/siblings" element={<SiblingsPage />} />
+        <Route path="step1/datetime" element={<DateTimePage />} />
+        <Route path="step1/slots" element={<SlotsPage />} />
 
         {/* Step 2: 面談枠の作成 */}
-        <Route path="step2/datetime" element={<DateTimePage />} />
-        <Route path="step2/slots" element={<SlotsPage />} />
+        <Route path="step2/students" element={<StudentsPage />} />
+        <Route path="step2/siblings" element={<SiblingsPage />} />
 
         {/* Step 3: 希望日程の回収 */}
         <Route path="step3" element={<ModeSelectPage />} />
