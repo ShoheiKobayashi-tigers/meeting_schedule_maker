@@ -98,12 +98,12 @@ interface DbState {
   scheduleData: ScheduleData;
   schoolSettings: SchoolSettings;
   workspaceId?: string;
+  step3Mode: Step3Mode;
   autoAssignmentConfig: AutoAssignmentConfig;
 }
 
 interface UiState {
   hasEntered: boolean;
-  step3Mode: Step3Mode;
   interviewDuration: number;
   selectedSlot: SlotIndex | null;
   selectedApplicantId: string | null;
@@ -205,6 +205,7 @@ export const useAppStore = create<AppState>()(
           scheduleData: INITIAL_SCHEDULE,
           schoolSettings: DEFAULT_SCHOOL_SETTINGS,
           workspaceId: nanoid(),
+          step3Mode: null,        // ★追加
           autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
         },
 
@@ -216,6 +217,7 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             db: { ...state.db, workspaceId: id },
           })),
+        setStep3Mode: (mode) => set((state) => ({ db: { ...state.db, step3Mode: mode } })),         // ★追加
         setAutoAssignmentConfig: (config) =>
           set((state) => ({
             db: { ...state.db, autoAssignmentConfig: config },
@@ -224,7 +226,6 @@ export const useAppStore = create<AppState>()(
         // 2. 初期状態 (UI)
         ui: {
           hasEntered: false,
-          step3Mode: null,        // ★追加
           interviewDuration: 15,
           selectedSlot: null,
           selectedApplicantId: null,
@@ -383,7 +384,6 @@ export const useAppStore = create<AppState>()(
         },
 
         // UI Setters (ネストした ui オブジェクトを更新)
-        setStep3Mode: (mode) => set((state) => ({ ui: { ...state.ui, step3Mode: mode } })),         // ★追加
         setSelectedSlot: (slot) =>
           set((state) => ({ ui: { ...state.ui, selectedSlot: slot } })),
         setSelectedApplicantId: (id) =>
@@ -681,11 +681,11 @@ export const useAppStore = create<AppState>()(
               siblings: INITIAL_SIBLINGS,
               scheduleData: INITIAL_SCHEDULE,
               schoolSettings: DEFAULT_SCHOOL_SETTINGS,
+              step3Mode: null,        // ★追加
               autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
             },
             ui: {
               hasEntered: false,
-              step3Mode: null,        // ★追加
               interviewDuration: 15,
               selectedSlot: null,
               selectedApplicantId: null,

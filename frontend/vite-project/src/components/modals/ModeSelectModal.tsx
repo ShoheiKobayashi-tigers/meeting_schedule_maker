@@ -1,17 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import * as s from './ModeSelectModal.css';
 
 export const ModeSelectModal: React.FC = () => {
-  const { setStep3Mode, setActiveSubStep } = useAppStore();
+  const navigate = useNavigate();
+  const { setStep3Mode } = useAppStore();
 
-  const handleSelect = (mode: 'form' | 'manual') => {
-    setStep3Mode(mode);
-    if (mode === 'manual') {
-      setActiveSubStep('3A-1');
-    } else {
-      setActiveSubStep('3B-1');
-    }
+  // 🌟 手入力モード（A）を選んだ時の処理
+  const handleSelectManual = () => {
+    setStep3Mode('manual');               // Zustandに保存
+    navigate('/app/step3/manual');        // 👉 3A-1 の画面へURL移動！
+  };
+
+  // 🌟 フォームモード（B）を選んだ時の処理
+  const handleSelectForm = () => {
+    setStep3Mode('form');                 // Zustandに保存
+    navigate('/app/step3/form/document'); // 👉 3B-1 の画面へURL移動！
   };
 
   return (
@@ -25,7 +30,7 @@ export const ModeSelectModal: React.FC = () => {
 
         <div className={s.cardContainer}>
           {/* モードA：手入力 */}
-          <div className={s.card} onClick={() => handleSelect('manual')}>
+          <div className={s.card} onClick={handleSelectManual}>
             <div className={s.cardIcon}>⌨️</div>
             <div className={s.cardTitle}>プリントで回収・手入力</div>
             <div className={s.cardText}>
@@ -34,7 +39,7 @@ export const ModeSelectModal: React.FC = () => {
           </div>
 
           {/* モードB：保護者フォーム */}
-          <div className={s.card} onClick={() => handleSelect('form')}>
+          <div className={s.card} onClick={handleSelectForm}>
             <div className={s.cardIcon}>📱</div>
             <div className={s.cardTitle}>保護者フォームで回収</div>
             <div className={s.cardText}>

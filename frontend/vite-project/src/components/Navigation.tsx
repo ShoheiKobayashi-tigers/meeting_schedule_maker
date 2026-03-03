@@ -20,7 +20,7 @@ export const Navigation: React.FC = () => {
   const path = location.pathname;
 
   // step3のモード（手入力かフォームか）は引き続きZustandで管理する
-  const { step3Mode } = useAppStore(state => state.ui);
+  const { step3Mode } = useAppStore(state => state.db);
   const setStep3Mode = useAppStore(state => state.setStep3Mode);
 
   // 🌟 Zustandの代わりに「URL」を見て、今どの親タブがアクティブかを判定する

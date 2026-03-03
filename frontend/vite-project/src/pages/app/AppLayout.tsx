@@ -12,33 +12,145 @@ import { AutoAssignConfirmModal } from '../../components/modals/AutoAssignConfir
 import * as layout from '../../styles/layout.css';
 
 // --- ロードマップ機能（元のApp.tsxからお引っ越し） ---
+// ----------------------------------------------------
+// ロードマップ用スタイル定義（疑似 vanilla-extract）
+// ----------------------------------------------------
+const roadmapStyles: Record<string, React.CSSProperties> = {
+    beta: {
+        color: '#1e293b',
+        fontWeight: 'bold',
+    },
+    openButton: {
+        background: 'none', border: 'none', color: '#1e293b', 
+        fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold'
+    },
+    overlay: {
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+        backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)',
+        display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 
+    },
+    modal: {
+        backgroundColor: 'white', padding: '32px', borderRadius: '16px', 
+        maxWidth: '720px', width: '90%', maxHeight: '85vh', overflowY: 'auto',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+    },
+    header: { 
+        display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' 
+    },
+    icon: { 
+        fontSize: '24px' 
+    },
+    title: { 
+        margin: 0, fontSize: '1.4rem', color: '#1e293b' 
+    },
+    description: { 
+        color: '#475569', lineHeight: '1.6', marginBottom: '24px' 
+    },
+    listContainer: { 
+        backgroundColor: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' 
+    },
+    listTitle: { 
+        margin: '0 0 16px 0', fontSize: '1.1rem', color: '#0f172a', borderBottom: '2px solid #cbd5e1', paddingBottom: '8px' 
+    },
+    list: { 
+        margin: 0, paddingLeft: '20px', color: '#334155', display: 'flex', flexDirection: 'column', gap: '12px', lineHeight: '1.5' 
+    },
+    itemDesc: { 
+        fontSize: '0.85rem', color: '#64748b' 
+    },
+    note: { 
+        fontSize: '0.85rem', color: '#94a3b8', marginTop: '24px', lineHeight: '1.5' 
+    },
+    footer: { 
+        textAlign: 'right', marginTop: '24px' 
+    },
+    closeButton: { 
+        padding: '12px 32px' 
+    }
+};
+
+// ----------------------------------------------------
+// 新設: ロードマップ機能
+// ----------------------------------------------------
 const RoadmapFeature: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
+
     return (
         <>
-            <div style={{ color: '#1e293b', fontWeight: 'bold' }}>（β版）{'-->'}</div>
-            <button 
-                onClick={() => setIsOpen(true)} 
-                style={{ background: 'none', border: 'none', color: '#1e293b', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }}
-            >
+            <div style={roadmapStyles.beta}>（β版）{'-->'}</div>
+            <button onClick={() => setIsOpen(true)} style={roadmapStyles.openButton}>
                 今後の実装予定
             </button>
 
             {isOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999 }}>
-                    <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '16px', maxWidth: '720px', width: '90%', maxHeight: '85vh', overflowY: 'auto' }}>
-                        <h2 style={{ margin: '0 0 16px 0', fontSize: '1.4rem' }}>個人面談・三者面談 スケジュールメーカー（β版）</h2>
-                        <p style={{ color: '#475569', marginBottom: '24px' }}>ご利用ありがとうございます！現在、以下の機能開発を進めています。</p>
-                        <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                            <ul style={{ margin: 0, paddingLeft: '20px', color: '#334155', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <li><strong>セキュリティ強化とデータ保護（2026年3月末まで）</strong></li>
-                                <li><strong>ユーザー操作ガイドの充実（2026年3月末まで）</strong></li>
-                                <li><strong>安全なデータ同期（手入力の保護）（2026年5月末まで）</strong></li>
-                                <li><strong>データのバックアップ・復元機能（2026年10月末まで）</strong></li>
+                <div style={roadmapStyles.overlay}>
+                    <div style={roadmapStyles.modal}>
+                        
+                        <div style={roadmapStyles.header}>
+                            <h2 style={roadmapStyles.title}>個人面談・三者面談 スケジュールメーカー（β版）</h2>
+                        </div>
+                        
+                        <p style={roadmapStyles.description}>
+                            ご利用ありがとうございます！現在、より便利なツールを目指して以下の機能開発を進めています。
+                        </p>
+                        
+                        <div style={roadmapStyles.listContainer}>
+                            <h3 style={roadmapStyles.listTitle}>
+                                📌 今後の実装予定
+                            </h3>
+                            <ul style={roadmapStyles.list}>
+                                <li>
+                                    <strong>セキュリティ強化とデータ保護（2026年3月末まで）</strong><br/>
+                                    <span style={roadmapStyles.itemDesc}>
+                                        現在、個人の特定が可能な全ての情報は、お使いのPCのストレージ内に自動保存されます。更なるセキュリティ強化のため、「ストレージ保存のデータの強力な暗号化」「リセットボタン」などを実装し、コンプライアンスに準拠した安全な環境を提供します。<br/>※現在は画面をリロードし、「新しく始める」ボタンを押すことでリセットが可能です。
+                                    </span>
+                                </li>
+                                <li>
+                                    <strong>ユーザー操作ガイドの充実（2026年3月末まで）</strong><br/>
+                                    <span style={roadmapStyles.itemDesc}>
+                                        初めてツールに触れる先生でも、迷わず簡単にスケジュールが組めるようなチュートリアル画面や操作ガイドをご用意します。
+                                    </span>
+                                </li>
+                                <li>
+                                    <strong>安全なデータ同期（手入力の保護）（2026年5月末まで）</strong><br/>
+                                    <span style={roadmapStyles.itemDesc}>
+                                        担任の先生が手入力で聞いた予定が、後から送信された保護者フォームのデータで誤って上書きされないよう、データ競合時の保護機能を追加します。
+                                    </span>
+                                </li>
+                                <li>
+                                    <strong>データのバックアップ・復元機能（2026年10月末まで）</strong><br/>
+                                    <span style={roadmapStyles.itemDesc}>
+                                        万が一データが消えてしまっても復元できるよう、作成途中のデータをファイルとしてバックアップ・読み込みできる機能を追加します。
+                                    </span>
+                                </li>
+                                <li>
+                                    <strong>現場に寄り添った操作性の改善（随時）</strong><br/>
+                                    <span style={roadmapStyles.itemDesc}>
+                                        「ブラウザの戻るボタン」を押してもアプリが終了しないようにする対応や、名簿から特定の児童をすぐに探せる「絞り込み検索機能」を追加します。
+                                    </span>
+                                </li>
                             </ul>
                         </div>
-                        <div style={{ textAlign: 'right', marginTop: '24px' }}>
-                            <Button variant="primary" onClick={() => setIsOpen(false)}>確認して閉じる</Button>
+
+                        <p style={roadmapStyles.note}>
+                            ※ 本バージョンはβ（テスト）版です。予期せぬ動作をする可能性がありますが、個人を特定できる全ての情報は、お使いのPCのストレージ内に自動保存されます。<br/>
+                            ご意見、ご要望、不具合のご報告は
+                            <a 
+                                href="https://forms.gle/GMqBkzefmF3EAASx7" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ color: '#0070f3', textDecoration: 'underline', fontWeight: 'bold', margin: '0 4px' }}
+                            >
+                                こちらのお問い合わせフォーム
+                            </a>
+                            からお気軽にお知らせください！
+                        </p>
+                        
+
+                        <div style={roadmapStyles.footer}>
+                            <Button variant="primary" onClick={() => setIsOpen(false)} style={roadmapStyles.closeButton}>
+                                確認して閉じる
+                            </Button>
                         </div>
                     </div>
                 </div>
