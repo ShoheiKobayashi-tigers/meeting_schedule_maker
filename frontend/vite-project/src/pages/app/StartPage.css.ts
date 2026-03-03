@@ -1,4 +1,6 @@
+// src/pages/app/StartPage.css.ts
 import { style } from '@vanilla-extract/css';
+import { vars } from '../../styles/vars.css';
 
 export const container = style({
   height: '100vh',
@@ -6,100 +8,165 @@ export const container = style({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  backgroundColor: '#f1f5f9', // 少し落ち着いた背景色に
+  backgroundColor: vars.color.background,
+  padding: vars.space.medium,
 });
 
 export const card = style({
   width: '100%',
-  // ★修正: PC向けに幅を広げる
-  maxWidth: '800px', 
-  padding: '60px', // 余白も少し広げてリッチに
-  backgroundColor: '#ffffff',
-  borderRadius: '16px',
-  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-  textAlign: 'center',
-  display: 'flex',       // レイアウト調整用にflex化
+  maxWidth: '560px', 
+  padding: vars.space.xl,
+  backgroundColor: vars.color.white,
+  borderRadius: vars.borderRadius.large,
+  boxShadow: vars.shadow.floating,
+  display: 'flex',
   flexDirection: 'column',
-  alignItems: 'center',  // 中身を中央揃え
+});
+
+export const header = style({
+  textAlign: 'center',
+  marginBottom: vars.space.medium,
 });
 
 export const title = style({
-  fontSize: '32px', // タイトルも少し大きく
-  fontWeight: '800',
-  color: '#1e293b',
-  marginBottom: '12px',
-  letterSpacing: '-0.02em',
+  fontSize: '1.5rem',
+  fontWeight: 'bold',
+  color: vars.color.textPrimary,
 });
 
 export const subtitle = style({
-  fontSize: '16px',
-  color: '#64748b',
-  marginBottom: '48px',
+  fontSize: '0.9rem',
+  color: vars.color.textSecondary,
+  margin: 0,
 });
 
+// --- レイアウト用コンテナ ---
 export const buttonGroup = style({
   display: 'flex',
-  // ★修正: PCなので横並びにする
-  flexDirection: 'row', 
-  gap: '24px',
+  flexDirection: 'column',
+  gap: vars.space.medium,
+  width: '100%',
+});
+
+export const inputGroup = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: vars.space.medium,
+});
+
+export const divider = style({
+  borderBottom: `1px solid ${vars.color.border}`,
+  margin: `${vars.space.small} 0`,
+});
+
+export const linkContainer = style({
+  display: 'flex',
+  justifyContent: 'space-between',
+  marginTop: vars.space.small,
+  alignItems: 'center',
+});
+
+export const centerLink = style({
+  textAlign: 'center',
+  marginTop: vars.space.small,
+});
+
+// --- 共通Buttonの拡張クラス ---
+// （Button.tsxの色設定を活かしつつ、StartPage用に大きく見せる）
+export const largeButton = style({
+  padding: '16px',
+  fontSize: '1.05rem',
   width: '100%',
   justifyContent: 'center',
 });
 
-const baseButton = style({
-  padding: '20px 40px', // クリックエリアを確保しつつPCらしいサイズ感に
-  borderRadius: '12px',
-  fontSize: '16px',
+// --- 入力フォーム ---
+export const inputField = style({
+  width: '100%',
+  padding: '14px',
+  borderRadius: vars.borderRadius.medium,
+  border: `1px solid ${vars.color.border}`,
+  backgroundColor: vars.color.white,
+  fontSize: '1rem',
+  color: vars.color.textPrimary,
+  boxSizing: 'border-box',
+  outline: 'none',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+  ':focus': { 
+    borderColor: vars.color.primary,
+    boxShadow: `0 0 0 3px rgba(66, 153, 225, 0.1)`
+  },
+});
+
+// --- メッセージ・警告系 ---
+export const errorMessage = style({
+  backgroundColor: '#fef2f2',
+  color: vars.color.danger,
+  padding: vars.space.medium,
+  borderRadius: vars.borderRadius.medium,
+  marginBottom: vars.space.large,
+  textAlign: 'center',
   fontWeight: 'bold',
+  fontSize: '0.9rem',
+});
+
+export const warningBox = style({
+  backgroundColor: '#fffbeb',
+  padding: vars.space.medium,
+  borderRadius: vars.borderRadius.medium,
+  border: '1px solid #fde68a',
+});
+
+export const warningTitle = style({
+  margin: `0 0 ${vars.space.small} 0`,
+  color: '#b45309',
+  fontSize: '0.95rem',
+});
+
+export const warningText = style({
+  margin: 0,
+  color: '#92400e',
+  fontSize: '0.85rem',
+  lineHeight: 1.5,
+});
+
+export const disclaimerLabel = style({
+  display: 'flex',
+  gap: vars.space.small,
+  alignItems: 'flex-start',
+  fontSize: '0.85rem',
+  color: vars.color.textSecondary,
   cursor: 'pointer',
-  transition: 'all 0.2s ease',
+  marginTop: vars.space.xs,
+  lineHeight: 1.4,
+});
+
+// --- パスワード入力欄のラッパー ---
+export const passwordWrapper = style({
+  position: 'relative',
+  width: '100%',
+});
+
+export const passwordToggleBtn = style({
+  position: 'absolute',
+  right: '12px',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  background: 'none',
   border: 'none',
-  // ★修正: 横並びにしたので、幅は固定かflexで調整
-  flex: 1, 
-  maxWidth: '300px', // ボタンが横に伸びすぎないように制限
+  padding: '4px',
+  cursor: 'pointer',
+  color: vars.color.textMuted,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  flexDirection: 'column', // データあり表示などのために縦並び許可
-  gap: '4px',
+  transition: 'color 0.2s',
+  ':hover': {
+    color: vars.color.textPrimary,
+  }
 });
 
-export const continueButton = style([baseButton, {
-  backgroundColor: '#0f172a', // PC管理画面っぽいダークカラー
-  color: 'white',
-  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-  ':hover': { 
-    backgroundColor: '#1e293b',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-  },
-  ':disabled': { 
-    backgroundColor: '#cbd5e1', 
-    cursor: 'not-allowed',
-    transform: 'none',
-    boxShadow: 'none'
-  },
+// ※既存の inputField に paddingRight を追加して、文字がアイコンに被らないようにします
+export const passwordInputField = style([inputField, {
+  paddingRight: '40px', 
 }]);
-
-export const newButton = style([baseButton, {
-  backgroundColor: 'white',
-  color: '#475569',
-  border: '2px solid #e2e8f0',
-  ':hover': { 
-    borderColor: '#cbd5e1',
-    backgroundColor: '#f8fafc',
-    color: '#1e293b'
-  },
-}]);
-
-export const dataInfo = style({
-  fontSize: '12px',
-  fontWeight: 'normal',
-  opacity: 0.8,
-});
-
-export const note = style({
-  marginTop: '32px',
-  fontSize: '13px',
-  color: '#94a3b8',
-});

@@ -1,6 +1,7 @@
 // src/store/useAppStore.ts
 import { create } from "zustand";
-import { persist, devtools } from "zustand/middleware";
+import { createJSONStorage, persist, devtools } from "zustand/middleware";
+import { secureStorage } from '../utils/secureStorage';
 import { nanoid } from "nanoid";
 import {
   type Applicant,
@@ -87,11 +88,15 @@ interface AppState {
   // === Actions (操作) ===
   // UI操作
   setHasEntered: (val: boolean) => void;
+  resetEnteredState: () => void;
   setStep3Mode: (mode: Step3Mode) => void;
   setSelectedSlot: (slot: SlotIndex | null) => void;
   setSelectedApplicantId: (id: string | null) => void;
   setDraggingApplicantId: (id: string | null) => void;
   setDraggingSlotIndex: (index: SlotIndex | null) => void;
+
+  //デモデータ送信
+  loadDemoData: () => void;
 
   // データ操作 (Core)
   setScheduleData: (data: ScheduleData) => void;
@@ -206,8 +211,37 @@ export const useAppStore = create<AppState>()(
         setHasEntered: (val: boolean) => set((state) => ({
           ui: { ...state.ui, hasEntered: val }
         })),
+        
+        resetEnteredState: () => set((state) => ({ ui: { ...state.ui, hasEntered: false } })),
 
         // --- Actions ---
+        loadDemoData: () =>
+          set({
+            db: {
+              workspaceId: nanoid(),
+              applicants: DEMO_APPLICANTS,
+              siblings: DEMO_SIBLINGS,
+              scheduleData: DEMO_SCHEDULE,
+              schoolSettings: DEFAULT_SCHOOL_SETTINGS,
+              step3Mode: null,
+              autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
+            },
+            ui: {
+              // ... uiの初期値はresetAllと同じでOK ...
+              hasEntered: false,
+              interviewDuration: 15,
+              selectedSlot: null,
+              selectedApplicantId: null,
+              draggingApplicantId: null,
+              draggingSlotIndex: null,
+              confirmationModal: { isOpen: false, title: "", message: "", onConfirm: () => {}, confirmText: null, cancelText: null },
+              importStudentModal: { isOpen: false },
+              isBulkSetupOpen: false,
+              isAllocationConfigOpen: false,
+              autoAssignConfirmModal: { isOpen: false, result: null },
+            },
+          }),
+
         setInterviewDuration: (duration: number) =>
           set((state) => ({
             ui: { ...state.ui, interviewDuration: duration },
@@ -711,9 +745,6 @@ export const useAppStore = create<AppState>()(
             ui: { ...state.ui, isAllocationConfigOpen: isOpen },
           })),
 
-        /*
-            以下、ここはリリース前に削除する     
-            */
         clearAllAssignments: () =>
           set((state) => {
             const { assignments } = state.db.scheduleData;
@@ -732,15 +763,15 @@ export const useAppStore = create<AppState>()(
               },
             };
           }),
-        /*
-            ここまで        
-            */
       }),
       {
         name: "student-app-storage",
+        storage: createJSONStorage(() => secureStorage),
         // 重要: dbオブジェクトのみを永続化し、uiオブジェクトは保存しない
         partialize: (state) => ({ db: state.db }),
+        skipHydration: true,
       },
     ),
+    { enabled: process.env.NODE_ENV !== 'production' }
   ),
 );

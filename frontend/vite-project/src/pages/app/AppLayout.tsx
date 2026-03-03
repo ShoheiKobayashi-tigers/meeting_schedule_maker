@@ -1,9 +1,10 @@
 // src/pages/app/AppLayout.tsx
-import React, { useState } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom'; 
+import React, { useState, useEffect } from 'react';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'; 
 import { Navigation } from '../../components/Navigation';
 import { Button } from '../../components/ui/Button/Button';
 import { useAppStore } from '../../store/useAppStore'; 
+import { getSessionPassword } from '../../utils/secureStorage';
 
 // --- グローバルモーダル群のインポート ---
 import { ImportStudentModal } from '../../features/students-manage/components/modals/ImportStudentModal';
@@ -126,6 +127,12 @@ const RoadmapFeature: React.FC = () => {
                                     </span>
                                 </li>
                                 <li>
+                                    <strong>パスワード忘れ時の救済機能（時期未定）</strong><br/>
+                                    <span style={roadmapStyles.itemDesc}>
+                                        ゼロ知識暗号化の仕様上、システム管理者でもパスワードの解除はできませんが、配付用のお手紙（Wordファイル）の控えに残るIDを使用し、保護者から回収した「希望日時データ」のみを復旧できる機能を開発予定です。
+                                    </span>
+                                </li>                                
+                                <li>
                                     <strong>現場に寄り添った操作性の改善（随時）</strong><br/>
                                     <span style={roadmapStyles.itemDesc}>
                                         「ブラウザの戻るボタン」を押してもアプリが終了しないようにする対応や、名簿から特定の児童をすぐに探せる「絞り込み検索機能」を追加します。
@@ -163,14 +170,25 @@ const RoadmapFeature: React.FC = () => {
 
 export const AppLayout: React.FC = () => {
     const navigate = useNavigate();
-    const { resetAll, setHasEntered } = useAppStore();
+    const location = useLocation();
+    const { ui, resetAll, setHasEntered, resetEnteredState } = useAppStore();
+
+    const basePath = location.pathname.startsWith('/demo') ? '/demo' : '/app';
+
+    useEffect(() => {
+        // メモリ上にパスワードがない、または認証フラグが立っていない場合は追い出す
+        if (!getSessionPassword() || !ui.hasEntered) {
+            resetEnteredState(); // フラグを確実に落とす
+            navigate(basePath, { replace: true }); // スタート画面へ強制送還（ブラウザの「戻る」履歴も上書き）
+        }
+    }, [ui.hasEntered, navigate, basePath, resetEnteredState]);
 
     // 🌟 ヘッダーから直接データをリセットしてStep1に飛ぶ関数
     const handleReset = () => {
         if (window.confirm("現在保存されているデータはすべて消去されます。新しくスケジュールを作成してよろしいですか？")) {
             resetAll();
             setHasEntered(true);
-            navigate('/app/step1/students');
+            navigate(`${basePath}/step1/students`);
         }
     };
 
@@ -178,7 +196,7 @@ export const AppLayout: React.FC = () => {
         <div className={layout.appContainer}>
             <header className={layout.appHeader}>
                 <Link 
-                    to="/app" 
+                    to={basePath} 
                     style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit', gap: '8px' }}
                     title="スタート画面へ戻る"
                 >

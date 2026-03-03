@@ -1,6 +1,6 @@
 // src/pages/app/step3-collection/ModeSelectPage.tsx
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../../store/useAppStore';
 import { ModeSelectModal } from '../../../components/modals/ModeSelectModal';
 import { DocumentStep } from '../../../features/collection/panels/DocumentStep';
@@ -9,15 +9,17 @@ export const ModeSelectPage = () => {
     const navigate = useNavigate();
     // Zustandから「現在のモード」を取得
     const step3Mode = useAppStore(state => state.db.step3Mode);
+    const location = useLocation();
+    const basePath = location.pathname.startsWith('/demo') ? '/demo' : '/app';
 
     // ページが開かれた瞬間に、モードが決まっているかチェック！
     useEffect(() => {
         if (step3Mode === 'manual') {
             // 手入力モードなら、ブラウザ履歴を残さずに 3A-1 へ瞬間移動
-            navigate('/app/step3/manual', { replace: true });
+            navigate(`${basePath}/step3/manual`, { replace: true });
         } else if (step3Mode === 'form') {
             // フォームモードなら、ブラウザ履歴を残さずに 3B-1 へ瞬間移動
-            navigate('/app/step3/form/document', { replace: true });
+            navigate(`${basePath}/step3/form/document`, { replace: true });
         }
     }, [step3Mode, navigate]);
 

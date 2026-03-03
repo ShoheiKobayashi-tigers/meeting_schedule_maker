@@ -8,7 +8,8 @@ type ButtonVariant =
   | 'secondary' // サブアクション（薄いグレー背景）。目立たせたくないけど枠は欲しい時
   | 'outline'   // 枠線のみのアクション（白背景・色付き枠）。旧: edit, cancel
   | 'danger'    // 危険な操作（赤背景 または 白背景＋赤文字）。旧: delete
-  | 'ghost';    // 背景も枠線もないテキストだけのボタン（ホバーで少しグレーになる）
+  | 'ghost'    // 背景も枠線もないテキストだけのボタン（ホバーで少しグレーになる）
+  | 'dark';     // 黒・ダークグレー系の引き締まるボタン
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;

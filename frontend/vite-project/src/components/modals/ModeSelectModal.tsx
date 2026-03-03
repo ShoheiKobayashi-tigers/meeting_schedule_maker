@@ -1,22 +1,25 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import * as s from './ModeSelectModal.css';
 
 export const ModeSelectModal: React.FC = () => {
   const navigate = useNavigate();
   const { setStep3Mode } = useAppStore();
+  const location = useLocation();
+  const basePath = location.pathname.startsWith('/demo') ? '/demo' : '/app';
+
 
   // 🌟 手入力モード（A）を選んだ時の処理
   const handleSelectManual = () => {
     setStep3Mode('manual');               // Zustandに保存
-    navigate('/app/step3/manual');        // 👉 3A-1 の画面へURL移動！
+    navigate(`${basePath}/step3/manual`);        // 👉 3A-1 の画面へURL移動！
   };
 
   // 🌟 フォームモード（B）を選んだ時の処理
   const handleSelectForm = () => {
     setStep3Mode('form');                 // Zustandに保存
-    navigate('/app/step3/form/document'); // 👉 3B-1 の画面へURL移動！
+    navigate(`${basePath}/step3/form/document`); // 👉 3B-1 の画面へURL移動！
   };
 
   return (
