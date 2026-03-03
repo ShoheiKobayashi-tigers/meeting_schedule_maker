@@ -1,8 +1,9 @@
 // src/pages/app/AppLayout.tsx
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom'; 
 import { Navigation } from '../../components/Navigation';
 import { Button } from '../../components/ui/Button/Button';
+import { useAppStore } from '../../store/useAppStore'; 
 
 // --- グローバルモーダル群のインポート ---
 import { ImportStudentModal } from '../../features/students-manage/components/modals/ImportStudentModal';
@@ -10,6 +11,7 @@ import { ConfirmationModal } from '../../components/modals/ConfirmationModal';
 import { AutoAssignConfirmModal } from '../../components/modals/AutoAssignConfirmModal';
 
 import * as layout from '../../styles/layout.css';
+import { vars } from '../../styles/vars.css';
 
 // --- ロードマップ機能（元のApp.tsxからお引っ越し） ---
 // ----------------------------------------------------
@@ -160,12 +162,40 @@ const RoadmapFeature: React.FC = () => {
 };
 
 export const AppLayout: React.FC = () => {
+    const navigate = useNavigate();
+    const { resetAll, setHasEntered } = useAppStore();
+
+    // 🌟 ヘッダーから直接データをリセットしてStep1に飛ぶ関数
+    const handleReset = () => {
+        if (window.confirm("現在保存されているデータはすべて消去されます。新しくスケジュールを作成してよろしいですか？")) {
+            resetAll();
+            setHasEntered(true);
+            navigate('/app/step1/students');
+        }
+    };
+
     return (
         <div className={layout.appContainer}>
             <header className={layout.appHeader}>
-                <h1 className={layout.appTitle}>個人面談・三者面談 スケジュールメーカー</h1>
+                <Link 
+                    to="/app" 
+                    style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit', gap: '8px' }}
+                    title="スタート画面へ戻る"
+                >
+                    {/* SVGのホームアイコン */}
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#0f172a' }}>
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <h1 className={layout.appTitle} style={{ margin: 0 }}>個人面談・三者面談 スケジュールメーカー</h1>
+                </Link>
                 <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px' }}>
                     <RoadmapFeature />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px', justifyContent: 'flex-end', gap: '24px' }}>
+                    <Button variant="outline" onClick={handleReset} style={{border: 'dashed', borderColor: vars.color.border}}>
+                        リセット
+                    </Button>
                 </div>
             </header>
 

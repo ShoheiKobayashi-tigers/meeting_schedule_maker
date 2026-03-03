@@ -24,61 +24,19 @@ import { generateShortToken } from "../utils/tokenUtils";
 import { calculateTimeRange } from "../utils/timeUtils";
 import { getInitialAvailability } from "../utils/availabilityUtils";
 import { AutoAssignmentResult } from "../utils/autoAssignment";
+import { DEMO_APPLICANTS, DEMO_SCHEDULE, DEMO_SIBLINGS } from "../utils/demoData";
 
 // 初期データ定義 (変更なしのため省略可能ですが、文脈維持のため記載)
 // ... (INITIAL_APPLICANTS, INITIAL_SIBLINGS, INITIAL_SCHEDULE は以前と同じ)
-const INITIAL_APPLICANTS: Applicant[] = [
-  {
-    id: "app-1",
-    family_name: "佐藤",
-    first_name: "和男",
-    student_id: "1",
-    preferred_dates: ["2025-12-01 09:15 - 09:30", "2025-11-30 14:00 - 14:15"],
-    family_id: "1",
-    token: "AAAAAA",
-    is_fixed: false,
-    is_last_slot: false,
-    needs_gap_after: false,
-  },
-  // 山田花子さんは兄弟なし
-  {
-    id: "app-2",
-    family_name: "山田",
-    first_name: "花子",
-    student_id: "2",
-    preferred_dates: ["2025-12-01 09:00 - 09:15", "2025-12-01 14:00 - 14:15"],
-    family_id: "2",
-    token: "BBBBBB",
-    is_fixed: false,
-    is_last_slot: false,
-    needs_gap_after: false,
-  },
-];
 
-const INITIAL_SIBLINGS: Sibling[] = [
-  {
-    id: "sib-1",
-    family_name: "佐藤",
-    first_name: "次郎",
-    grade: "5",
-    class: "2",
-    family_id: "1",
-    assigned_slot: "2025-12-01 09:00 - 09:15",
-  },
-];
-const INITIAL_SCHEDULE: ScheduleData = {
-  rows: ["09:00 - 09:15", "09:15 - 09:30", "14:00 - 14:15"],
-  cols: ["2025-11-30", "2025-12-01"],
-  assignments: [
-    [null, null],
-    [null, null],
-    [null, null],
-  ],
-  availability: [
-    ["normal", "normal"],
-    ["normal", "normal"],
-    ["normal", "normal"],
-  ],
+// 新しく始める（リセット）用の完全にクリーンなデータ
+const BLANK_APPLICANTS: Applicant[] = [];
+const BLANK_SIBLINGS: Sibling[] = [];
+const BLANK_SCHEDULE: ScheduleData = {
+  rows: [],         // 行（時間枠）はゼロ
+  cols: [],         // 列（日付）はゼロ
+  assignments: [],  // 割り当てデータもゼロ
+  availability: [], // 枠の有効/無効データもゼロ
 };
 
 export type AppStepId = 'step1' | 'step2' | 'step3' | 'step4' | 'step5';
@@ -200,9 +158,9 @@ export const useAppStore = create<AppState>()(
       (set, get) => ({
         // 1. 初期データ (DB)
         db: {
-          applicants: INITIAL_APPLICANTS,
-          siblings: INITIAL_SIBLINGS,
-          scheduleData: INITIAL_SCHEDULE,
+          applicants: DEMO_APPLICANTS,
+          siblings: DEMO_SIBLINGS,
+          scheduleData: DEMO_SCHEDULE,
           schoolSettings: DEFAULT_SCHOOL_SETTINGS,
           workspaceId: nanoid(),
           step3Mode: null,        // ★追加
@@ -677,11 +635,11 @@ export const useAppStore = create<AppState>()(
           set({
             db: {
               workspaceId: nanoid(),
-              applicants: INITIAL_APPLICANTS,
-              siblings: INITIAL_SIBLINGS,
-              scheduleData: INITIAL_SCHEDULE,
+              applicants: BLANK_APPLICANTS,
+              siblings: BLANK_SIBLINGS,
+              scheduleData: BLANK_SCHEDULE,
               schoolSettings: DEFAULT_SCHOOL_SETTINGS,
-              step3Mode: null,        // ★追加
+              step3Mode: null,
               autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
             },
             ui: {
