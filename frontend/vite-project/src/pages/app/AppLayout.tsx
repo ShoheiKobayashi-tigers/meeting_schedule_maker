@@ -182,11 +182,20 @@ export const AppLayout: React.FC = () => {
 
     // 🌟 追い出し処理（スタートページ「以外」にいる時だけ発動）
     useEffect(() => {
-        if (!isStartPage && (!getSessionPassword() || !ui.hasEntered)) {
-            resetEnteredState(); 
-            navigate(basePath, { replace: true }); 
+        if (!isStartPage) {
+            // 🌟 1. 現在の相対パス（例: /step3/manual）を計算して保存
+            const relativePath = location.pathname.replace(basePath, '');
+            if (relativePath && relativePath !== '/') {
+                localStorage.setItem('student-app-last-route', relativePath);
+            }
+
+            // 🌟 2. もし未認証なら、パスを保存した直後にスタート画面へ追い出す
+            if (!getSessionPassword() || !ui.hasEntered) {
+                resetEnteredState(); 
+                navigate(basePath, { replace: true }); 
+            }
         }
-    }, [isStartPage, ui.hasEntered, navigate, basePath, resetEnteredState]);
+    }, [location.pathname, isStartPage, ui.hasEntered, navigate, basePath, resetEnteredState]);
 
     // 🌟 ヘッダーから直接データをリセットしてStep1に飛ぶ関数
     const handleReset = () => {

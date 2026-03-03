@@ -44,7 +44,14 @@ export const StartPage: React.FC = () => {
       await useAppStore.persist.rehydrate();
 
       setHasEntered(true);
-      navigate("/app/step1/students");
+      
+      // 🌟 記憶していた最後の場所（なければStep1）へ復帰
+      const lastRoute = localStorage.getItem("student-app-last-route");
+      if (lastRoute) {
+        navigate(`/app${lastRoute}`);
+      } else {
+        navigate("/app/step1/students");
+      }
     } catch (error) {
       setErrorMsg("パスワードが間違っています。");
     }
@@ -68,6 +75,7 @@ export const StartPage: React.FC = () => {
 
     setSessionPassword(password);
     resetAll();
+    localStorage.removeItem("student-app-last-route");
     localStorage.setItem(
       STORAGE_KEY,
       CryptoJS.AES.encrypt(
@@ -101,6 +109,7 @@ export const StartPage: React.FC = () => {
       )
     ) {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem("student-app-last-route");
       setHasData(false);
       setMode("menu");
       setPassword("");
