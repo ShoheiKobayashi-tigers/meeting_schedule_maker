@@ -3,14 +3,21 @@ import CryptoJS from 'crypto-js';
 import { StateStorage } from 'zustand/middleware';
 
 let sessionPassword: string | null = null;
+let forceDemoMode = false; // ★追加：強制デモモードフラグ
 
 export const setSessionPassword = (pwd: string | null) => {
     sessionPassword = pwd;
 };
 export const getSessionPassword = () => sessionPassword;
 
+// ★追加：強制的にデモモード扱いにする関数
+export const setForceDemoMode = (val: boolean) => {
+    forceDemoMode = val;
+};
+
 // 🌟 URLからデモモードかどうかを判定するヘルパー
-const isDemoMode = () => window.location.pathname.startsWith('/demo');
+// （強制フラグが立っているか、URLが /demo の場合はデモとして扱う）
+const isDemoMode = () => forceDemoMode || window.location.pathname.startsWith('/demo');
 
 export const secureStorage: StateStorage = {
     setItem: (name, value) => {

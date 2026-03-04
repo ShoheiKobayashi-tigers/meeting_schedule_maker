@@ -190,10 +190,16 @@ export const AppLayout: React.FC = () => {
             // 🌟 2. もし未認証なら、パスを保存した直後にスタート画面へ追い出す
             if (!getSessionPassword() || !hasEntered) {
                 resetEnteredState(); 
-                navigate(basePath, { replace: true }); 
+                
+                // ▼▼▼ 修正箇所：basePath に戻すのをやめる ▼▼▼
+                // navigate(basePath, { replace: true }); 
+                
+                // デモモードからログアウトした場合でも確実に本番環境へ戻し、
+                // さらに強制リロードをかけてメモリ（デモデータ）を完全に消去する
+                window.location.href = '/app'; 
             }
         }
-    }, [location.pathname, isStartPage, hasEntered, navigate, basePath, resetEnteredState]);
+    }, [location.pathname, isStartPage, hasEntered, basePath, resetEnteredState]);
 
     // 🌟 ヘッダーから直接データをリセットしてStep1に飛ぶ関数
     const handleReset = () => {
@@ -212,15 +218,15 @@ export const AppLayout: React.FC = () => {
     return (
         <div className={layout.appContainer}>
             <header className={layout.appHeader}>
-                <Link 
-                    to={basePath} 
+                <a 
+                    href='/app' 
                     style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit', gap: '8px' }}
                     title="スタート画面へ戻る"
                 >
                     {/* SVGのホームアイコン */}
                     <HomeIcon/>
                     <h1 className={layout.appTitle} style={{ margin: 0 }}>個人面談・三者面談 スケジュールメーカー</h1>
-                </Link>
+                </a>
                 <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px' }}>
                     <RoadmapFeature />
                 </div>
