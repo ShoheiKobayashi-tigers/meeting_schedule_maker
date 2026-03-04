@@ -30,7 +30,6 @@ export const LandingPage: React.FC = () => {
   const { setTermsModalOpen, setPrivacyModalOpen } = useAppStore();
   return (
     <>
-    // ★ wrapperクラスを指定。この中だけ globalStyle (h2, h3, pなど) が適用される
     <div className={styles.wrapper}>
       
       {/* --- 目次ナビゲーション（追従ヘッダー） --- */}
@@ -63,10 +62,6 @@ export const LandingPage: React.FC = () => {
               <Link to="/demo" className={styles.secondaryBtn}>デモを体験する</Link>
             </div>
             
-            <p style={{ marginTop: '16px', fontSize: '0.9rem', color: '#dc2626', fontWeight: 'bold' }}>
-              🔒 児童の氏名などのデータはサーバーに送信されません。（PC内に暗号化保存）
-            </p>
-
             {/* ※ここにGIF動画を配置するプレースホルダー */}
                 <div className={styles.videoWrapper}>
                     <video
@@ -95,7 +90,7 @@ export const LandingPage: React.FC = () => {
             <div className={styles.grid}>
               <article className={styles.featureCard}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🤖</div>
-                <h3>兄弟姉妹も自動で「玉突き」調整</h3>
+                <h3>兄弟姉妹も自動で調整</h3>
                 <p>手作業ではパズルのように複雑な兄弟の調整を、システムが一瞬で解決。「一番最後にして」などの要望や、先生の休憩時間確保にも対応します。</p>
               </article>
 
@@ -133,7 +128,7 @@ export const LandingPage: React.FC = () => {
               
               <article className={styles.stepCard}>
                 <h3 style={{ color: '#16a34a' }}>Step 2. 名簿のインポート</h3>
-                <p>Excelから生徒名簿を読み込みます。同校に兄弟姉妹がいる場合は、ここで設定しておくことで自動調整の対象になります。</p>
+                <p>Excelから生徒名簿を読み込みます（手入力可）。同校に兄弟姉妹がいる場合は、ここで設定しておくことで自動調整の対象になります。</p>
               </article>
               
               <article className={styles.stepCard}>
@@ -166,10 +161,18 @@ export const LandingPage: React.FC = () => {
                 教育現場で新しいツールを導入する際、最大の壁となるのが「個人情報の取り扱いルール（クラウド利用制限）」です。
               </p>
               <p style={{ color: '#d1d5db', fontSize: '1.1rem', marginBottom: '16px' }}>
-                本アプリは<strong>「ゼロ知識暗号化」</strong>という技術を採用しています。入力された名簿データは、先生が設定したパスワードを鍵として暗号化され、<strong>お使いのパソコンのブラウザ内（ローカル）にのみ保存</strong>されます。
+                本アプリは、児童・生徒の氏名を含む名簿データを<strong>お使いのパソコンのブラウザ内（ローカル）にのみ暗号化して保存</strong>します。インターネット上のサーバーに個人情報が送信されることは一切ありません。
               </p>
               <p style={{ color: '#d1d5db', fontSize: '1.1rem' }}>
-                インターネット上（外部のサーバー）に、生徒の氏名が平文で送信・保存されることは構造上あり得ません。そのため、情報漏洩のリスクを極限まで抑え、校長先生や教育委員会の基準下でも安心してお使いいただけます。
+                また、保護者から希望日程をオンライン回収する通信には<strong>「ゼロ知識暗号化」</strong>を採用しています。クラウドには暗号化されたデータのみが置かれ、復号する「鍵」は配付用プリントのQRコード内にしか存在しません。開発者すらデータを解読できない構造により、情報漏洩リスクを極限まで抑えています。
+              <br/>※詳細は
+              <button 
+                onClick={() => setTermsModalOpen(true)}
+                style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: 0, font: 'inherit', textDecoration: 'underline' }}
+                >
+                プライバシーポリシー
+              </button>
+              をご参照ください。
               </p>
             </div>
           </div>
@@ -222,13 +225,13 @@ export const LandingPage: React.FC = () => {
               onClick={() => setTermsModalOpen(true)}
               style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: 0, font: 'inherit', textDecoration: 'underline' }}
             >
-              利用規約（仮）
+              利用規約
             </button>
             <button 
               onClick={() => setPrivacyModalOpen(true)}
               style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: 0, font: 'inherit', textDecoration: 'underline' }}
             >
-              プライバシーポリシー（仮）
+              プライバシーポリシー
             </button>
             <a href="https://forms.gle/GMqBkzefmF3EAASx7" target="_blank" rel="noopener noreferrer" style={{ color: '#9ca3af' }}>
               お問い合わせ・不具合報告

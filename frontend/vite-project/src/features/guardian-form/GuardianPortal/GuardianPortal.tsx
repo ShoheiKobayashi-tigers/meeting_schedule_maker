@@ -1,3 +1,4 @@
+// src/features/guardian-form/GuardianPortal/GuardianPortal.tsx
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { ScheduleBaseTable, GridRow, GridCell } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
@@ -5,8 +6,9 @@ import { formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import { sortTimeRows, sortDateCols } from '../../../utils/sortUtils';
 import { GuardianLoginView } from '../components/GuardianLoginView';
 import { Button } from '../../../components/ui/Button/Button';
+import { encryptForCloud, decryptFromCloud } from '../../../utils/secureStorage';
 
-import * as s from './GuardianPortal.css'; // ★ スタイルを適用
+import * as s from './GuardianPortal.css';
 
 // --- 型定義 ---
 interface VerifyResponse {
@@ -25,14 +27,13 @@ interface VerifyResponse {
 }
 
 export const GuardianPortal: React.FC = () => {
-  // ==========================================
-  // ここから下のロジックは 1文字も 変えていません
-  // ==========================================
   const { workspaceId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const tokenFromUrl = searchParams.get('token');
   const stepParam = searchParams.get('step');
+
+  const secretKey = window.location.hash.substring(1); 
 
   const [inputToken, setInputToken] = useState(''); 
   const [data, setData] = useState<VerifyResponse | null>(null);
@@ -59,12 +60,24 @@ export const GuardianPortal: React.FC = () => {
   }, [data]);
 
   useEffect(() => {
+    if (!secretKey) {
+      setError("アクセスURLが正しくありません。\nプリントに記載されたQRコードをもう一度読み取るか、URLを正確に入力してください。");
+    }
+  }, [secretKey]);
+
+  useEffect(() => {
+    if (!secretKey) return; // 鍵がなければ通信しない
     const fetchPublicInfo = async () => {
       try {
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/workspaces/${workspaceId}/public`);
         if (res.ok) {
           const info = await res.json();
-          setPublicInfo(info);
+          // ★変更: 取得した表紙情報を secretKey で復号
+          const decClassName = decryptFromCloud(info.class_name, secretKey) || info.class_name;
+          const decMessage = decryptFromCloud(info.message, secretKey) || info.message;
+          const decEventName = decryptFromCloud(info.event_name, secretKey) || info.event_name;
+
+          setPublicInfo({ ...info, class_name: decClassName, message: decMessage, event_name: decEventName });
           if (!info.is_opened) {
              setError("現在、回答の受付を停止しています。\n希望される方は、担任までご連絡ください。");
           }
@@ -74,7 +87,7 @@ export const GuardianPortal: React.FC = () => {
       }
     };
     fetchPublicInfo();
-  }, [workspaceId]);
+  }, [workspaceId, secretKey]);
   
   const mapServerDatesToIds = (serverDates: string[], rows: string[], cols: string[]) => {
     const ids: string[] = [];
@@ -104,6 +117,7 @@ export const GuardianPortal: React.FC = () => {
   };
 
   const executeLogin = useCallback(async (tokenVal: string, isAutoLogin: boolean = false) => {
+    if (!secretKey) return;
     if (data && lastSuccessToken.current === tokenVal) return;
     lastAttemptedToken.current = tokenVal;
     setLoading(true);
@@ -119,23 +133,46 @@ export const GuardianPortal: React.FC = () => {
       if (!res.ok) throw new Error('エラーが発生しました');
       
       const json: VerifyResponse = await res.json();
-      setData(json);
+
+      // ★変更: ログイン後の設定とスケジュール枠を secretKey で一気に復号
+      const decRows = decryptFromCloud(json.schedule.rows as any, secretKey) || json.schedule.rows;
+      const decCols = decryptFromCloud(json.schedule.cols as any, secretKey) || json.schedule.cols;
+      
+      let decDates = [];
+      if (typeof json.preferred_dates === 'string') {
+         decDates = decryptFromCloud(json.preferred_dates, secretKey) || [];
+      } else if (Array.isArray(json.preferred_dates)) {
+         decDates = json.preferred_dates;
+      }
+
+      const decData: VerifyResponse = {
+         ...json,
+         preferred_dates: decDates,
+         schedule: { rows: decRows, cols: decCols },
+         settings: { 
+            ...json.settings, 
+            className: decryptFromCloud(json.settings.className, secretKey) || json.settings.className,
+            message: decryptFromCloud(json.settings.message, secretKey) || json.settings.message 
+         }
+      };
+
+      setData(decData);
       lastSuccessToken.current = tokenVal;
 
       if (!isAutoLogin) {
         setSearchParams({ token: tokenVal });
       }
 
-      const sortedRows = sortTimeRows(json.schedule.rows);
-      const sortedCols = sortDateCols(json.schedule.cols);
-      const initialSelections = mapServerDatesToIds(json.preferred_dates || [], sortedRows, sortedCols);
+      const sortedRows = sortTimeRows(decData.schedule.rows);
+      const sortedCols = sortDateCols(decData.schedule.cols);
+      const initialSelections = mapServerDatesToIds(decData.preferred_dates || [], sortedRows, sortedCols);
       setSelections(initialSelections);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [workspaceId, setSearchParams, data]);
+  }, [workspaceId, setSearchParams, data, secretKey]);
 
   useEffect(() => {
     if (tokenFromUrl) {
@@ -176,14 +213,18 @@ export const GuardianPortal: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!data || !tokenFromUrl) return;
+    if (!data || !tokenFromUrl || !secretKey) return;
     setLoading(true);
     const formattedDates = mapIdsToServerDates(selections, sortedSchedule.rows, sortedSchedule.cols);
+    
+    // ★変更: 提出する希望日程を secretKey で暗号化
+    const encryptedDates = encryptForCloud(formattedDates, secretKey);
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/workspaces/${workspaceId}/submissions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tokenFromUrl, preferred_dates: formattedDates }),
+        body: JSON.stringify({ token: tokenFromUrl, preferred_dates: encryptedDates }),
       });
       if (!res.ok) throw new Error('送信に失敗しました。もう一度お試しください。');
       setSearchParams({ token: tokenFromUrl, step: 'complete' });

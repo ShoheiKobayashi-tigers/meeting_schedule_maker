@@ -10,7 +10,7 @@ import * as layout from '../../../styles/layout.css'; // ★お道具箱を追�
 export const PublishStep: React.FC = () => {
   // --- ロジック部分は一切変更なし ---
   const { db, setSchoolSettings } = useAppStore();
-  const { schoolSettings, workspaceId } = db;
+  const { schoolSettings, workspaceId, secretKey } = db;
   const { sync, pullResponses, loading, error: syncError } = useCloudSync();
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -36,7 +36,7 @@ export const PublishStep: React.FC = () => {
     else alert("取得失敗: " + result.error);
   };
 
-  const publicUrl = workspaceId ? `${window.location.origin}/p/${workspaceId}` : null;
+  const publicUrl = workspaceId && secretKey ? `${window.location.origin}/p/${workspaceId}#${secretKey}` : null;
 
   const previewError = !schoolSettings.isOpened 
     ? "現在、回答の受付を停止しています。\n希望される方は、担任までご連絡ください。" 

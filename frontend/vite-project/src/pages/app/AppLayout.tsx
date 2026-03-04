@@ -227,8 +227,8 @@ export const AppLayout: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px', justifyContent: 'flex-end', gap: '24px' }}>
                     <div className={layout.headerLinksContainer}>
                         <button className={layout.quietLink} onClick={() => setReleaseNotesModalOpen(true)}>更新情報</button>
-                        <button className={layout.quietLink} onClick={() => setTermsModalOpen(true)}>利用規約（仮）</button>
-                        <button className={layout.quietLink} onClick={() => setPrivacyModalOpen(true)}>プライバシーポリシー（仮）</button>
+                        <button className={layout.quietLink} onClick={() => setTermsModalOpen(true)}>利用規約</button>
+                        <button className={layout.quietLink} onClick={() => setPrivacyModalOpen(true)}>プライバシーポリシー</button>
                         <a 
                             href="https://forms.gle/GMqBkzefmF3EAASx7" 
                             target="_blank" 

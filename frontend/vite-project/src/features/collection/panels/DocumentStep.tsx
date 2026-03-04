@@ -7,7 +7,7 @@ import * as s from './DocumentStep.css';
 import * as layout from '../../../styles/layout.css'; // ★お道具箱を追加
 
 export const DocumentStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
-  const { schoolSettings, applicants, workspaceId } = useAppStore(state => state.db);
+  const { schoolSettings, applicants, workspaceId, secretKey } = useAppStore(state => state.db);
   const setSchoolSettings = useAppStore(state => state.setSchoolSettings);
 
   const handleChange = (field: keyof typeof schoolSettings, value: string) => {
@@ -15,7 +15,7 @@ export const DocumentStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
   };
 
   const handleDownload = async () => {
-    await generateHandoutDocx(applicants, schoolSettings, workspaceId || '');
+    await generateHandoutDocx(applicants, schoolSettings, workspaceId || '', secretKey || '');
   };
 
   return (

@@ -2,17 +2,18 @@
 import { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { nanoid } from 'nanoid';
+import { encryptForCloud, decryptFromCloud } from '../../../utils/secureStorage'; 
 
 export const useCloudSync = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Storeから最新の状態を取得
-  const {db, setWorkspaceId, bulkSaveApplicants} = useAppStore();
+  const {db, setWorkspaceId, setSecretKey, bulkSaveApplicants} = useAppStore();
 
   const sync = async () => {
     // IDがなければ新規発行
     const wsId = db.workspaceId || nanoid(10);
+    const secKey = db.secretKey || nanoid(12); // ★追加: 真の鍵を取得または発行
     setLoading(true);
     setError(null);
 
@@ -38,19 +39,16 @@ export const useCloudSync = () => {
         body: JSON.stringify({
           workspaceId: wsId,
           
-          // スケジュール枠定義
-          rows: scheduleData.rows,
-          cols: scheduleData.cols,
+          // ★変更: workspaceIdではなく「secKey」を南京錠の鍵にして暗号化
+          rows: encryptForCloud(scheduleData.rows, secKey),
+          cols: encryptForCloud(scheduleData.cols, secKey),
+          eventName: encryptForCloud(schoolSettings.eventName || "個人面談", secKey),
+          className: encryptForCloud(schoolSettings.className || "", secKey),
+          message: encryptForCloud(schoolSettings.formMessage || "", secKey),
           
-          // 設定データ
           tokens: tokens,
-          eventName: schoolSettings.eventName || "個人面談",
-          className: schoolSettings.className || "",
-          limitDate: schoolSettings.limitDate || null, // TIMESTAMP用 (空文字ならnull)
-          message: schoolSettings.formMessage || "",
-          isOpened: schoolSettings.isOpened ?? true,   // 公開フラグ
-          
-          // 回答枠初期化用リスト
+          limitDate: schoolSettings.limitDate || null, 
+          isOpened: schoolSettings.isOpened ?? true,
           applicants: anonymousApplicants
         }),
       });
@@ -62,11 +60,10 @@ export const useCloudSync = () => {
 
       console.log("✅ Sync success!");
       
-      // StoreのworkspaceIdを更新（新規発行時）
-      if (!db.workspaceId) {
-        setWorkspaceId(wsId);
-      }
-      
+      // まだ発行していなければ保存
+      if (!db.workspaceId) setWorkspaceId(wsId);
+      if (!db.secretKey) setSecretKey(secKey);
+
       return { success: true, workspaceId: wsId };
 
     } catch (err: any) {
@@ -80,7 +77,8 @@ export const useCloudSync = () => {
 
   const pullResponses = async () => {
     const wsId = db.workspaceId;
-    if (!wsId) return { success: false, error: "ワークスペースIDがありません" };
+    const secKey = db.secretKey;
+    if (!wsId || !secKey) return { success: false, error: "クラウド設定がありません" };
 
     setLoading(true);
     setError(null);
@@ -98,8 +96,14 @@ export const useCloudSync = () => {
         // 同じトークンを持つ回答データを検索
         const match = responses.find(r => r.token === app.token);
         if (match) {
-          // DBの回答で上書き (preferred_dates は文字列配列)
-          return { ...app, preferred_dates: match.preferred_dates || [] };
+          let dates = [];
+          if (typeof match.preferred_dates === 'string') {
+             // ★変更: 取得した希望日程を「secKey」で復号
+             dates = decryptFromCloud(match.preferred_dates, secKey) || [];
+          } else if (Array.isArray(match.preferred_dates)) {
+             dates = match.preferred_dates;
+          }
+          return { ...app, preferred_dates: dates };
         }
         return app;
       });

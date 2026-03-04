@@ -49,3 +49,24 @@ export const secureStorage: StateStorage = {
         localStorage.removeItem(actualName);
     },
 };
+
+// ==========================================
+// クラウド通信用の暗号化 / 復号化ヘルパー
+// ==========================================
+
+// 鍵（secretKeyなど）を使ってデータを暗号化し、Base64文字列にして返します
+export const encryptForCloud = (data: any, key: string): string => {
+    return CryptoJS.AES.encrypt(JSON.stringify(data), key).toString();
+};
+
+// 暗号化された文字列を鍵を使って復元します
+export const decryptFromCloud = (encryptedStr: string, key: string): any => {
+    try {
+        const bytes = CryptoJS.AES.decrypt(encryptedStr, key);
+        const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+        return JSON.parse(decryptedString);
+    } catch (error) {
+        // 暗号化されていない古いデータやパースエラーのフェイルセーフ
+        return null; 
+    }
+};
