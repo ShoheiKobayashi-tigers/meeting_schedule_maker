@@ -4,6 +4,10 @@ import { Link } from 'react-router-dom';
 
 import * as styles from './LandingPage.css'
 
+import { useAppStore } from '../../store/useAppStore';
+import { TermsOfServiceModal } from '../../components/modals/TermsOfServiceModal';
+import { PrivacyPolicyModal } from '../../components/modals/PrivacyPolicyModal';
+
 // FAQ用のアコーディオンコンポーネント
 const FAQItem: React.FC<{ question: string; answer: React.ReactNode }> = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,7 +27,9 @@ const FAQItem: React.FC<{ question: string; answer: React.ReactNode }> = ({ ques
 };
 
 export const LandingPage: React.FC = () => {
+  const { setTermsModalOpen, setPrivacyModalOpen } = useAppStore();
   return (
+    <>
     // ★ wrapperクラスを指定。この中だけ globalStyle (h2, h3, pなど) が適用される
     <div className={styles.wrapper}>
       
@@ -62,12 +68,23 @@ export const LandingPage: React.FC = () => {
             </p>
 
             {/* ※ここにGIF動画を配置するプレースホルダー */}
-            <div style={{ marginTop: '40px', backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '10px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
-              <div style={{ aspectRatio: '16/9', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', color: '#9ca3af' }}>
-                [※ここに自動割り当てがサクッと決まるGIF動画を配置すると最高です]
-              </div>
+                <div className={styles.videoWrapper}>
+                    <video
+                        className={styles.videoPlayer}
+                        style={{ aspectRatio: '1920 / 900' }}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        // preload="auto" // ファーストビューにあるので最初から読み込む
+                        poster="/videos/demo-poster.jpg" // 【推奨】動画が読み込まれる前に表示する画像
+                    >
+                        {/* publicフォルダ直下をルート (/) としてパスを指定します */}
+                        <source src="/videos/demo-animation.mp4" type="video/mp4" />
+                        <p>お使いのブラウザは動画の再生に対応していません。</p>
+                    </video>
+                </div>
             </div>
-          </div>
         </section>
 
         {/* --- 1. 概要 (Overview) --- */}
@@ -201,8 +218,18 @@ export const LandingPage: React.FC = () => {
             </Link>
           </div>
           <div className={styles.footerLinks}>
-            <a href="#" style={{ color: '#9ca3af' }}>利用規約（仮）</a>
-            <a href="#" style={{ color: '#9ca3af' }}>プライバシーポリシー（仮）</a>
+            <button 
+              onClick={() => setTermsModalOpen(true)}
+              style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: 0, font: 'inherit', textDecoration: 'underline' }}
+            >
+              利用規約（仮）
+            </button>
+            <button 
+              onClick={() => setPrivacyModalOpen(true)}
+              style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: 0, font: 'inherit', textDecoration: 'underline' }}
+            >
+              プライバシーポリシー（仮）
+            </button>
             <a href="https://forms.gle/GMqBkzefmF3EAASx7" target="_blank" rel="noopener noreferrer" style={{ color: '#9ca3af' }}>
               お問い合わせ・不具合報告
             </a>
@@ -213,5 +240,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </footer>
     </div>
+      <TermsOfServiceModal />
+      <PrivacyPolicyModal />
+    </>
   );
 };

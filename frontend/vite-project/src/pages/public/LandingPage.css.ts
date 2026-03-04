@@ -302,3 +302,24 @@ export const footerLinks = style({
   marginBottom: '24px',
   fontSize: '0.9rem',
 });
+
+export const videoWrapper = style({
+  marginTop: '40px',
+  backgroundColor: 'white',
+  border: '1px solid #e5e7eb',
+  borderRadius: '12px',
+  padding: '8px', // 動画の周りの白いフチ
+  boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+  maxWidth: '800px',
+  margin: '40px auto 0', // 中央寄せ
+});
+
+export const videoPlayer = style({
+  width: '100%',
+  height: 'auto',
+  display: 'block', // 下部の隙間を消す
+  borderRadius: '8px', // 動画自体も角丸に
+  backgroundColor: '#f3f4f6', // 読み込み中の背景色
+  aspectRatio: '16 / 9',
+  objectFit: 'cover',
+});
