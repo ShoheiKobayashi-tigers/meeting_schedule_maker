@@ -85,6 +85,28 @@ export const panelTitle = style({
   margin: 0,
 });
 
+// ヘッダーに設置するリンク
+export const headerLinksContainer = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '12px', 
+  marginRight: vars.space.small, // 8px の代わりに vars を使用
+});
+
+export const quietLink = style({
+  background: 'none',
+  border: 'none',
+  color: vars.color.textSecondary, 
+  fontSize: '0.8rem',              
+  cursor: 'pointer',
+  textDecoration: 'underline',     
+  padding: 0,
+  transition: 'color 0.2s ease', // 🌟 ホバー時のアニメーション
+  ':hover': {
+    color: vars.color.textPrimary, // 🌟 ホバーで少し濃い色にする
+  }
+});
+
 /* =========================================
    4. スクロール領域とリスト行
 ========================================= */

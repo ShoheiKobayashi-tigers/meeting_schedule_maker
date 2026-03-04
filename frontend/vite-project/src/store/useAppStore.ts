@@ -76,6 +76,9 @@ interface UiState {
     isOpen: boolean;
     result: AutoAssignmentResult | null;
   };
+  isTermsModalOpen: boolean;
+  isPrivacyModalOpen: boolean;
+  isReleaseNotesModalOpen: boolean;
 }
 
 interface AppState {
@@ -136,6 +139,9 @@ interface AppState {
     isOpen: boolean,
     result?: AutoAssignmentResult | null,
   ) => void;
+  setTermsModalOpen: (isOpen: boolean) => void;
+  setPrivacyModalOpen: (isOpen: boolean) => void;
+  setReleaseNotesModalOpen: (isOpen: boolean) => void;
 
   //応用設定画面
   setBulkSetupOpen: (isOpen: boolean) => void;
@@ -206,6 +212,9 @@ export const useAppStore = create<AppState>()(
           isBulkSetupOpen: false,
           isAllocationConfigOpen: false,
           autoAssignConfirmModal: { isOpen: false, result: null },
+          isTermsModalOpen: false,
+          isPrivacyModalOpen: false,
+          isReleaseNotesModalOpen: false,
         },
         
         setHasEntered: (val: boolean) => set((state) => ({
@@ -239,6 +248,9 @@ export const useAppStore = create<AppState>()(
               isBulkSetupOpen: false,
               isAllocationConfigOpen: false,
               autoAssignConfirmModal: { isOpen: false, result: null },
+              isTermsModalOpen: false,
+              isPrivacyModalOpen: false,
+              isReleaseNotesModalOpen: false,
             },
           }),
 
@@ -652,6 +664,13 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             ui: { ...state.ui, autoAssignConfirmModal: { isOpen, result } },
           })),
+        
+        setTermsModalOpen: (isOpen) =>
+          set((state) => ({ ui: { ...state.ui, isTermsModalOpen: isOpen } })),
+        setPrivacyModalOpen: (isOpen) =>
+          set((state) => ({ ui: { ...state.ui, isPrivacyModalOpen: isOpen } })),
+        setReleaseNotesModalOpen: (isOpen) =>
+          set((state) => ({ ui: { ...state.ui, isReleaseNotesModalOpen: isOpen } })),
 
         applyAutoAssignmentResult: (result) =>
           set((state) => ({
@@ -695,6 +714,9 @@ export const useAppStore = create<AppState>()(
               isBulkSetupOpen: false,
               isAllocationConfigOpen: false,
               autoAssignConfirmModal: { isOpen: false, result: null },
+              isTermsModalOpen: false,
+              isPrivacyModalOpen: false,
+              isReleaseNotesModalOpen: false,
             },
           }),
 

@@ -14,6 +14,9 @@ import { AutoAssignConfirmModal } from '../../components/modals/AutoAssignConfir
 
 import * as layout from '../../styles/layout.css';
 import { vars } from '../../styles/vars.css';
+import { TermsOfServiceModal } from '../../components/modals/TermsOfServiceModal';
+import { ReleaseNotesModal } from '../../components/modals/ReleaseNotesModal';
+import { PrivacyPolicyModal } from '../../components/modals/PrivacyPolicyModal';
 
 // --- ロードマップ機能（元のApp.tsxからお引っ越し） ---
 // ----------------------------------------------------
@@ -172,7 +175,8 @@ const RoadmapFeature: React.FC = () => {
 export const AppLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { ui, resetAll, setHasEntered, resetEnteredState } = useAppStore();
+    const { hasEntered } = useAppStore(state => state.ui);
+    const { resetAll, setHasEntered, resetEnteredState, setTermsModalOpen, setPrivacyModalOpen, setReleaseNotesModalOpen } = useAppStore(state => state);
 
     const basePath = location.pathname.startsWith('/demo') ? '/demo' : '/app';
 
@@ -190,12 +194,12 @@ export const AppLayout: React.FC = () => {
             }
 
             // 🌟 2. もし未認証なら、パスを保存した直後にスタート画面へ追い出す
-            if (!getSessionPassword() || !ui.hasEntered) {
+            if (!getSessionPassword() || !hasEntered) {
                 resetEnteredState(); 
                 navigate(basePath, { replace: true }); 
             }
         }
-    }, [location.pathname, isStartPage, ui.hasEntered, navigate, basePath, resetEnteredState]);
+    }, [location.pathname, isStartPage, hasEntered, navigate, basePath, resetEnteredState]);
 
     // 🌟 ヘッダーから直接データをリセットしてStep1に飛ぶ関数
     const handleReset = () => {
@@ -207,7 +211,7 @@ export const AppLayout: React.FC = () => {
     };
 
     // 🌟 スタートページ以外で認証されていない場合は何も描画しない（チラつき防止）
-    if (!isStartPage && !ui.hasEntered) {
+    if (!isStartPage && !hasEntered) {
         return null; 
     }
 
@@ -227,6 +231,19 @@ export const AppLayout: React.FC = () => {
                     <RoadmapFeature />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px', justifyContent: 'flex-end', gap: '24px' }}>
+                    <div className={layout.headerLinksContainer}>
+                        <button className={layout.quietLink} onClick={() => setReleaseNotesModalOpen(true)}>更新情報</button>
+                        <button className={layout.quietLink} onClick={() => setTermsModalOpen(true)}>利用規約（仮）</button>
+                        <button className={layout.quietLink} onClick={() => setPrivacyModalOpen(true)}>プライバシーポリシー（仮）</button>
+                        <a 
+                            href="https://forms.gle/GMqBkzefmF3EAASx7" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className={layout.quietLink}
+                        >
+                            ご意見・不具合報告
+                        </a>
+                    </div>
                     <Button variant="outline" onClick={handleReset} style={{border: 'dashed', borderColor: vars.color.border}}>
                         リセット
                     </Button>
@@ -243,6 +260,9 @@ export const AppLayout: React.FC = () => {
             <ImportStudentModal />
             <ConfirmationModal />
             <AutoAssignConfirmModal />
+            <TermsOfServiceModal/>
+            <ReleaseNotesModal/>
+            <PrivacyPolicyModal/>
         </div>
     );
 };
