@@ -1,6 +1,7 @@
 // src/store/useAppStore.ts
 import { create } from "zustand";
-import { persist, devtools } from "zustand/middleware";
+import { createJSONStorage, persist, devtools } from "zustand/middleware";
+import { secureStorage } from '../utils/secureStorage';
 import { nanoid } from "nanoid";
 import {
   type Applicant,
@@ -24,61 +25,19 @@ import { generateShortToken } from "../utils/tokenUtils";
 import { calculateTimeRange } from "../utils/timeUtils";
 import { getInitialAvailability } from "../utils/availabilityUtils";
 import { AutoAssignmentResult } from "../utils/autoAssignment";
+import { DEMO_APPLICANTS, DEMO_SCHEDULE, DEMO_SIBLINGS } from "../utils/demoData";
 
 // 初期データ定義 (変更なしのため省略可能ですが、文脈維持のため記載)
 // ... (INITIAL_APPLICANTS, INITIAL_SIBLINGS, INITIAL_SCHEDULE は以前と同じ)
-const INITIAL_APPLICANTS: Applicant[] = [
-  {
-    id: "app-1",
-    family_name: "佐藤",
-    first_name: "和男",
-    student_id: "1",
-    preferred_dates: ["2025-12-01 09:15 - 09:30", "2025-11-30 14:00 - 14:15"],
-    family_id: "1",
-    token: "AAAAAA",
-    is_fixed: false,
-    is_last_slot: false,
-    needs_gap_after: false,
-  },
-  // 山田花子さんは兄弟なし
-  {
-    id: "app-2",
-    family_name: "山田",
-    first_name: "花子",
-    student_id: "2",
-    preferred_dates: ["2025-12-01 09:00 - 09:15", "2025-12-01 14:00 - 14:15"],
-    family_id: "2",
-    token: "BBBBBB",
-    is_fixed: false,
-    is_last_slot: false,
-    needs_gap_after: false,
-  },
-];
 
-const INITIAL_SIBLINGS: Sibling[] = [
-  {
-    id: "sib-1",
-    family_name: "佐藤",
-    first_name: "次郎",
-    grade: "5",
-    class: "2",
-    family_id: "1",
-    assigned_slot: "2025-12-01 09:00 - 09:15",
-  },
-];
-const INITIAL_SCHEDULE: ScheduleData = {
-  rows: ["09:00 - 09:15", "09:15 - 09:30", "14:00 - 14:15"],
-  cols: ["2025-11-30", "2025-12-01"],
-  assignments: [
-    [null, null],
-    [null, null],
-    [null, null],
-  ],
-  availability: [
-    ["normal", "normal"],
-    ["normal", "normal"],
-    ["normal", "normal"],
-  ],
+// 新しく始める（リセット）用の完全にクリーンなデータ
+const BLANK_APPLICANTS: Applicant[] = [];
+const BLANK_SIBLINGS: Sibling[] = [];
+const BLANK_SCHEDULE: ScheduleData = {
+  rows: [],         // 行（時間枠）はゼロ
+  cols: [],         // 列（日付）はゼロ
+  assignments: [],  // 割り当てデータもゼロ
+  availability: [], // 枠の有効/無効データもゼロ
 };
 
 export type AppStepId = 'step1' | 'step2' | 'step3' | 'step4' | 'step5';
@@ -98,14 +57,12 @@ interface DbState {
   scheduleData: ScheduleData;
   schoolSettings: SchoolSettings;
   workspaceId?: string;
+  step3Mode: Step3Mode;
   autoAssignmentConfig: AutoAssignmentConfig;
 }
 
 interface UiState {
   hasEntered: boolean;
-  activeStep: AppStepId;  // ★追加
-  activeSubStep: string;  // ★追加
-  step3Mode: Step3Mode;   // ★追加  
   interviewDuration: number;
   selectedSlot: SlotIndex | null;
   selectedApplicantId: string | null;
@@ -119,6 +76,9 @@ interface UiState {
     isOpen: boolean;
     result: AutoAssignmentResult | null;
   };
+  isTermsModalOpen: boolean;
+  isPrivacyModalOpen: boolean;
+  isReleaseNotesModalOpen: boolean;
 }
 
 interface AppState {
@@ -131,13 +91,15 @@ interface AppState {
   // === Actions (操作) ===
   // UI操作
   setHasEntered: (val: boolean) => void;
-  setActiveStep: (step: AppStepId) => void;      // ★追加
-  setActiveSubStep: (subStep: string) => void;   // ★追加
-  setStep3Mode: (mode: Step3Mode) => void;       // ★追加
+  resetEnteredState: () => void;
+  setStep3Mode: (mode: Step3Mode) => void;
   setSelectedSlot: (slot: SlotIndex | null) => void;
   setSelectedApplicantId: (id: string | null) => void;
   setDraggingApplicantId: (id: string | null) => void;
   setDraggingSlotIndex: (index: SlotIndex | null) => void;
+
+  //デモデータ送信
+  loadDemoData: () => void;
 
   // データ操作 (Core)
   setScheduleData: (data: ScheduleData) => void;
@@ -177,6 +139,9 @@ interface AppState {
     isOpen: boolean,
     result?: AutoAssignmentResult | null,
   ) => void;
+  setTermsModalOpen: (isOpen: boolean) => void;
+  setPrivacyModalOpen: (isOpen: boolean) => void;
+  setReleaseNotesModalOpen: (isOpen: boolean) => void;
 
   //応用設定画面
   setBulkSetupOpen: (isOpen: boolean) => void;
@@ -204,11 +169,12 @@ export const useAppStore = create<AppState>()(
       (set, get) => ({
         // 1. 初期データ (DB)
         db: {
-          applicants: INITIAL_APPLICANTS,
-          siblings: INITIAL_SIBLINGS,
-          scheduleData: INITIAL_SCHEDULE,
+          applicants: DEMO_APPLICANTS,
+          siblings: DEMO_SIBLINGS,
+          scheduleData: DEMO_SCHEDULE,
           schoolSettings: DEFAULT_SCHOOL_SETTINGS,
           workspaceId: nanoid(),
+          step3Mode: null,        // ★追加
           autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
         },
 
@@ -220,6 +186,7 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             db: { ...state.db, workspaceId: id },
           })),
+        setStep3Mode: (mode) => set((state) => ({ db: { ...state.db, step3Mode: mode } })),         // ★追加
         setAutoAssignmentConfig: (config) =>
           set((state) => ({
             db: { ...state.db, autoAssignmentConfig: config },
@@ -228,9 +195,6 @@ export const useAppStore = create<AppState>()(
         // 2. 初期状態 (UI)
         ui: {
           hasEntered: false,
-          activeStep: 'step1',    // ★追加
-          activeSubStep: '1-1',   // ★追加
-          step3Mode: null,        // ★追加
           interviewDuration: 15,
           selectedSlot: null,
           selectedApplicantId: null,
@@ -248,13 +212,48 @@ export const useAppStore = create<AppState>()(
           isBulkSetupOpen: false,
           isAllocationConfigOpen: false,
           autoAssignConfirmModal: { isOpen: false, result: null },
+          isTermsModalOpen: false,
+          isPrivacyModalOpen: false,
+          isReleaseNotesModalOpen: false,
         },
         
         setHasEntered: (val: boolean) => set((state) => ({
           ui: { ...state.ui, hasEntered: val }
         })),
+        
+        resetEnteredState: () => set((state) => ({ ui: { ...state.ui, hasEntered: false } })),
 
         // --- Actions ---
+        loadDemoData: () =>
+          set({
+            db: {
+              workspaceId: nanoid(),
+              applicants: DEMO_APPLICANTS,
+              siblings: DEMO_SIBLINGS,
+              scheduleData: DEMO_SCHEDULE,
+              schoolSettings: DEFAULT_SCHOOL_SETTINGS,
+              step3Mode: null,
+              autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
+            },
+            ui: {
+              // ... uiの初期値はresetAllと同じでOK ...
+              hasEntered: false,
+              interviewDuration: 15,
+              selectedSlot: null,
+              selectedApplicantId: null,
+              draggingApplicantId: null,
+              draggingSlotIndex: null,
+              confirmationModal: { isOpen: false, title: "", message: "", onConfirm: () => {}, confirmText: null, cancelText: null },
+              importStudentModal: { isOpen: false },
+              isBulkSetupOpen: false,
+              isAllocationConfigOpen: false,
+              autoAssignConfirmModal: { isOpen: false, result: null },
+              isTermsModalOpen: false,
+              isPrivacyModalOpen: false,
+              isReleaseNotesModalOpen: false,
+            },
+          }),
+
         setInterviewDuration: (duration: number) =>
           set((state) => ({
             ui: { ...state.ui, interviewDuration: duration },
@@ -389,9 +388,6 @@ export const useAppStore = create<AppState>()(
         },
 
         // UI Setters (ネストした ui オブジェクトを更新)
-        setActiveStep: (step) => set((state) => ({ ui: { ...state.ui, activeStep: step } })),       // ★追加
-        setActiveSubStep: (subStep) => set((state) => ({ ui: { ...state.ui, activeSubStep: subStep } })), // ★追加
-        setStep3Mode: (mode) => set((state) => ({ ui: { ...state.ui, step3Mode: mode } })),         // ★追加
         setSelectedSlot: (slot) =>
           set((state) => ({ ui: { ...state.ui, selectedSlot: slot } })),
         setSelectedApplicantId: (id) =>
@@ -668,6 +664,13 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             ui: { ...state.ui, autoAssignConfirmModal: { isOpen, result } },
           })),
+        
+        setTermsModalOpen: (isOpen) =>
+          set((state) => ({ ui: { ...state.ui, isTermsModalOpen: isOpen } })),
+        setPrivacyModalOpen: (isOpen) =>
+          set((state) => ({ ui: { ...state.ui, isPrivacyModalOpen: isOpen } })),
+        setReleaseNotesModalOpen: (isOpen) =>
+          set((state) => ({ ui: { ...state.ui, isReleaseNotesModalOpen: isOpen } })),
 
         applyAutoAssignmentResult: (result) =>
           set((state) => ({
@@ -685,17 +688,15 @@ export const useAppStore = create<AppState>()(
           set({
             db: {
               workspaceId: nanoid(),
-              applicants: INITIAL_APPLICANTS,
-              siblings: INITIAL_SIBLINGS,
-              scheduleData: INITIAL_SCHEDULE,
+              applicants: BLANK_APPLICANTS,
+              siblings: BLANK_SIBLINGS,
+              scheduleData: BLANK_SCHEDULE,
               schoolSettings: DEFAULT_SCHOOL_SETTINGS,
+              step3Mode: null,
               autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
             },
             ui: {
               hasEntered: false,
-              activeStep: 'step1',    // ★追加
-              activeSubStep: '1-1',   // ★追加
-              step3Mode: null,        // ★追加
               interviewDuration: 15,
               selectedSlot: null,
               selectedApplicantId: null,
@@ -713,6 +714,9 @@ export const useAppStore = create<AppState>()(
               isBulkSetupOpen: false,
               isAllocationConfigOpen: false,
               autoAssignConfirmModal: { isOpen: false, result: null },
+              isTermsModalOpen: false,
+              isPrivacyModalOpen: false,
+              isReleaseNotesModalOpen: false,
             },
           }),
 
@@ -763,9 +767,6 @@ export const useAppStore = create<AppState>()(
             ui: { ...state.ui, isAllocationConfigOpen: isOpen },
           })),
 
-        /*
-            以下、ここはリリース前に削除する     
-            */
         clearAllAssignments: () =>
           set((state) => {
             const { assignments } = state.db.scheduleData;
@@ -784,15 +785,15 @@ export const useAppStore = create<AppState>()(
               },
             };
           }),
-        /*
-            ここまで        
-            */
       }),
       {
         name: "student-app-storage",
+        storage: createJSONStorage(() => secureStorage),
         // 重要: dbオブジェクトのみを永続化し、uiオブジェクトは保存しない
         partialize: (state) => ({ db: state.db }),
+        skipHydration: true,
       },
     ),
+    { enabled: process.env.NODE_ENV !== 'production' }
   ),
 );

@@ -55,7 +55,28 @@ export const variant = styleVariants({
       backgroundColor: vars.color.hoverGray,
       color: vars.color.textPrimary,
     }
-  }
+  },
+  dark: {
+    backgroundColor: vars.color.textPrimary, // #1e293b などのダークグレー
+    color: vars.color.white,
+    border: 'none',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    ':hover': {
+      backgroundColor: '#334155', // ホバー時はほんのり明るく（Slate 700相当）
+      transform: 'translateY(-1px)',
+      boxShadow: '0 6px 8px -1px rgba(0, 0, 0, 0.15)',
+    },
+    ':active': {
+      transform: 'translateY(0)',
+    },
+    ':disabled': {
+      backgroundColor: vars.color.border,
+      color: vars.color.textMuted,
+      cursor: 'not-allowed',
+      transform: 'none',
+      boxShadow: 'none',
+    }
+  },
 });
 
 // アイコン専用のサイズ調整など
