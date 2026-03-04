@@ -107,12 +107,6 @@ const RoadmapFeature: React.FC = () => {
                             </h3>
                             <ul style={roadmapStyles.list}>
                                 <li>
-                                    <strong>セキュリティ強化とデータ保護（2026年3月末まで）</strong><br/>
-                                    <span style={roadmapStyles.itemDesc}>
-                                        現在、個人の特定が可能な全ての情報は、お使いのPCのストレージ内に自動保存されます。更なるセキュリティ強化のため、「ストレージ保存のデータの強力な暗号化」「リセットボタン」などを実装し、コンプライアンスに準拠した安全な環境を提供します。<br/>※現在は画面をリロードし、「新しく始める」ボタンを押すことでリセットが可能です。
-                                    </span>
-                                </li>
-                                <li>
                                     <strong>ユーザー操作ガイドの充実（2026年3月末まで）</strong><br/>
                                     <span style={roadmapStyles.itemDesc}>
                                         初めてツールに触れる先生でも、迷わず簡単にスケジュールが組めるようなチュートリアル画面や操作ガイドをご用意します。

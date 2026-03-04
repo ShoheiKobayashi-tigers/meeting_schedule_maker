@@ -54,6 +54,7 @@ export const title = style({
 // メインコンテンツ領域（長文になった場合はここでスクロールさせる）
 export const body = style({
   padding: `${vars.space.small} ${vars.space.medium}`,
+  fontSize: '0.9rem',
   overflowY: 'auto',
   color: vars.color.textSecondary, // 説明文なので少しトーンを落とす
 });
@@ -63,7 +64,7 @@ globalStyle(`${body} h3`, {
   fontSize: '1.1rem',
   fontWeight: 'bold',
   color: vars.color.textSecondary,
-  marginTop: vars.space.xl,      // 上に広めの余白（前の段落と離す）
+  marginTop: vars.space.medium,      // 上に広めの余白（前の段落と離す）
   marginBottom: vars.space.small,// 下のテキストとの余白
   paddingBottom: '4px',
   borderBottom: `2px solid ${vars.color.border}`, // 下線を引いてセクションを明確に
@@ -89,6 +90,7 @@ globalStyle(`${body} ul`, {
 
 globalStyle(`${body} li`, {
   marginBottom: '4px',
+  paddingBottom: vars.space.xs
 });
 
 // フッター部分（アクションボタン配置用）
