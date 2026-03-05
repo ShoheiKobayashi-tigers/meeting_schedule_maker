@@ -59,6 +59,7 @@ export const ManualInputModal: React.FC<Props> = ({
 
   // セルクリック時はローカルステートだけを超高速で更新
   const handleCellClick = (cell: GridCell) => {
+    if(cell.status === 'admin_block'){return;}
     const value = `${cell.colLabel} ${cell.rowLabel}`;
     setTempSelected(prev => 
       prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
@@ -108,9 +109,11 @@ export const ManualInputModal: React.FC<Props> = ({
             renderCell={(cell) => {
               const value = `${cell.colLabel} ${cell.rowLabel}`;
               const isSelected = tempSelected.includes(value);
+              const isBlocked = cell.status;
+              const cellState = isBlocked ? 'blocked' : isSelected ? 'selected' : 'default';
               return (
                 <div 
-                  className={`${s.cell} ${isSelected ? s.selectedCell : ''}`}
+                  className={s.cellRecipe({ state: cellState })}
                   onClick={() => handleCellClick(cell)}
                 >
                   {isSelected && <span className={s.checkIcon}>〇</span>}

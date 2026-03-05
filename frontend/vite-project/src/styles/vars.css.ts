@@ -14,6 +14,7 @@ export const vars = createGlobalTheme(':root', {
     background: '#f8fafc',   // アプリ全体の背景（少し青みがかったモダンなグレー）
     white: '#ffffff',        // パネルなどの白
     surface: '#ffffff',      // (whiteと同じですが、意味合いで使い分けるなら残してOK)
+    muted: '#f1f1f1',
     
     // --- インタラクション（状態） ---
     hoverGray: '#f1f5f9',    // リストなどをホバーした時

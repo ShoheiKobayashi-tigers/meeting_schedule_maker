@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css';
+import { recipe } from '@vanilla-extract/recipes';
 import { vars } from '../../../styles/vars.css';
 
 export const overlay = style({
@@ -76,16 +77,42 @@ export const tableContainer = style({
   minHeight: 0,
 });
 
-export const cell = style({
-  width: '100%',
-  height: '100%',
-  minHeight: '40px',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'all 0.2s',
-  ':hover': { backgroundColor: vars.color.hoverGray },
+export const cellRecipe = recipe({
+  base: {
+    width: '100%',
+    height: '100%',
+    minHeight: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'background-color 0.2s, border 0.2s',
+    boxSizing: 'border-box',
+    border: '2px solid transparent',
+  },
+  
+  // ★ boolean の組み合わせをやめ、排他的な「1つの状態」にする
+  variants: {
+    state: {
+      default: {
+        cursor: 'pointer',
+        ':hover': { backgroundColor: vars.color.hoverGray },
+      },
+      selected: {
+        cursor: 'pointer',
+        backgroundColor: `${vars.color.primary}22`,
+        borderColor: vars.color.primary,
+        ':hover': { backgroundColor: `${vars.color.primary}33` },
+      },
+      blocked: {
+        backgroundColor: vars.color.muted,
+        cursor: 'not-allowed',
+      }
+    }
+  },
+
+  defaultVariants: {
+    state: 'default',
+  }
 });
 
 export const selectedCell = style({

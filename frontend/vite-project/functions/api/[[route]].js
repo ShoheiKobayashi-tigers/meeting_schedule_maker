@@ -15,7 +15,7 @@ app.use('/*', cors());
  */
 app.post('/workspaces/sync', async (c) => {
   const body = await c.req.json();
-  const { workspaceId, rows, cols, tokens, className, limitDate, message, isOpened, applicants, eventName } = body;
+  const { workspaceId, rows, cols, availability, tokens, className, limitDate, message, isOpened, applicants, eventName } = body;
   
   // Cloudflareの環境変数は `c.env` から取得します
   const pool = new Pool({ connectionString: c.env.DATABASE_URL });
@@ -27,15 +27,15 @@ app.post('/workspaces/sync', async (c) => {
 
     await client.query(
       `INSERT INTO form_settings (
-         workspace_id, rows, cols, tokens, class_name, limit_date, message, is_opened, event_name, updated_at
+         workspace_id, rows, cols, availability, tokens, class_name, limit_date, message, is_opened, event_name, updated_at
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
        ON CONFLICT (workspace_id) DO UPDATE 
        SET 
-         rows = EXCLUDED.rows, cols = EXCLUDED.cols, tokens = EXCLUDED.tokens, class_name = EXCLUDED.class_name,
+         rows = EXCLUDED.rows, cols = EXCLUDED.cols, availability = EXCLUDED.availability, tokens = EXCLUDED.tokens, class_name = EXCLUDED.class_name,
          limit_date = EXCLUDED.limit_date, message = EXCLUDED.message, is_opened = EXCLUDED.is_opened,
          event_name = EXCLUDED.event_name, updated_at = NOW()`,
-      [workspaceId, JSON.stringify(rows), JSON.stringify(cols), JSON.stringify(tokens), className, safeLimitDate, message, isOpened ?? true, eventName]
+      [workspaceId, JSON.stringify(rows), JSON.stringify(cols), JSON.stringify(availability), JSON.stringify(tokens), className, safeLimitDate, message, isOpened ?? true, eventName]
     );
 
     for (const app of applicants) {
@@ -81,7 +81,8 @@ app.post('/workspaces/:id/verify', async (c) => {
     return c.json({
       token: response.token,
       preferred_dates: response.preferred_dates || [],
-      schedule: { rows: setting.rows, cols: setting.cols },
+      // ★ availability: setting.availability を追加
+      schedule: { rows: setting.rows, cols: setting.cols, availability: setting.availability },
       settings: { className: setting.class_name, limitDate: setting.limit_date, message: setting.message, isOpened: setting.is_opened }
     });
   } catch (err) {
