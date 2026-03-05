@@ -1,6 +1,6 @@
 // src/pages/app/AppLayout.tsx
 import React, { useState, useEffect } from 'react';
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'; 
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'; 
 import { Navigation } from '../../components/Navigation';
 import { Button } from '../../components/ui/Button/Button';
 import { HomeIcon } from '../../components/ui/icons/HomeIcon';
