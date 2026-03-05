@@ -28,6 +28,7 @@ export const UpsertStudentAssignmentModal: React.FC<Props> = ({
   if (!isOpen) return null;
 
   const handleCellClick = (cell: GridCell) => {
+    if(cell.status === 'admin_block'){return;}
     const value = `${cell.colLabel} ${cell.rowLabel}`;
     
     if (isMultiple) {
@@ -60,9 +61,11 @@ export const UpsertStudentAssignmentModal: React.FC<Props> = ({
             renderCell={(cell) => {
               const value = `${cell.colLabel} ${cell.rowLabel}`;
               const isSelected = tempSelected.includes(value);
+              const isBlocked = cell.status === 'admin_block' || cell.status === 'BLOCKED';
+              const cellState = isBlocked ? 'blocked' : isSelected ? 'selected' : 'default';
               return (
                 <div 
-                  className={`${s.cell} ${isSelected ? s.selectedCell : ''}`}
+                  className={s.cellRecipe({ state: cellState })}
                   onClick={() => handleCellClick(cell)}
                 >
                   {isSelected && <span className={s.checkIcon}>✓</span>}

@@ -14,7 +14,7 @@ import * as s from './GuardianPortal.css';
 interface VerifyResponse {
   token: string;
   preferred_dates: string[];
-  schedule: { rows: string[]; cols: string[]; };
+  schedule: { rows: string[]; cols: string[]; availability: string[][]; };
   settings: { className: string; message: string; limitDate: string | null; isOpened: boolean; };
 }
 
@@ -111,12 +111,13 @@ export const GuardianPortal: React.FC = () => {
         // 復号処理
         const decRows = decryptFromCloud(json.schedule.rows as any, secretKey) || json.schedule.rows;
         const decCols = decryptFromCloud(json.schedule.cols as any, secretKey) || json.schedule.cols;
+        const decAvailability = json.schedule.availability ? (decryptFromCloud(json.schedule.availability as any, secretKey) || json.schedule.availability) : null;
         let decDates = Array.isArray(json.preferred_dates) ? json.preferred_dates : (decryptFromCloud(json.preferred_dates, secretKey) || []);
 
         const decData: VerifyResponse = {
            ...json,
            preferred_dates: decDates,
-           schedule: { rows: decRows, cols: decCols },
+           schedule: { rows: decRows, cols: decCols, availability: decAvailability },
            settings: { 
               ...json.settings, 
               className: decryptFromCloud(json.settings.className, secretKey) || json.settings.className,
@@ -230,15 +231,30 @@ export const GuardianPortal: React.FC = () => {
     }));
   }, [sortedSchedule]);
 
-  const renderSelectCell = (cell: GridCell) => {
+const renderSelectCell = (cell: GridCell) => {
+    // 1. ブロックされているかどうかの判定
+    const isBlocked = cell.status === 'admin_block' || cell.status === 'BLOCKED';
+
+    // 2. ブロック時の表示（早期リターン。onClickがないためクリックしても何も起きません）
+    if (isBlocked) {
+      return (
+        <div className={s.cellRecipe({ state: 'blocked' })}>
+          <span className={s.blockedCrossLabel}>×</span>
+        </div>
+      );
+    }
+
+    // 3. 選択可能な場合の表示
     const valueId = `${cell.rowIndex}-${cell.colIndex}`;
     const isSelected = selections.includes(valueId);
+    const state = isSelected ? 'selected' : 'default';
+
     return (
-      <div className={isSelected ? s.cellSelected : s.cellSelectable} onClick={() => toggleSelection(valueId)}>
-        <div className={s.checkCircle} style={{ border: isSelected ? 'none' : '2px solid #cbd5e1', backgroundColor: isSelected ? '#059669' : '#fff' }}>
+      <div className={s.cellRecipe({ state })} onClick={() => toggleSelection(valueId)}>
+        <div className={s.checkCircleRecipe({ isSelected })}>
           {isSelected && '✓'}
         </div>
-        <span style={{ fontSize: '11px', marginTop: '6px', color: isSelected ? '#065f46' : '#94a3b8', fontWeight: isSelected ? 'bold' : 'normal' }}>
+        <span className={s.cellTextRecipe({ isSelected })}>
           {isSelected ? '希望する' : '選択可'}
         </span>
       </div>
@@ -251,8 +267,8 @@ export const GuardianPortal: React.FC = () => {
     if (!isSelected) return <div className={s.cellConfirmDisabled}>-</div>;
     return (
       <div className={s.cellConfirmSelected}>
-        <span style={{ color: '#047857', fontWeight: 'bold', fontSize: '14px' }}>希望</span>
-        <span style={{ fontSize: '10px', color: '#047857' }}>選択済み</span>
+        <span className={s.confirmLabelMain}>希望</span>
+        <span className={s.confirmLabelSub}>選択済み</span>
       </div>
     );
   };
@@ -309,10 +325,14 @@ export const GuardianPortal: React.FC = () => {
 
         {currentStep === 'complete' && (
           <div className={s.completeContainer}>
-            <div style={{ width: '80px', height: '80px', backgroundColor: '#d1fae5', borderRadius: '50%', color: '#059669', fontSize: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>✓</div>
-            <h2 style={{ fontSize: '1.5rem', color: '#1e293b', marginBottom: '16px' }}>回答を受け付けました</h2>
-            <p style={{ color: '#475569', lineHeight: '1.6', marginBottom: '40px' }}>ご協力ありがとうございました。<br/>希望日程の送信が完了しました。</p>
-            <Button variant="outline" onClick={handleCloseBrowser} style={{ width: '100%', padding: '16px' }}>画面を閉じる</Button>
+            <div className={s.completeIconWrapper}>✓</div>
+            <h2 className={s.completeTitle}>回答を受け付けました</h2>
+            <p className={s.completeDescription}>
+              ご協力ありがとうございました。<br/>希望日程の送信が完了しました。
+            </p>
+            <div className={s.completeButton}>
+              <Button variant="outline" onClick={handleCloseBrowser}>画面を閉じる</Button>
+            </div>
           </div>
         )}
 

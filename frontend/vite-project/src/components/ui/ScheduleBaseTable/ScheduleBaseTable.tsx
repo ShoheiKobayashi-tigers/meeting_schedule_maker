@@ -52,8 +52,9 @@ export const ScheduleBaseTable: React.FC<ScheduleBaseTableProps> = ({
               <td className={s.timeCell}>{row.rowLabel}</td>
               {row.cells.map((cellData) => {
                 const cellId = `slot-${cellData.rowIndex}-${cellData.colIndex}`;
+                const isBlocked = cellData.status === 'admin_block' || cellData.status === 'BLOCKED';
                 return (
-                  <td key={cellData.colLabel} className={s.cell}>
+                  <td key={cellData.colLabel} className={s.cell({ isBlocked })}>
                     {renderCell(cellData, cellId)}
                   </td>
                 );

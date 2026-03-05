@@ -42,6 +42,7 @@ export const useCloudSync = () => {
           // ★変更: workspaceIdではなく「secKey」を南京錠の鍵にして暗号化
           rows: encryptForCloud(scheduleData.rows, secKey),
           cols: encryptForCloud(scheduleData.cols, secKey),
+          availability: encryptForCloud(scheduleData.availability, secKey),
           eventName: encryptForCloud(schoolSettings.eventName || "個人面談", secKey),
           className: encryptForCloud(schoolSettings.className || "", secKey),
           message: encryptForCloud(schoolSettings.formMessage || "", secKey),

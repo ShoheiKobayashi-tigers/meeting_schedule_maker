@@ -15,7 +15,7 @@ const availableSlot = {
 // スロットの状態管理
 export const slotCell = recipe({
   base: {
-    border: `1px solid ${vars.color.border}`, // ★ varsに置き換え
+    // border: `1px solid ${vars.color.border}`, // ★ varsに置き換え
     verticalAlign: 'top',
     padding: '0.25rem',
     height: '80%',
