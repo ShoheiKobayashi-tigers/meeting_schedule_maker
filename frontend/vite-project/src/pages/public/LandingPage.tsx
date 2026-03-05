@@ -1,10 +1,11 @@
 // src/pages/public/LandingPage.tsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import * as styles from './LandingPage.css'
 
 import { useAppStore } from '../../store/useAppStore';
+import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
 import { TermsOfServiceModal } from '../../components/modals/TermsOfServiceModal';
 import { PrivacyPolicyModal } from '../../components/modals/PrivacyPolicyModal';
 
@@ -27,7 +28,25 @@ const FAQItem: React.FC<{ question: string; answer: React.ReactNode }> = ({ ques
 };
 
 export const LandingPage: React.FC = () => {
-  const { setTermsModalOpen, setPrivacyModalOpen } = useAppStore();
+  const navigate = useNavigate();
+  const { setTermsModalOpen, setPrivacyModalOpen, setHasEntered, loadDemoData } = useAppStore();
+
+  // ★ StartPage と同じ「デモ環境のセットアップ＆遷移」関数を作成
+  const handleDemoStart = async (e: React.MouseEvent) => {
+    e.preventDefault(); // （もしLinkタグなどの場合、デフォルトの遷移を防ぐ）
+    
+    setForceDemoMode(true); 
+    setSessionPassword("demo-mode"); // 合鍵を渡す
+    loadDemoData();                  // デモデータを注入
+    await useAppStore.persist.rehydrate(); // Zustandの永続化を同期
+    setHasEntered(true);             // 入室フラグをON
+    
+    navigate("/demo/step1/datetime"); // 準備完了してから遷移！
+    
+    setTimeout(() => {
+        setForceDemoMode(false);
+    }, 500);
+  };
   return (
     <>
     <div className={styles.wrapper}>
@@ -59,7 +78,7 @@ export const LandingPage: React.FC = () => {
             
             <div className={styles.buttonGroup}>
               <Link to="/app" className={styles.primaryBtn}>無料で使ってみる</Link>
-              <Link to="/demo" className={styles.secondaryBtn}>デモを体験する</Link>
+              <button className={styles.secondaryBtn} onClick={handleDemoStart}>デモを体験する</button>
             </div>
             
             {/* ※ここにGIF動画を配置するプレースホルダー */}
@@ -161,7 +180,7 @@ export const LandingPage: React.FC = () => {
                 教育現場で新しいツールを導入する際、最大の壁となるのが「個人情報の取り扱いルール（クラウド利用制限）」です。
               </p>
               <p style={{ color: '#d1d5db', fontSize: '1.1rem', marginBottom: '16px' }}>
-                本アプリは、児童・生徒の氏名を含む名簿データを<strong>お使いのパソコンのブラウザ内（ローカル）にのみ暗号化して保存</strong>します。インターネット上のサーバーに個人情報が送信されることは一切ありません。
+                本アプリは、児童・生徒の氏名を含む名簿データを<strong>お使いのパソコンのブラウザ内（ローカル）にのみ暗号化して保存</strong>します。インターネット上のサーバーに個人の特定が可能な情報が送信されることは一切ありません。
               </p>
               <p style={{ color: '#d1d5db', fontSize: '1.1rem' }}>
                 また、保護者から希望日程をオンライン回収する通信には<strong>「ゼロ知識暗号化」</strong>を採用しています。クラウドには暗号化されたデータのみが置かれ、復号する「鍵」は配付用プリントのQRコード内にしか存在しません。開発者すらデータを解読できない構造により、情報漏洩リスクを極限まで抑えています。

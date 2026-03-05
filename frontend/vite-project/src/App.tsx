@@ -1,6 +1,6 @@
 // src/App.tsx
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // --- Pages (展示台) のインポート ---
 import { LandingPage } from "./pages/public/LandingPage";
@@ -70,7 +70,7 @@ export const App: React.FC = () => {
       {/* ========================================= */}
       <Route path="/demo" element={<AppLayout />}>
         {/* /app 直下にアクセスした場合は StartPage */}
-        <Route index element={<StartPage />} />
+        <Route index element={<Navigate to="/app" replace />} />
 
         {/* Step 1: 名簿の準備 */}
         <Route path="step1/datetime" element={<DateTimePage />} />
