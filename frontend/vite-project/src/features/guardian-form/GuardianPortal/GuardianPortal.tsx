@@ -1,6 +1,6 @@
 // src/features/guardian-form/GuardianPortal/GuardianPortal.tsx
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'; // ★ useNavigate を追加
 import { ScheduleBaseTable, GridRow, GridCell } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
 import { formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import { sortTimeRows, sortDateCols } from '../../../utils/sortUtils';
@@ -28,7 +28,8 @@ interface VerifyResponse {
 
 export const GuardianPortal: React.FC = () => {
   const { workspaceId } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams(); // setSearchParams は削除
+  const navigate = useNavigate();           // ★ 追加
 
   const tokenFromUrl = searchParams.get('token');
   const stepParam = searchParams.get('step');
@@ -72,7 +73,7 @@ export const GuardianPortal: React.FC = () => {
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/workspaces/${workspaceId}/public`);
         if (res.ok) {
           const info = await res.json();
-          // ★変更: 取得した表紙情報を secretKey で復号
+          // 取得した表紙情報を secretKey で復号
           const decClassName = decryptFromCloud(info.class_name, secretKey) || info.class_name;
           const decMessage = decryptFromCloud(info.message, secretKey) || info.message;
           const decEventName = decryptFromCloud(info.event_name, secretKey) || info.event_name;
@@ -134,7 +135,7 @@ export const GuardianPortal: React.FC = () => {
       
       const json: VerifyResponse = await res.json();
 
-      // ★変更: ログイン後の設定とスケジュール枠を secretKey で一気に復号
+      // ログイン後の設定とスケジュール枠を secretKey で一気に復号
       const decRows = decryptFromCloud(json.schedule.rows as any, secretKey) || json.schedule.rows;
       const decCols = decryptFromCloud(json.schedule.cols as any, secretKey) || json.schedule.cols;
       
@@ -160,7 +161,8 @@ export const GuardianPortal: React.FC = () => {
       lastSuccessToken.current = tokenVal;
 
       if (!isAutoLogin) {
-        setSearchParams({ token: tokenVal });
+        // ★ 修正: 相対パスでのナビゲーションで確実にハッシュを引き継ぐ
+        navigate(`?token=${tokenVal}${window.location.hash}`, { replace: true });
       }
 
       const sortedRows = sortTimeRows(decData.schedule.rows);
@@ -168,11 +170,12 @@ export const GuardianPortal: React.FC = () => {
       const initialSelections = mapServerDatesToIds(decData.preferred_dates || [], sortedRows, sortedCols);
       setSelections(initialSelections);
     } catch (err: any) {
+      console.error("Login Error:", err); // デバッグ用
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [workspaceId, setSearchParams, data, secretKey]);
+  }, [workspaceId, navigate, data, secretKey]); // ★ 依存配列から setSearchParams を除去
 
   useEffect(() => {
     if (tokenFromUrl) {
@@ -193,7 +196,7 @@ export const GuardianPortal: React.FC = () => {
         setSelections([]);
         setInputToken('');
       }
-      setError('');
+      // ★ ここにあった `setError('');` を削除（エラーの揉み消しを防止）
     }
   }, [tokenFromUrl, data, loading, executeLogin]);
 
@@ -204,12 +207,12 @@ export const GuardianPortal: React.FC = () => {
 
   const goToConfirm = () => {
     if (!tokenFromUrl) return;
-    setSearchParams({ token: tokenFromUrl, step: 'confirm' });
+    navigate(`?token=${tokenFromUrl}&step=confirm${window.location.hash}`);
   };
 
   const backToSelect = () => {
     if (!tokenFromUrl) return;
-    setSearchParams({ token: tokenFromUrl });
+    navigate(`?token=${tokenFromUrl}${window.location.hash}`);
   };
 
   const handleSubmit = async () => {
@@ -217,7 +220,6 @@ export const GuardianPortal: React.FC = () => {
     setLoading(true);
     const formattedDates = mapIdsToServerDates(selections, sortedSchedule.rows, sortedSchedule.cols);
     
-    // ★変更: 提出する希望日程を secretKey で暗号化
     const encryptedDates = encryptForCloud(formattedDates, secretKey);
 
     try {
@@ -227,7 +229,7 @@ export const GuardianPortal: React.FC = () => {
         body: JSON.stringify({ token: tokenFromUrl, preferred_dates: encryptedDates }),
       });
       if (!res.ok) throw new Error('送信に失敗しました。もう一度お試しください。');
-      setSearchParams({ token: tokenFromUrl, step: 'complete' });
+      navigate(`?token=${tokenFromUrl}&step=complete${window.location.hash}`);
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -267,10 +269,8 @@ export const GuardianPortal: React.FC = () => {
 
 
   // ==========================================
-  // ここから下は「見た目（UI）」のみの修正です
+  // ここから下は「見た目（UI）」
   // ==========================================
-
-  // A. 選択画面用のセル（クリック可能）
   const renderSelectCell = (cell: GridCell) => {
     const valueId = `${cell.rowIndex}-${cell.colIndex}`;
     const isSelected = selections.includes(valueId);
@@ -290,7 +290,6 @@ export const GuardianPortal: React.FC = () => {
     );
   };
 
-  // B. 確認画面用のセル（読み取り専用・ハイライト表示）
   const renderConfirmCell = (cell: GridCell) => {
     const valueId = `${cell.rowIndex}-${cell.colIndex}`;
     const isSelected = selections.includes(valueId);
@@ -308,19 +307,13 @@ export const GuardianPortal: React.FC = () => {
     );
   };
 
-  // 現在のステップをURLから判定
   const currentStep = (!data || !tokenFromUrl) 
     ? 'LOGIN' 
     : (stepParam === 'confirm' ? 'CONFIRM' : (stepParam === 'complete' ? 'COMPLETE' : 'SELECT'));
 
-
-  // --- 大枠のレンダリング ---
   return (
     <div className={s.pageContainer}>
-      {/* 画面中央に配置されるメインコンテンツ（スマホ横向き時は全画面に伸びる） */}
       <div className={s.mainContent}>
-
-        {/* 1. ログイン画面 */}
         {currentStep === 'LOGIN' && (
           <GuardianLoginView
             hasInfo={!!publicInfo}
@@ -336,7 +329,6 @@ export const GuardianPortal: React.FC = () => {
           />
         )}
 
-        {/* 2. 日程選択画面 */}
         {currentStep === 'SELECT' && (
           <>
             <header className={s.header}>
@@ -361,7 +353,6 @@ export const GuardianPortal: React.FC = () => {
           </>
         )}
 
-        {/* 3. 確認画面 */}
         {currentStep === 'CONFIRM' && (
           <>
             <div className={s.header}>
@@ -383,7 +374,6 @@ export const GuardianPortal: React.FC = () => {
           </>
         )}
 
-        {/* 4. 完了画面 */}
         {currentStep === 'COMPLETE' && (
           <div className={s.completeContainer}>
             <div style={{ width: '80px', height: '80px', backgroundColor: '#d1fae5', borderRadius: '50%', color: '#059669', fontSize: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>

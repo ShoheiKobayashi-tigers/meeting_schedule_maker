@@ -32,6 +32,10 @@ export const ImportStudentModal: React.FC = () => {
         student_id: String(row['出席番号'] || ''),
         family_name: row['苗字'] || '',
         first_name: row['名前'] || '',
+        preferred_dates: [],
+        is_fixed: false,
+        is_last_slot: false,
+        needs_gap_after: false,
       }));
       setPreviewData(mappedData);
     } catch (err) {
