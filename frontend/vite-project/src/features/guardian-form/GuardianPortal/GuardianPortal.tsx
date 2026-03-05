@@ -285,7 +285,7 @@ const renderSelectCell = (cell: GridCell) => {
   const renderConfirmCell = (cell: GridCell) => {
     const valueId = `${cell.rowIndex}-${cell.colIndex}`;
     const isSelected = selections.includes(valueId);
-    if (!isSelected) return <div className={s.cellConfirmDisabled}>-</div>;
+    if (!isSelected) return <div className={s.cellConfirmDisabled}>×</div>;
     return (
       <div className={s.cellConfirmSelected}>
         <span className={s.confirmLabelMain}>希望</span>

@@ -144,7 +144,7 @@ export const cellRecipe = recipe({
 });
 
 export const cellConfirmDisabled = style([cellBase, {
-  backgroundColor: '#f8fafc',
+  backgroundColor: vars.color.muted,
   color: '#cbd5e1',
   fontSize: '20px',
 }]);

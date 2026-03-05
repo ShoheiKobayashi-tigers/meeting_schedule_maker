@@ -2,6 +2,7 @@
 import React from 'react';
 import { BaseInfoModal } from '../ui/Modal/BaseInfoModal';
 import { useAppStore } from '../../store/useAppStore';
+import { vars } from '../../styles/vars.css';
 
 export const TermsOfServiceModal: React.FC = () => {
   const isOpen = useAppStore(state => state.ui.isTermsModalOpen);
@@ -30,7 +31,8 @@ export const TermsOfServiceModal: React.FC = () => {
         </ul>
 
         <h3>第4条（免責事項）</h3>
-        <p>本サービスは現在ベータ（テスト）版として提供されています。以下の事由によりユーザーまたは第三者に生じた損害（業務上の遅延、トラブル等を含む）について、開発者は一切の責任を負わないものとします。</p>
+        <p>本サービスは現在ベータ（テスト）版として提供されています。以下の事由によりユーザーまたは第三者に生じた損害（業務上の遅延、トラブル等を含む）について、開発者は一切の責任を負わないものとします。<br/>
+        ※不具合を確認された方は、<a href="https://forms.gle/GMqBkzefmF3EAASx7" target="_blank" rel="noopener noreferrer" style={{ color: vars.color.primary }}>こちらのフォーム</a>よりご報告くださいますようお願い申し上げます。</p>
         <ul>
           <li>ブラウザのキャッシュクリア、端末の故障、またはクラウドサーバーの障害等による保存データの消失。</li>
           <li>本サービスの不具合、バグ、またはアクセス過多による動作の遅延・停止。</li>
