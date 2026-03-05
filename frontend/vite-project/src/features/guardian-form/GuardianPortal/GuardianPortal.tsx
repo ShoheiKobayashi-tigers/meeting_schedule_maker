@@ -218,16 +218,37 @@ export const GuardianPortal: React.FC = () => {
   // =====================================================================
   // 6. UIレンダリング部分
   // =====================================================================
+  const availabilityMap = useMemo(() => {
+    const map: Record<string, Record<string, string>> = {};
+    if (!data?.schedule) return map;
+
+    data.schedule.rows.forEach((rowLabel, rIdx) => {
+      map[rowLabel] = {};
+      data.schedule.cols.forEach((colLabel, cIdx) => {
+        // 元の配列からステータスを取得（なければOPEN）
+        map[rowLabel][colLabel] = data.schedule.availability?.[rIdx]?.[cIdx] || 'OPEN';
+      });
+    });
+    return map;
+  }, [data]);  
   
   const gridData: GridRow[] = useMemo(() => {
     if (sortedSchedule.rows.length === 0) return [];
     return sortedSchedule.rows.map((rowLabel, rIndex) => ({
       rowIndex: rIndex,
       rowLabel: rowLabel,
-      cells: sortedSchedule.cols.map((colLabel, cIndex) => ({
-        rowIndex: rIndex, colIndex: cIndex, rowLabel: rowLabel, colLabel: colLabel, 
-        displayColLabel: formatDisplayDate(colLabel), assignment: null, status: 'OPEN',
-      })),
+      cells: sortedSchedule.cols.map((colLabel, cIndex) => {
+        const status = availabilityMap[rowLabel]?.[colLabel] || "OPEN";
+        return {
+          rowIndex: rIndex,
+          colIndex: cIndex,
+          rowLabel: rowLabel,
+          colLabel: colLabel,
+          displayColLabel: formatDisplayDate(colLabel),
+          assignment: null,
+          status: status,
+        };
+      }),
     }));
   }, [sortedSchedule]);
 
