@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css';
+import { keyframes } from '@vanilla-extract/css';
 import { vars } from '../../../styles/vars.css';
 
 export const progressBadge = style({
@@ -8,6 +9,35 @@ export const progressBadge = style({
   borderRadius: '999px',
   fontSize: '0.9rem',
   fontWeight: 'bold',
+});
+
+export const headerContent = style({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+});
+
+export const headerLeft = style({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+// ▼ 右側にボタンとバッジを並べるためのコンテナ（追加）
+export const headerRight = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '16px',
+});
+
+// ▼ アイコンをくるくる回すアニメーション（追加）
+const spin = keyframes({
+  '0%': { transform: 'rotate(0deg)' },
+  '100%': { transform: 'rotate(360deg)' }
+});
+
+export const spinningIcon = style({
+  animation: `${spin} 1s linear infinite`,
 });
 
 export const studentInfo = style({

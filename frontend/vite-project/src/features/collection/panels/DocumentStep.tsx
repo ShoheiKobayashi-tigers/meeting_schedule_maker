@@ -1,10 +1,11 @@
+// src/features/collection/panels/DocumentStep.tsx
 import React from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { generateHandoutDocx } from '../../../utils/docxUtils';
-import { Button } from '../../../components/ui/Button/Button'; // ★共通ボタンを利用
+import { Button } from '../../../components/ui/Button/Button'; 
 
 import * as s from './DocumentStep.css';
-import * as layout from '../../../styles/layout.css'; // ★お道具箱を追加
+import * as layout from '../../../styles/layout.css'; 
 
 export const DocumentStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
   const { schoolSettings, applicants, workspaceId, secretKey } = useAppStore(state => state.db);
@@ -22,7 +23,7 @@ export const DocumentStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
     <div className={layout.basePanelCard}>
       
       {/* 1. 固定領域：ヘッダー */}
-      <div className={layout.panelHeader} style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+      <div className={layout.panelHeader} style={{ padding: '20px 24px 5px',flexDirection: 'column', alignItems: 'flex-start' }}>
         <h2 className={layout.panelTitle}>1. 配布用案内状の設定と作成</h2>
         <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '8px', lineHeight: '1.5' }}>
           保護者に配布する案内状（Word形式）の内容を設定し、ダウンロードします。<br/>
@@ -45,64 +46,78 @@ export const DocumentStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
                 onChange={(e) => handleChange('eventName', e.target.value)} 
               />
             </label>
-            <label className={s.label}>
-              学校名
-              <input 
-                type="text" 
-                className={s.input}
-                value={schoolSettings.schoolName || ''} 
-                onChange={(e) => handleChange('schoolName', e.target.value)} 
-                placeholder="〇〇小学校"
-              />
-            </label>
-            <label className={s.label}>
-              校長名
-              <input 
-                type="text" 
-                className={s.input}
-                value={schoolSettings.principalName || ''} 
-                onChange={(e) => handleChange('principalName', e.target.value)} 
-                placeholder="山田　太郎"
-              />
-            </label>
-            <label className={s.label}>
-              学級名
-              <input 
-                type="text" 
-                className={s.input}
-                value={schoolSettings.className || ''} 
-                onChange={(e) => handleChange('className', e.target.value)} 
-                placeholder="〇年〇組"
-              />
-            </label>
-            <label className={s.label}>
-              担任名
-              <input 
-                type="text" 
-                className={s.input}
-                value={schoolSettings.senderName || ''} 
-                onChange={(e) => handleChange('senderName', e.target.value)} 
-                placeholder="鈴木　花子"
-              />
-            </label>
-            <label className={s.label}>
-              お便り配布予定日 <span style={{fontSize:'12px', fontWeight:'normal', color: '#64748b'}}>※お便りには和暦で表示されます</span>
-              <input 
-                type="date" 
-                className={s.input}
-                value={schoolSettings.distributionDate || ''} 
-                onChange={(e) => handleChange('distributionDate', e.target.value)} 
-              />
-            </label>
-            <label className={s.label}>
-              提出期限日 <span style={{fontSize:'12px', fontWeight:'normal', color: '#64748b'}}>※お便りには和暦で表示されます</span>
-              <input 
-                type="date" 
-                className={s.input}
-                value={schoolSettings.limitDate || ''} 
-                onChange={(e) => handleChange('limitDate', e.target.value)} 
-              />
-            </label>
+
+            {/* 2段目：学校名・校長名（横並び） */}
+            <div className={s.inputRow}>
+              <label className={s.label}>
+                学校名
+                <input 
+                  type="text" 
+                  className={s.input}
+                  value={schoolSettings.schoolName || ''} 
+                  onChange={(e) => handleChange('schoolName', e.target.value)} 
+                  placeholder="〇〇小学校"
+                />
+              </label>
+              <label className={s.label}>
+                校長名
+                <input 
+                  type="text" 
+                  className={s.input}
+                  value={schoolSettings.principalName || ''} 
+                  onChange={(e) => handleChange('principalName', e.target.value)} 
+                  placeholder="山田　太郎"
+                />
+              </label>
+            </div>
+
+            {/* 3段目：学級名・担任名（横並び） */}
+            <div className={s.inputRow}>
+              <label className={s.label}>
+                学級名
+                <input 
+                  type="text" 
+                  className={s.input}
+                  value={schoolSettings.className || ''} 
+                  onChange={(e) => handleChange('className', e.target.value)} 
+                  placeholder="〇年〇組"
+                />
+              </label>
+              <label className={s.label}>
+                担任名
+                <input 
+                  type="text" 
+                  className={s.input}
+                  value={schoolSettings.senderName || ''} 
+                  onChange={(e) => handleChange('senderName', e.target.value)} 
+                  placeholder="鈴木　花子"
+                />
+              </label>
+            </div>
+
+            {/* 4段目：日付関連（横並び） */}
+            <div className={s.inputRow}>
+              <label className={s.label}>
+                <span>お便り配布予定日 <span style={{fontSize:'12px', fontWeight:'normal', color: '#64748b'}}>※和暦で表示されます</span></span>
+                <input 
+                  type="date" 
+                  className={s.input}
+                  value={schoolSettings.distributionDate || ''} 
+                  onChange={(e) => handleChange('distributionDate', e.target.value)} 
+                />
+              </label>
+              <label className={s.label}>
+                <span>提出期限日 <span style={{fontSize:'12px', fontWeight:'normal', color: '#64748b'}}>※和暦で表示されます</span></span>
+                <input 
+                  type="date" 
+                  className={s.input}
+                  value={schoolSettings.limitDate || ''} 
+                  onChange={(e) => handleChange('limitDate', e.target.value)} 
+                />
+              </label>
+            </div>
+
+            {/* 5段目：お便り本文（フル幅） */}
             <label className={s.label}>
               お便り本文
               <textarea 
