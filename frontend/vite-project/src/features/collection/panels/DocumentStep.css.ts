@@ -10,7 +10,18 @@ export const formGrid = style({
   marginBottom: '32px',
   padding: vars.space.large,
   backgroundColor: vars.color.white,
-  borderBottom: `1px solid ${vars.color.border}`, // 次のエリアとの区切り
+  borderBottom: `1px solid ${vars.color.border}`,
+});
+
+export const inputRow = style({
+  display: 'flex',
+  gap: vars.space.large,
+  width: '100%',
+  '@media': {
+    'screen and (max-width: 640px)': {
+      flexDirection: 'column', // 画面が狭い場合は自動で縦に並べる
+    },
+  },
 });
 
 export const label = style({
@@ -20,6 +31,7 @@ export const label = style({
   fontSize: '0.9rem',
   fontWeight: 'bold',
   color: vars.color.textPrimary,
+  flex: 1
 });
 
 export const input = style({
@@ -50,7 +62,7 @@ export const downloadArea = style({
   borderRadius: vars.borderRadius.medium,
   padding: '32px',
   textAlign: 'center',
-  margin: `0 ${vars.space.large} 32px`, // 左右に余白を持たせて配置
+  margin: `0 ${vars.space.large} 32px`,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -61,7 +73,7 @@ export const statusBadge = style({
   padding: '6px 16px',
   borderRadius: '20px',
   backgroundColor: vars.color.white,
-  color: '#0284c7', // 爽やかな青
+  color: '#0284c7', 
   fontSize: '0.85rem',
   fontWeight: '800',
   boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
@@ -77,6 +89,6 @@ export const footer = style({
   padding: vars.space.large,
   borderTop: `1px solid ${vars.color.border}`,
   display: 'flex',
-  justifyContent: 'flex-end', // 右寄せ
+  justifyContent: 'flex-end',
   backgroundColor: vars.color.white,
 });

@@ -2,34 +2,33 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import * as styles from './LandingPage.css'
+import * as s from './LandingPage.css'
 
 import { useAppStore } from '../../store/useAppStore';
 import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
-import { TermsOfServiceModal } from '../../components/modals/TermsOfServiceModal';
-import { PrivacyPolicyModal } from '../../components/modals/PrivacyPolicyModal';
+import { ArrowRight, SquareDashed, Users, PenTool, FileSpreadsheet, Printer } from 'lucide-react';
 
 // FAQ用のアコーディオンコンポーネント
 const FAQItem: React.FC<{ question: string; answer: React.ReactNode }> = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className={styles.faqItem}>
+    <div className={s.faqItem}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={styles.faqButton}
+        className={s.faqButton}
         aria-expanded={isOpen}
       >
         <span>Q. {question}</span>
         <span>{isOpen ? '−' : '＋'}</span>
       </button>
-      {isOpen && <div className={styles.faqContent}>{answer}</div>}
+      {isOpen && <div className={s.faqContent}>{answer}</div>}
     </div>
   );
 };
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setTermsModalOpen, setPrivacyModalOpen, setHasEntered, loadDemoData } = useAppStore();
+  const { setHasEntered, loadDemoData } = useAppStore();
 
   // ★ StartPage と同じ「デモ環境のセットアップ＆遷移」関数を作成
   const handleDemoStart = async (e: React.MouseEvent) => {
@@ -49,42 +48,42 @@ export const LandingPage: React.FC = () => {
   };
   return (
     <>
-    <div className={styles.wrapper}>
+    <div className={s.wrapper}>
       
       {/* --- 目次ナビゲーション（追従ヘッダー） --- */}
-      <header className={styles.header}>
-        <a href="#" className={styles.headerTitle}>個人面談・三者面談 スケジュールメーカー</a>
-        <nav className={styles.headerNav}>
-          <a href="#overview" className={styles.navLink}>概要</a>
-          <a href="#how-to-use" className={styles.navLink}>使い方</a>
-          <a href="#security" className={styles.navLink}>セキュリティ</a>
-          <a href="#faq" className={styles.navLink}>FAQ</a>
+      <header className={s.header}>
+        <a href="#" className={s.headerTitle}>個人面談・三者面談 スケジュールメーカー</a>
+        <nav className={s.headerNav}>
+          <a href="#overview" className={s.navLink}>概要</a>
+          <a href="#how-to-use" className={s.navLink}>使い方</a>
+          <a href="#security" className={s.navLink}>セキュリティ</a>
+          <a href="#faq" className={s.navLink}>FAQ</a>
         </nav>
-        <Link to="/app" className={styles.headerBtn}>無料で始める</Link>
+        <Link to="/app" className={s.headerBtn}>無料で始める</Link>
       </header>
 
       <main>
         {/* --- Hero Section (ファーストビュー) --- */}
-        <section className={styles.bgGreenLight} style={{ textAlign: 'center' }}>
-          <div className={styles.sectionInner}>
-            <span className={styles.heroBadge}>完全無料・面倒なアカウント登録なし</span>
-            <h1 className={styles.heroTitle}>
+        <section className={s.bgGreenLight} style={{ textAlign: 'center' }}>
+          <div className={s.sectionInner}>
+            <span className={s.heroBadge}>完全無料・面倒なアカウント登録なし</span>
+            <h1 className={s.heroTitle}>
               面談の日程調整を<br />「一瞬」で終わらせる。
             </h1>
-            <p className={styles.heroText}>
+            <p className={s.heroText}>
               名簿の読み込み、兄弟姉妹の自動割り当て、QRコード付き案内プリントの出力まで。<br/>
               学校の厳しいセキュリティ基準もクリアした、先生のための無料ツール。
             </p>
             
-            <div className={styles.buttonGroup}>
-              <Link to="/app" className={styles.primaryBtn}>無料で使ってみる</Link>
-              <button className={styles.secondaryBtn} onClick={handleDemoStart}>デモを体験する</button>
+            <div className={s.buttonGroup}>
+              <Link to="/app" className={s.primaryBtn}>無料で使ってみる</Link>
+              <button className={s.secondaryBtn} onClick={handleDemoStart}>デモを体験する</button>
             </div>
             
             {/* ※ここにGIF動画を配置するプレースホルダー */}
-                <div className={styles.videoWrapper}>
+                <div className={s.videoWrapper}>
                     <video
-                        className={styles.videoPlayer}
+                        className={s.videoPlayer}
                         style={{ aspectRatio: '1920 / 900' }}
                         autoPlay
                         loop
@@ -102,66 +101,148 @@ export const LandingPage: React.FC = () => {
         </section>
 
         {/* --- 1. 概要 (Overview) --- */}
-        <section id="overview" className={styles.bgWhite}>
-          <div className={styles.sectionInnerWide}>
-            <h2>圧倒的に選ばれる4つの理由</h2>
+        <section id="overview" className={s.bgWhite}>
+          <div className={s.sectionInnerWide}>
+            <h2>先生の負担を劇的に減らす、唯一無二の特長</h2>
             
-            <div className={styles.grid}>
-              <article className={styles.featureCard}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🤖</div>
-                <h3>兄弟姉妹も自動で調整</h3>
-                <p>手作業ではパズルのように複雑な兄弟の調整を、システムが一瞬で解決。「一番最後にして」などの要望や、先生の休憩時間確保にも対応します。</p>
+            {/*  特大カード1 */}
+            <article className={s.featuredCard}>
+              <div>
+                <div className={s.primaryBadge}>
+                  最大の特長
+                </div>
+                <h3 style={{ fontSize: '1.8rem', marginBottom: '16px' }}>
+                  パズルのような兄弟調整も<br/>「一瞬」で自動完了
+                </h3>
+                <p style={{ fontSize: '1.1rem', lineHeight: '1.7' }}>
+                  手作業では最も頭を悩ませる「AくんとBさんは兄弟だから同じ日の連続した時間に…」という複雑な条件を、システム独自のアルゴリズムが一瞬で解決。余裕をもたせた枠の確保や、「一番最後にしてほしい」などの個別要望にも完璧に対応します。
+                </p>
+              </div>
+              {/* 📸 「Before/After」のシナリオ型 */}
+              <div className={s.scenarioContainer}>
+                
+                {/* シナリオ1：兄弟の調整 */}
+                <div className={s.scenarioRow}>
+                  {/* ★ 絵文字を Lucide の Users アイコンに変更 */}
+                  <div className={s.scenarioLabel}>
+                    <Users size={20} color="#16a34a" /> 
+                    兄弟がいる保護者の待ち時間を設定（連続枠も可）
+                  </div>
+                  <div className={s.scenarioImages}>
+                    <img src="/images/setting-sibling.png" alt="兄弟リンクの設定" className={s.scenarioImage} />
+                    <ArrowRight className={s.scenarioArrow} />
+                    <img src="/images/result-sibling.png" alt="連続配置されたスケジュール" className={s.scenarioImage} />
+                  </div>
+                </div>
+
+                {/* シナリオ2：休憩・空き枠の確保 */}
+                <div className={s.scenarioRow}>
+                  {/* ★ 絵文字を Lucide の Coffee アイコンに変更 */}
+                  <div className={s.scenarioLabel}>
+                    <SquareDashed size={20} color="#16a34a" /> 
+                    「この子の後には空き枠を確保したい」という希望にも対応
+                  </div>
+                  <div className={s.scenarioImages}>
+                    <img src="/images/setting-break.png" alt="休憩枠のブロック設定" className={s.scenarioImage} />
+                    <ArrowRight className={s.scenarioArrow} />
+                    <img src="/images/result-break.png" alt="空き枠が確保されたスケジュール" className={s.scenarioImage} />
+                  </div>
+                </div>
+
+              </div>
+            </article>
+            {/*  特大カード2 */}
+            <article className={s.featuredCard} style={{ borderColor: '#40fc28' }}>
+              <div>
+                <div className={s.primaryBadge}>
+                  もうひとつの特長
+                </div>
+                <h3 style={{ fontSize: '1.8rem', marginBottom: '16px' }}>
+                  大量の紙とデータ入力から解放。<br/>スマホで希望日を「自動集計」
+                </h3>
+                <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: '#4b5563' }}>
+                  面談準備で一番の重労働だった「回収した紙を見ながらパソコンに入力する作業」をゼロに。システムが発行するQRコード付きのおたよりを配付するだけで、保護者がスマホから提出したデータは、ボタン一つで先生の手元へ安全に同期・自動集計されます。
+                </p>
+              </div>
+              
+              {/* 📸 4枚の画像を田の字（2x2）で並べるストーリーテリング */}
+              <div className={s.fourImageGrid}>
+                <div className={s.gridImageWrapper}>
+                  <div className={s.gridImageLabel}>① おたより設定画面</div>
+                  <img src="/images/form-setting.png" alt="お便り設定画面" className={s.gridImage} />
+                </div>
+                <div className={s.gridImageWrapper}>
+                  <div className={s.gridImageLabel}>② QRコード付きおたより発行</div>
+                  <img src="/images/form-print.png" alt="QRコードのお便り" className={s.gridImage} />
+                </div>
+                <div className={s.gridImageWrapper}>
+                  <div className={s.gridImageLabel}>③ 保護者のスマホ画面（ログイン・入力）</div>
+                  <img src="/images/form-mobile.png" alt="保護者フォーム入力画面" className={s.gridImage} />
+                </div>
+                <div className={s.gridImageWrapper}>
+                  <div className={s.gridImageLabel}>④ ワンクリックで希望日程を同期・一覧化</div>
+                  <img src="/images/form-dashboard.png" alt="入力状況の確認画面" className={s.gridImage} />
+                </div>
+              </div>
+            </article>
+
+            {/* 🌟 サポートする3つの強み（3列グリッド） */}
+            <div className={s.subGrid}>
+              
+              {/* 1. 手入力（個人利用の救済措置） */}
+              <article className={s.featureCard}>
+                <PenTool size={40} className={s.subFeatureIcon} />
+                <h3 style={{ minHeight: '30%'}}>学校の許可がなくても大丈夫<br/>［紙 ＋ 手入力モード］</h3>
+                <p style={{ fontSize: '0.95rem' }}>「うちの学校ではWebフォーム導入はハードルが高い…」という場合でも安心。従来通り紙で回収し、先生の手元で代行入力すれば、強力な自動調整の恩恵だけを個人のクラスで受けられます。</p>
               </article>
 
-              <article className={styles.featureCard}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🖨️</div>
-                <h3>専用QRコード付きプリントをWord出力</h3>
-                <p>保護者に配付する「専用QRコード付き案内プリント」をWordファイル（.docx）で一括生成。ダウンロード後に学校独自の書式へ微調整が可能です。</p>
+              {/* 2. Excel読込 */}
+              <article className={s.featureCard}>
+                <FileSpreadsheet size={40} className={s.subFeatureIcon} />
+                <h3 style={{ minHeight: '30%'}}>いつものExcel名簿を<br/>そのままコピペ読込</h3>
+                <p style={{ fontSize: '0.95rem' }}>新しいツール導入時の「名簿登録の手間」をゼロに。先生が普段お使いのExcel生徒名簿から名前をコピー＆ペーストするだけで、数秒で準備が完了します。</p>
               </article>
 
-              <article className={styles.featureCard}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>📊</div>
-                <h3>いつものExcel名簿をそのまま読込</h3>
-                <p>新しいツール導入時の「名簿登録の手間」をゼロに。先生が普段お使いのExcel生徒名簿をそのままインポートし、すぐに使い始められます。</p>
+              {/* 3. Word出力 */}
+              <article className={s.featureCard}>
+                <Printer size={40} className={s.subFeatureIcon} />
+                <h3 style={{ minHeight: '30%'}}>結果のお知らせプリントも<br/>Wordで一括出力</h3>
+                <p style={{ fontSize: '0.95rem' }}>決定した日程の表が載ったお知らせプリント（全員共通）をWordファイル（.docx）で生成。学校独自のフォーマットや挨拶文への微調整も簡単です。</p>
               </article>
-
-              <article className={styles.featureCard}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>📱</div>
-                <h3>紙とデジタルのハイブリッド回収</h3>
-                <p>スマホからのWeb回答はもちろん、紙で提出された希望も先生が代行入力可能。すべての回答を統合して自動割り当てにかけられます。</p>
-              </article>
+              
             </div>
+
           </div>
         </section>
 
         {/* --- 2. 使い方 (How to use) --- */}
-        <section id="how-to-use" className={styles.bgGray}>
-          <div className={styles.sectionInner}>
+        <section id="how-to-use" className={s.bgGray}>
+          <div className={s.sectionInner}>
             <h2>使い方はとても簡単（5ステップ）</h2>
             
             <div>
-              <article className={styles.stepCard}>
+              <article className={s.stepCard}>
                 <h3 style={{ color: '#16a34a' }}>Step 1. スケジュール枠の準備</h3>
                 <p>面談を実施する日程と、1枠あたりの時間（15分など）を設定するだけで、ベースとなるタイムテーブルが完成します。</p>
               </article>
               
-              <article className={styles.stepCard}>
+              <article className={s.stepCard}>
                 <h3 style={{ color: '#16a34a' }}>Step 2. 名簿のインポート</h3>
                 <p>Excelから生徒名簿を読み込みます（手入力可）。同校に兄弟姉妹がいる場合は、ここで設定しておくことで自動調整の対象になります。</p>
               </article>
               
-              <article className={styles.stepCard}>
+              <article className={s.stepCard}>
                 <h3 style={{ color: '#16a34a' }}>Step 3. 希望日程の回収（Word生成）</h3>
                 <p>システムが全児童分の「専用QRコード付きプリント」をWordで自動生成します。保護者はスマホから簡単に希望日時を提出できます。</p>
                 <p>従来通り、紙のお手紙で回収したものを手動で入力することも可能です。</p>
               </article>
               
-              <article className={styles.stepCard}>
+              <article className={s.stepCard}>
                 <h3 style={{ color: '#16a34a' }}>Step 4. スケジュールの自動割当</h3>
                 <p>集まった希望をもとに、ボタン一つでシステムが最適なスケジュールを自動で組み上げます。ドラッグ＆ドロップ微調整も可能です。</p>
               </article>
 
-              <article className={styles.stepCard}>
+              <article className={s.stepCard}>
                 <h3 style={{ color: '#16a34a' }}>Step 5. 結果の出力（Word生成）</h3>
                 <p>完成した日程表を、保護者配付用のおたより（Word）や、先生の手元用Excelデータとしてエクスポートして完了です。</p>
               </article>
@@ -170,12 +251,12 @@ export const LandingPage: React.FC = () => {
         </section>
 
         {/* --- 3. セキュリティ (Security) --- */}
-        <section id="security" className={styles.bgDark}>
-          <div className={styles.sectionInner} style={{ textAlign: 'center' }}>
+        <section id="security" className={s.bgDark}>
+          <div className={s.sectionInner} style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🛡️</div>
             <h2 style={{ color: 'white' }}>学校の厳しいセキュリティ基準をクリア</h2>
             
-            <div className={styles.securityBox}>
+            <div className={s.securityBox}>
               <p style={{ color: '#d1d5db', fontSize: '1.1rem', marginBottom: '16px' }}>
                 教育現場で新しいツールを導入する際、最大の壁となるのが「個人情報の取り扱いルール（クラウド利用制限）」です。
               </p>
@@ -184,25 +265,18 @@ export const LandingPage: React.FC = () => {
               </p>
               <p style={{ color: '#d1d5db', fontSize: '1.1rem' }}>
                 また、保護者から希望日程をオンライン回収する通信には<strong>「ゼロ知識暗号化」</strong>を採用しています。クラウドには暗号化されたデータのみが置かれ、復号する「鍵」は配付用プリントのQRコード内にしか存在しません。開発者すらデータを解読できない構造により、情報漏洩リスクを極限まで抑えています。
-              <br/>※詳細は
-              <button 
-                onClick={() => setTermsModalOpen(true)}
-                style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: 0, font: 'inherit', textDecoration: 'underline' }}
-                >
-                プライバシーポリシー
-              </button>
-              をご参照ください。
+              <br/>※詳細は<Link to="/privacy" className={s.footerLink}>プライバシーポリシー</Link>をご参照ください。
               </p>
             </div>
           </div>
         </section>
 
         {/* --- 4. FAQ (Frequently Asked Questions) --- */}
-        <section id="faq" className={styles.bgWhite}>
-          <div className={styles.sectionInner}>
+        <section id="faq" className={s.bgWhite}>
+          <div className={s.sectionInner}>
             <h2>よくあるご質問（FAQ）</h2>
             
-            <div className={styles.faqContainer}>
+            <div className={s.faqContainer}>
               <FAQItem 
                 question="本当に無料ですか？後から有料になりませんか？" 
                 answer="はい、完全無料です。本ツールは教育現場の多忙化解消を目的として個人開発されたものであり、すべての機能を無料で制限なくご利用いただけます。" 
@@ -229,41 +303,28 @@ export const LandingPage: React.FC = () => {
       </main>
 
       {/* --- Footer --- */}
-      <footer className={styles.footer}>
-        <div className={styles.sectionInner}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '24px', color: 'white' }}>
+      <footer className={s.footer}>
+        <div className={s.sectionInner}>
+          <div className={s.footerCtaTitle}>
             面談準備の「パズル」から解放されましょう
-          </h2>
-          <div style={{ marginBottom: '40px' }}>
-            <Link to="/app" className={styles.primaryBtn}>
+          </div>
+          <div className={s.footerCtaWrapper}>
+            <Link to="/app" className={s.primaryBtn}>
               今すぐ無料で使い始める
             </Link>
           </div>
-          <div className={styles.footerLinks}>
-            <button 
-              onClick={() => setTermsModalOpen(true)}
-              style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: 0, font: 'inherit', textDecoration: 'underline' }}
-            >
-              利用規約
-            </button>
-            <button 
-              onClick={() => setPrivacyModalOpen(true)}
-              style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: 0, font: 'inherit', textDecoration: 'underline' }}
-            >
-              プライバシーポリシー
-            </button>
+          <div className={s.footerLinks}>
+            <Link to="/guide" className={s.footerLink}>ご利用ガイド</Link>
+            <Link to="/terms" className={s.footerLink}>利用規約</Link>
+            <Link to="/privacy" className={s.footerLink}>プライバシーポリシー</Link>
             <a href="https://forms.gle/GMqBkzefmF3EAASx7" target="_blank" rel="noopener noreferrer" style={{ color: '#9ca3af' }}>
-              お問い合わせ・不具合報告
+              お問い合わせ
             </a>
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>
-            &copy; {new Date().getFullYear()} 個人面談・三者面談 スケジュールメーカー All rights reserved.
-          </div>
+          <p className={s.footerCopy}>&copy; 2026 面談スケジュールメーカー All Rights Reserved.</p>
         </div>
       </footer>
     </div>
-      <TermsOfServiceModal />
-      <PrivacyPolicyModal />
     </>
   );
 };

@@ -4,6 +4,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 // --- Pages (展示台) のインポート ---
 import { LandingPage } from "./pages/public/LandingPage";
+import { PrivacyPage } from "./pages/public/PrivacyPage";
+import { TermsPage } from "./pages/public/TermsPage";
+import { GuidePage } from "./pages/public/GuidePage";
+import { UpdateInfoPage } from "./pages/public/UpdatesPage";
+
 import { PortalPage } from "./pages/guardian/PortalPage";
 
 import { AppLayout } from "./pages/app/AppLayout";
@@ -30,6 +35,10 @@ export const App: React.FC = () => {
     <Routes>
       {/* 🏠 公開ページ (LP) */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/guide" element={<GuidePage />} />
+      <Route path="/updates" element={<UpdateInfoPage/>}/>
 
       {/* 👪 保護者ポータル */}
       <Route path="/p/:workspaceId" element={<PortalPage />} />

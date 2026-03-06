@@ -7,7 +7,6 @@ export const layoutContainer = style({
   display: 'flex',
   flexDirection: 'column',
   gap: '40px',
-  paddingTop: '24px', // スクロールエリア内の上部余白
 });
 
 // 上段：編集とプレビュー
@@ -39,13 +38,13 @@ export const sectionLabel = style({
 
 export const messageTextarea = style({
   width: '100%',
-  padding: '16px',
+  padding: '15px',
   borderRadius: vars.borderRadius.medium,
   border: `1px solid ${vars.color.border}`,
   fontSize: '15px',
   lineHeight: '1.7',
   resize: 'vertical',
-  minHeight: '400px',
+  minHeight: '150px',
   boxSizing: 'border-box',
   fontFamily: 'inherit',
   backgroundColor: vars.color.white,
@@ -154,3 +153,37 @@ export const errorText = style({
   lineHeight: '1.5',
   border: '1px solid #fecaca',
 });
+
+// ▼ ヘッダーのタイトル下にある説明文
+export const headerDescription = style({
+  color: '#64748b',
+  fontSize: '0.9rem',
+  marginTop: '8px',
+  lineHeight: '1', // 0 だと文字が潰れるので 1.5 に修正しました
+});
+
+// ▼ ヘッダー右側のステータスバッジ群の親要素
+export const headerBadgeWrapper = style({
+  marginTop: 0,
+});
+
+// ▼ ステータスバッジ本体（公開中 / 準備中のバリエーション）
+export const statusBadge = style({
+  fontWeight: 'bold',
+  padding: '8px 16px',
+  borderRadius: '20px',
+  fontSize: '0.85rem',
+  display: 'inline-block',
+});
+
+// 公開中（緑）
+export const badgePublished = style([statusBadge, {
+  color: '#059669',
+  backgroundColor: '#d1fae5',
+}]);
+
+// 準備中（グレー）
+export const badgePending = style([statusBadge, {
+  color: '#64748b',
+  backgroundColor: '#f1f5f9',
+}]);

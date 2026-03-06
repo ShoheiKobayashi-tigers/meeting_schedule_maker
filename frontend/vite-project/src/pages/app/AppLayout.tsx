@@ -1,19 +1,19 @@
 // src/pages/app/AppLayout.tsx
 import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom'; 
+import { Outlet, useLocation } from 'react-router-dom'; 
+import { Home } from 'lucide-react';
 import { Navigation } from '../../components/Navigation';
 import { Button } from '../../components/ui/Button/Button';
-import { HomeIcon } from '../../components/ui/icons/HomeIcon';
 import { useAppStore } from '../../store/useAppStore'; 
 import { getSessionPassword } from '../../utils/secureStorage';
 
 // --- グローバルモーダル群のインポート ---
+import { HelpMenu } from '../../components/ui/HelpMenu/HelpMenu';
 import { ImportStudentModal } from '../../features/students-manage/components/modals/ImportStudentModal';
 import { ConfirmationModal } from '../../components/modals/ConfirmationModal';
 import { AutoAssignConfirmModal } from '../../components/modals/AutoAssignConfirmModal';
 
 import * as layout from '../../styles/layout.css';
-import { vars } from '../../styles/vars.css';
 import { TermsOfServiceModal } from '../../components/modals/TermsOfServiceModal';
 import { ReleaseNotesModal } from '../../components/modals/ReleaseNotesModal';
 import { PrivacyPolicyModal } from '../../components/modals/PrivacyPolicyModal';
@@ -167,10 +167,9 @@ const RoadmapFeature: React.FC = () => {
 };
 
 export const AppLayout: React.FC = () => {
-    const navigate = useNavigate();
     const location = useLocation();
     const { hasEntered } = useAppStore(state => state.ui);
-    const { resetAll, setHasEntered, resetEnteredState, setTermsModalOpen, setPrivacyModalOpen, setReleaseNotesModalOpen } = useAppStore(state => state);
+    const { resetEnteredState } = useAppStore(state => state);
 
     const basePath = location.pathname.startsWith('/demo') ? '/demo' : '/app';
 
@@ -201,15 +200,6 @@ export const AppLayout: React.FC = () => {
         }
     }, [location.pathname, isStartPage, hasEntered, basePath, resetEnteredState]);
 
-    // 🌟 ヘッダーから直接データをリセットしてStep1に飛ぶ関数
-    const handleReset = () => {
-        if (window.confirm("現在保存されているデータはすべて消去されます。新しくスケジュールを作成してよろしいですか？")) {
-            resetAll();
-            setHasEntered(true);
-            navigate(`${basePath}/step1/datetime`);
-        }
-    };
-
     // 🌟 スタートページ以外で認証されていない場合は何も描画しない（チラつき防止）
     if (!isStartPage && !hasEntered) {
         return null; 
@@ -224,29 +214,14 @@ export const AppLayout: React.FC = () => {
                     title="スタート画面へ戻る"
                 >
                     {/* SVGのホームアイコン */}
-                    <HomeIcon/>
+                    <Home/>
                     <h1 className={layout.appTitle} style={{ margin: 0 }}>個人面談・三者面談 スケジュールメーカー</h1>
                 </a>
                 <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px' }}>
                     <RoadmapFeature />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px', justifyContent: 'flex-end', gap: '24px' }}>
-                    <div className={layout.headerLinksContainer}>
-                        <button className={layout.quietLink} onClick={() => setReleaseNotesModalOpen(true)}>更新情報</button>
-                        <button className={layout.quietLink} onClick={() => setTermsModalOpen(true)}>利用規約</button>
-                        <button className={layout.quietLink} onClick={() => setPrivacyModalOpen(true)}>プライバシーポリシー</button>
-                        <a 
-                            href="https://forms.gle/GMqBkzefmF3EAASx7" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className={layout.quietLink}
-                        >
-                            ご意見・不具合報告
-                        </a>
-                    </div>
-                    <Button variant="outline" onClick={handleReset} style={{border: 'dashed', borderColor: vars.color.border}}>
-                        リセット
-                    </Button>
+                    <HelpMenu />
                 </div>
             </header>
 
