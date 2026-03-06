@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css';
-import { vars } from '../../../styles/vars.css'; // ★ varsをインポート
+import { recipe } from '@vanilla-extract/recipes';
+import { vars } from '../../../styles/vars.css';
 
 export const tableWrapper = style({
   overflow: 'auto',
@@ -50,13 +51,34 @@ export const cornerCell = style([
   { left: 0, zIndex: 30 },
 ]);
 
-export const cell = style({
-  borderBottom: `1px solid ${vars.color.border}`,
-  borderRight: `1px solid ${vars.color.border}`,
-  verticalAlign: 'top',
-  padding: vars.space.small,
-  minHeight: '80px',
-  position: 'relative',
-  alignItems: 'center',    
-  justifyContent: 'center',
+export const cell = recipe({
+  // 共通のベーススタイル
+  base: {
+    borderBottom: `1px solid ${vars.color.border}`,
+    borderRight: `1px solid ${vars.color.border}`,
+    verticalAlign: 'top',
+    padding: vars.space.small,
+    minHeight: '80px',
+    position: 'relative',
+    alignItems: 'center',    
+    justifyContent: 'center',
+  },
+  
+  // 状態ごとのスタイル分岐 (Variants)
+  variants: {
+    isBlocked: {
+      true: {
+        backgroundColor: vars.color.muted,
+        cursor: 'not-allowed',
+      },
+      false: {
+        // 通常時は特に上書きなし
+      }
+    }
+  },
+  
+  // デフォルトの状態
+  defaultVariants: {
+    isBlocked: false,
+  }
 });

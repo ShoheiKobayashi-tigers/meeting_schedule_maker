@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import { useAppStore } from "../../store/useAppStore";
-import { setSessionPassword } from "../../utils/secureStorage";
+import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
 import { Button } from "../../components/ui/Button/Button"; // 🌟 共通ボタンをインポート
 import { EyeIcon } from "../../components/ui/icons/EyeIcon";
 import { EyeOffIcon } from "../../components/ui/icons/EyeOffIcon";
@@ -94,13 +94,16 @@ export const StartPage: React.FC = () => {
 
   // 🧪 デモ開始
   const handleDemoStart = async () => {
+    setForceDemoMode(true); 
     setSessionPassword("demo-mode");
     loadDemoData();
     await useAppStore.persist.rehydrate();
     setHasEntered(true);
     navigate("/demo/step1/datetime");
+    setTimeout(() => {
+        setForceDemoMode(false);
+    }, 500);
   };
-
   // 🗑️ 強制リセット
   const handleForceReset = () => {
     if (

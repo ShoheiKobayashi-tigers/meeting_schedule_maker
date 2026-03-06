@@ -57,6 +57,7 @@ interface DbState {
   scheduleData: ScheduleData;
   schoolSettings: SchoolSettings;
   workspaceId?: string;
+  secretKey?: string; // ★追加: 真の暗号化キー
   step3Mode: Step3Mode;
   autoAssignmentConfig: AutoAssignmentConfig;
 }
@@ -154,11 +155,11 @@ interface AppState {
   setAutoAssignmentConfig: (config: AutoAssignmentConfig) => void;
   setSchoolSettings: (settings: SchoolSettings) => void;
   setWorkspaceId: (id: string) => void;
-
+  setSecretKey: (key: string) => void; // ★追加
   restorePreviousData: () => void;
 
   //リリース前に削除
-  clearAllAssignments: () => void; // ★ 追加: 全割り当て解除アクション
+  clearAllAssignments: () => void;
 }
 
 // --- Store実装 ---
@@ -174,7 +175,8 @@ export const useAppStore = create<AppState>()(
           scheduleData: DEMO_SCHEDULE,
           schoolSettings: DEFAULT_SCHOOL_SETTINGS,
           workspaceId: nanoid(),
-          step3Mode: null,        // ★追加
+          secretKey: nanoid(12), // ★追加: 初期化時に12桁のランダムキーを生成
+          step3Mode: null,      
           autoAssignmentConfig: DEFAULT_AUTO_ASSIGNMENT_CONFIG,
         },
 
@@ -186,6 +188,7 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             db: { ...state.db, workspaceId: id },
           })),
+        setSecretKey: (key) => set((state) => ({ db: { ...state.db, secretKey: key } })),
         setStep3Mode: (mode) => set((state) => ({ db: { ...state.db, step3Mode: mode } })),         // ★追加
         setAutoAssignmentConfig: (config) =>
           set((state) => ({
@@ -228,6 +231,7 @@ export const useAppStore = create<AppState>()(
           set({
             db: {
               workspaceId: nanoid(),
+              secretKey: nanoid(12),
               applicants: DEMO_APPLICANTS,
               siblings: DEMO_SIBLINGS,
               scheduleData: DEMO_SCHEDULE,
@@ -688,6 +692,7 @@ export const useAppStore = create<AppState>()(
           set({
             db: {
               workspaceId: nanoid(),
+              secretKey: nanoid(12), // ★追加
               applicants: BLANK_APPLICANTS,
               siblings: BLANK_SIBLINGS,
               scheduleData: BLANK_SCHEDULE,

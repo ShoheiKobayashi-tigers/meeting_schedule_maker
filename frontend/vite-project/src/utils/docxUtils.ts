@@ -69,7 +69,8 @@ const createTextRunsFromMultiline = (text: string, size: number = 10.5) => {
 export const generateHandoutDocx = async (
   applicants: Applicant[],
   settings: SchoolSettings,
-  workspaceId: string
+  workspaceId: string,
+  secretKey: string
 ) => {
   const children: Paragraph[] = [];
 
@@ -79,9 +80,8 @@ export const generateHandoutDocx = async (
   for (let i = 0; i < applicants.length; i++) {
     const student = applicants[i];
     
-    // 1. 個別のログインURLを生成
-    // 構造: https://domain.com/p/[workspaceId]?t=[token]
-    const loginUrl = `${baseUrl}/p/${workspaceId}`;
+    // 1. URLの末尾にハッシュ（#）を使って鍵を隠蔽する！
+    const loginUrl = `${baseUrl}/p/${workspaceId}#${secretKey}`;
     
     // 2. QRコード生成
     const qrBuffer = await generateQRBuffer(loginUrl);
