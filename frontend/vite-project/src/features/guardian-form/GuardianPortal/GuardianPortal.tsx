@@ -283,15 +283,35 @@ const renderSelectCell = (cell: GridCell) => {
   };
 
   const renderConfirmCell = (cell: GridCell) => {
+    // 1. ブロックされている枠（先生が休みにした枠）の判定
+    const isBlocked = cell.status === 'admin_block' || cell.status === 'BLOCKED';
+
+    // 2. 選択状態の判定
     const valueId = `${cell.rowIndex}-${cell.colIndex}`;
     const isSelected = selections.includes(valueId);
-    if (!isSelected) return <div className={s.cellConfirmDisabled}>×</div>;
-    return (
-      <div className={s.cellConfirmSelected}>
-        <span className={s.confirmLabelMain}>希望</span>
-        <span className={s.confirmLabelSub}>選択済み</span>
-      </div>
-    );
+
+    // ★ パターンA：ブロックされている枠（グレーの背景に×）
+    if (isBlocked) {
+      return (
+        <div className={s.cellRecipe({ state: 'blocked' })}>
+          <span className={s.blockedCrossLabel}>×</span>
+        </div>
+      );
+    }
+
+    // ★ パターンB：選択されている枠（緑色の「希望」表示）
+    if (isSelected) {
+      return (
+        <div className={s.cellConfirmSelected}>
+          <span className={s.confirmLabelMain}>希望</span>
+          <span className={s.confirmLabelSub}>選択済み</span>
+        </div>
+      );
+    }
+
+    // ★ パターンC：選択されていない空き枠（白背景で何も表示しない）
+    // （親の ScheduleBaseTable 側で isBlocked=false になるため背景は白になります）
+    return <div className={s.cellBase} />; 
   };
 
   // 表示するステップの判定 (URLのパラメータだけで一意に決まる)
