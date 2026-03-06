@@ -176,7 +176,7 @@ export const LandingPage: React.FC = () => {
                   <img src="/images/form-print.png" alt="QRコードのお便り" className={s.gridImage} />
                 </div>
                 <div className={s.gridImageWrapper}>
-                  <div className={s.gridImageLabel}>③ 保護者のスマホ入力画面</div>
+                  <div className={s.gridImageLabel}>③ 保護者のスマホ画面（ログイン・入力）</div>
                   <img src="/images/form-mobile.png" alt="保護者フォーム入力画面" className={s.gridImage} />
                 </div>
                 <div className={s.gridImageWrapper}>

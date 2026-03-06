@@ -486,13 +486,15 @@ export const secodaryBadge = style([
 ])
 
 // ▼ 4枚の画像を2x2で並べるグリッド
+// ▼ 4枚の画像を2x2で並べるグリッド
 export const fourImageGrid = style({
   display: 'grid',
-  gridTemplateColumns: 'repeat(2, 1fr)', // 横に2つ並べる
+  gridTemplateColumns: 'repeat(2, 1fr)', 
   gap: '16px',
   width: '100%',
   paddingTop: '32px',
   borderTop: '1px dashed #e2e8f0',
+  alignItems: 'start', // ★追加: 画像の高さがバラバラでも、上揃えにして変な余白を防ぐ
 });
 
 // ▼ 4枚の画像のそれぞれの枠
@@ -510,12 +512,11 @@ export const gridImageLabel = style({
   textAlign: 'center',
 });
 
-// ▼ 4枚の画像本体（サイズを完全に統一）
+// ▼ 4枚の画像本体（横幅だけ100%に揃え、高さはなりゆき）
 export const gridImage = style({
   width: '100%',
-  aspectRatio: '4 / 3', // 4枚並べるのに最適な、少し正方形寄りの比率
-  objectFit: 'cover',
-  objectPosition: 'top center',
+  height: 'auto', // ★変更: 高さは画像の元の比率にお任せ
+  // ※ aspectRatio と objectFit は削除しました
   borderRadius: '8px',
   border: '1px solid #e2e8f0',
   boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
