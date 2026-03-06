@@ -6,6 +6,7 @@ import * as s from './LandingPage.css'
 
 import { useAppStore } from '../../store/useAppStore';
 import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
+import { ArrowRight, SquareDashed, Users, PenTool, FileSpreadsheet, Printer } from 'lucide-react';
 
 // FAQ用のアコーディオンコンポーネント
 const FAQItem: React.FC<{ question: string; answer: React.ReactNode }> = ({ question, answer }) => {
@@ -102,33 +103,115 @@ export const LandingPage: React.FC = () => {
         {/* --- 1. 概要 (Overview) --- */}
         <section id="overview" className={s.bgWhite}>
           <div className={s.sectionInnerWide}>
-            <h2>先生の負担を劇的に減らす、4つの特徴</h2>
+            <h2>先生の負担を劇的に減らす、唯一無二の特長</h2>
             
-            <div className={s.grid}>
+            {/*  特大カード1 */}
+            <article className={s.featuredCard}>
+              <div>
+                <div className={s.primaryBadge}>
+                  最大の特長
+                </div>
+                <h3 style={{ fontSize: '1.8rem', marginBottom: '16px' }}>
+                  パズルのような兄弟調整も<br/>「一瞬」で自動完了
+                </h3>
+                <p style={{ fontSize: '1.1rem', lineHeight: '1.7' }}>
+                  手作業では最も頭を悩ませる「AくんとBさんは兄弟だから同じ日の連続した時間に…」という複雑な条件を、システム独自のアルゴリズムが一瞬で解決。余裕をもたせた枠の確保や、「一番最後にしてほしい」などの個別要望にも完璧に対応します。
+                </p>
+              </div>
+              {/* 📸 「Before/After」のシナリオ型 */}
+              <div className={s.scenarioContainer}>
+                
+                {/* シナリオ1：兄弟の調整 */}
+                <div className={s.scenarioRow}>
+                  {/* ★ 絵文字を Lucide の Users アイコンに変更 */}
+                  <div className={s.scenarioLabel}>
+                    <Users size={20} color="#16a34a" /> 
+                    兄弟がいる保護者の待ち時間を設定（連続枠も可）
+                  </div>
+                  <div className={s.scenarioImages}>
+                    <img src="/images/setting-sibling.png" alt="兄弟リンクの設定" className={s.scenarioImage} />
+                    <ArrowRight className={s.scenarioArrow} />
+                    <img src="/images/result-sibling.png" alt="連続配置されたスケジュール" className={s.scenarioImage} />
+                  </div>
+                </div>
+
+                {/* シナリオ2：休憩・空き枠の確保 */}
+                <div className={s.scenarioRow}>
+                  {/* ★ 絵文字を Lucide の Coffee アイコンに変更 */}
+                  <div className={s.scenarioLabel}>
+                    <SquareDashed size={20} color="#16a34a" /> 
+                    「この子の後には空き枠を確保したい」という希望にも対応
+                  </div>
+                  <div className={s.scenarioImages}>
+                    <img src="/images/setting-break.png" alt="休憩枠のブロック設定" className={s.scenarioImage} />
+                    <ArrowRight className={s.scenarioArrow} />
+                    <img src="/images/result-break.png" alt="空き枠が確保されたスケジュール" className={s.scenarioImage} />
+                  </div>
+                </div>
+
+              </div>
+            </article>
+            {/*  特大カード2 */}
+            <article className={s.featuredCard} style={{ borderColor: '#40fc28' }}>
+              <div>
+                <div className={s.primaryBadge}>
+                  もうひとつの特長
+                </div>
+                <h3 style={{ fontSize: '1.8rem', marginBottom: '16px' }}>
+                  大量の紙とデータ入力から解放。<br/>スマホで希望日を「自動集計」
+                </h3>
+                <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: '#4b5563' }}>
+                  面談準備で一番の重労働だった「回収した紙を見ながらパソコンに入力する作業」をゼロに。システムが発行するQRコード付きのおたよりを配付するだけで、保護者がスマホから提出したデータは、ボタン一つで先生の手元へ安全に同期・自動集計されます。
+                </p>
+              </div>
+              
+              {/* 📸 4枚の画像を田の字（2x2）で並べるストーリーテリング */}
+              <div className={s.fourImageGrid}>
+                <div className={s.gridImageWrapper}>
+                  <div className={s.gridImageLabel}>① おたより設定画面</div>
+                  <img src="/images/form-setting.png" alt="お便り設定画面" className={s.gridImage} />
+                </div>
+                <div className={s.gridImageWrapper}>
+                  <div className={s.gridImageLabel}>② QRコード付きおたより発行</div>
+                  <img src="/images/form-print.png" alt="QRコードのお便り" className={s.gridImage} />
+                </div>
+                <div className={s.gridImageWrapper}>
+                  <div className={s.gridImageLabel}>③ 保護者のスマホ入力画面</div>
+                  <img src="/images/form-mobile.png" alt="保護者フォーム入力画面" className={s.gridImage} />
+                </div>
+                <div className={s.gridImageWrapper}>
+                  <div className={s.gridImageLabel}>④ ワンクリックで希望日程を同期・一覧化</div>
+                  <img src="/images/form-dashboard.png" alt="入力状況の確認画面" className={s.gridImage} />
+                </div>
+              </div>
+            </article>
+
+            {/* 🌟 サポートする3つの強み（3列グリッド） */}
+            <div className={s.subGrid}>
+              
+              {/* 1. 手入力（個人利用の救済措置） */}
               <article className={s.featureCard}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🤖</div>
-                <h3>兄弟姉妹も自動で調整</h3>
-                <p>手作業ではパズルのように複雑な兄弟の調整を、システムが一瞬で解決。「一番最後にして」などの要望や、先生の休憩時間確保にも対応します。</p>
+                <PenTool size={40} className={s.subFeatureIcon} />
+                <h3 style={{ minHeight: '30%'}}>学校の許可がなくても大丈夫<br/>［紙 ＋ 手入力モード］</h3>
+                <p style={{ fontSize: '0.95rem' }}>「うちの学校ではWebフォーム導入はハードルが高い…」という場合でも安心。従来通り紙で回収し、先生の手元で代行入力すれば、強力な自動調整の恩恵だけを個人のクラスで受けられます。</p>
               </article>
 
+              {/* 2. Excel読込 */}
               <article className={s.featureCard}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🖨️</div>
-                <h3>専用QRコード付きプリントをWord出力</h3>
-                <p>保護者に配付する「専用QRコード付き案内プリント」をWordファイル（.docx）で一括生成。ダウンロード後に学校独自の書式へ微調整が可能です。</p>
+                <FileSpreadsheet size={40} className={s.subFeatureIcon} />
+                <h3 style={{ minHeight: '30%'}}>いつものExcel名簿を<br/>そのままコピペ読込</h3>
+                <p style={{ fontSize: '0.95rem' }}>新しいツール導入時の「名簿登録の手間」をゼロに。先生が普段お使いのExcel生徒名簿から名前をコピー＆ペーストするだけで、数秒で準備が完了します。</p>
               </article>
 
+              {/* 3. Word出力 */}
               <article className={s.featureCard}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>📊</div>
-                <h3>いつものExcel名簿をそのまま読込</h3>
-                <p>新しいツール導入時の「名簿登録の手間」をゼロに。先生が普段お使いのExcel生徒名簿をそのままインポートし、すぐに使い始められます。</p>
+                <Printer size={40} className={s.subFeatureIcon} />
+                <h3 style={{ minHeight: '30%'}}>結果のお知らせプリントも<br/>Wordで一括出力</h3>
+                <p style={{ fontSize: '0.95rem' }}>決定した日程の表が載ったお知らせプリント（全員共通）をWordファイル（.docx）で生成。学校独自のフォーマットや挨拶文への微調整も簡単です。</p>
               </article>
-
-              <article className={s.featureCard}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>📱</div>
-                <h3>紙とデジタルのハイブリッド回収</h3>
-                <p>スマホからのWeb回答はもちろん、紙で提出された希望も先生が代行入力可能。すべての回答を統合して自動割り当てにかけられます。</p>
-              </article>
+              
             </div>
+
           </div>
         </section>
 

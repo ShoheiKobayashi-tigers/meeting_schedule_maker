@@ -1,6 +1,7 @@
 // src/features/AllocationConfig/AllocationConfigPage.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowDownToLine, Lock, SquareDashed, Users } from 'lucide-react'
 import { useAppStore } from '../../../store/useAppStore';
 import { Button } from '../../../components/ui/Button/Button';
 import * as s from './AllocationConfigPanel.css';
@@ -54,7 +55,7 @@ export const AllocationConfigPanel: React.FC = () => {
 
         {/* 2. 固定領域：全体ルール設定エリア */}
         <div className={s.globalSettings}>
-          <span className={s.settingLabel}>👨‍👩‍👧‍👦 兄弟・双子の配置間隔ルール:</span>
+          <span className={s.settingLabel}><Users size={20} strokeWidth={2} style={{ verticalAlign: 'middle', marginBottom: '3px'}}/> 兄弟・双子の配置間隔ルール:</span>
           <select 
             className={s.select}
             value={autoAssignmentConfig.sibling_slot_gap}
@@ -80,15 +81,15 @@ export const AllocationConfigPanel: React.FC = () => {
                 <th className={s.th} style={{ width: '100px' }}>出席番号</th>
                 <th className={s.th} style={{ textAlign: 'left'}}>氏名</th>
                 <th className={s.th} style={{ width: '130px' }}>
-                  📌 固定<br/>
+                  <Lock size={16} strokeWidth={2} style={{ verticalAlign: 'middle', marginBottom: '5px'}}/> 枠固定<br/>
                   <span style={{fontWeight:'normal', fontSize:'10px'}}>現在位置から動かさない</span>
                 </th>
                 <th className={s.th} style={{ width: '130px'}}>
-                  🔚 トリ<br/>
+                  <ArrowDownToLine size={16} strokeWidth={2} style={{ verticalAlign: 'middle', marginBottom: '5px'}}/> 最終枠<br/>
                   <span style={{fontWeight:'normal', fontSize:'10px'}}>その日の最後に配置</span>
                 </th>
                 <th className={s.th} style={{ width: '130px'}}>
-                  ☕ 休憩<br/>
+                  <SquareDashed size={16} strokeWidth={2} style={{ verticalAlign: 'middle', marginBottom: '5px'}}/> 空き枠確保<br/>
                   <span style={{fontWeight:'normal', fontSize:'10px'}}>終了後に1枠空ける</span>
                 </th>
               </tr>

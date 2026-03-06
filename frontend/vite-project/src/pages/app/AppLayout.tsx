@@ -1,9 +1,9 @@
 // src/pages/app/AppLayout.tsx
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom'; 
+import { Home } from 'lucide-react';
 import { Navigation } from '../../components/Navigation';
 import { Button } from '../../components/ui/Button/Button';
-import { HomeIcon } from '../../components/ui/icons/HomeIcon';
 import { useAppStore } from '../../store/useAppStore'; 
 import { getSessionPassword } from '../../utils/secureStorage';
 
@@ -214,7 +214,7 @@ export const AppLayout: React.FC = () => {
                     title="スタート画面へ戻る"
                 >
                     {/* SVGのホームアイコン */}
-                    <HomeIcon/>
+                    <Home/>
                     <h1 className={layout.appTitle} style={{ margin: 0 }}>個人面談・三者面談 スケジュールメーカー</h1>
                 </a>
                 <div style={{ display: 'flex', alignItems: 'center', flex: 1, marginLeft: '16px' }}>

@@ -222,7 +222,7 @@ export const grid = style({
 
 export const featureCard = style({
   backgroundColor: 'white',
-  padding: '32px',
+  padding: '32px 24px',
   borderRadius: '16px',
   boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
   border: '1px solid #f3f4f6',
@@ -349,4 +349,185 @@ export const footerCtaTitle = style({
 // フッター内のCTAボタンのラッパー
 export const footerCtaWrapper = style({
   marginBottom: '40px',
+});
+
+
+// src/pages/public/LandingPage.css.ts に追加・上書き
+
+// ▼ 新設：最強の1番をアピールする「特大カード」
+export const featuredCard = style({
+  backgroundColor: 'white',
+  padding: '32px',
+  borderRadius: '16px',
+  boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+  border: '2px solid #16a34a',
+  marginBottom: '40px',
+  display: 'flex', // grid から flex に変更
+  flexDirection: 'column', // 上下並びを指定
+  gap: '32px',
+  transition: 'transform 0.2s',
+  ':hover': {
+    transform: 'translateY(-4px)',
+  },
+  '@media': {
+    'screen and (min-width: 768px)': {
+      padding: '48px',
+      // （※ここに以前あった gridTemplateColumns: '1fr 1.2fr' は削除します）
+    },
+  },
+});
+
+export const featuredImageWrapper = style({
+  width: '100%',
+  backgroundColor: '#f3f4f6',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+  border: '1px solid #e5e7eb',
+});
+
+// ▼ 変更：2〜4番を並べる「3列グリッド」
+export const subGrid = style({
+  display: 'grid',
+  gridTemplateColumns: '1fr',
+  gap: '15px',
+  '@media': {
+    'screen and (min-width: 768px)': {
+      gridTemplateColumns: 'repeat(3, 1fr)', // PCでは3列に綺麗に並べる
+    },
+  },
+});
+
+
+// 2つのシナリオを縦に並べる大枠
+export const scenarioContainer = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '32px', // シナリオ同士の余白を少し広げる
+  width: '100%',
+  paddingTop: '32px', // テキストとの間に余白
+  borderTop: '1px dashed #e2e8f0', // 点線で区切ると「ここから図解！」感が出て綺麗です
+});
+
+// シナリオの小見出し（Lucideアイコンが綺麗に並ぶように調整）
+export const scenarioLabel = style({
+  fontSize: '1rem', // 少しだけ大きく
+  fontWeight: 'bold',
+  color: '#374151',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  marginBottom: '4px', // 画像との間に少し隙間
+});
+
+// 1つのシナリオ（タイトル ＋ 画像横並び）の枠
+export const scenarioRow = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
+});
+
+// 画像と矢印を横に並べるコンテナ
+export const scenarioImages = style({
+  display: 'grid', // flex から grid に変更
+  gridTemplateColumns: '1fr auto 1fr', // 【魔法の1行】画像(1) : 矢印(auto) : 画像(1) に強制分割
+  alignItems: 'center',
+  gap: '16px', // 矢印と画像の隙間
+  width: '100%',
+});
+
+// ▼ 画像本体のスタイル（どんな元画像でも指定の箱に綺麗に収める）
+export const scenarioImage = style({
+  width: '100%',
+  aspectRatio: '16 / 7', // ここで「綺麗な長方形」の箱のサイズを定義
+  objectFit: 'cover', // 箱の比率に合わせて、画像を自動でトリミング（絶対に引き伸ばさない）
+  objectPosition: 'top center', // トリミングする際、画像の「上のほう」を優先して見せる
+  borderRadius: '8px',
+  border: '1px solid #e2e8f0',
+  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', // 少しだけ影をつけて浮き上がらせる
+  backgroundColor: '#f8fafc',
+  transition: 'transform 0.2s',
+  ':hover': {
+    transform: 'translateY(-2px)',
+  }
+});
+
+// 真ん中の矢印
+export const scenarioArrow = style({
+  color: '#9ca3af', // 控えめなグレー
+  flexShrink: 0,
+  width: '24px',
+  height: '24px',
+});
+
+
+// src/pages/public/LandingPage.css.ts に追加
+
+// ▼ 特大カード2用の青いバッジ
+const baseBadge = style({
+  display: 'inline-block',
+  padding: '4px 12px',
+  borderRadius: '999px',
+  fontSize: '0.85rem',
+  fontWeight: 'bold',
+});
+
+export const primaryBadge = style([
+  baseBadge, {
+    backgroundColor: '#dcfce7',
+    color: '#166534',
+  }
+])
+export const secodaryBadge = style([
+  baseBadge,{
+  backgroundColor: '#dbeafe',
+  color: '#1e3a8a',
+  }
+])
+
+// ▼ 4枚の画像を2x2で並べるグリッド
+export const fourImageGrid = style({
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, 1fr)', // 横に2つ並べる
+  gap: '16px',
+  width: '100%',
+  paddingTop: '32px',
+  borderTop: '1px dashed #e2e8f0',
+});
+
+// ▼ 4枚の画像のそれぞれの枠
+export const gridImageWrapper = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '8px',
+});
+
+// ▼ 画像の上のキャプション（①お便り設定 など）
+export const gridImageLabel = style({
+  fontSize: '0.85rem',
+  fontWeight: 'bold',
+  color: '#4b5563',
+  textAlign: 'center',
+});
+
+// ▼ 4枚の画像本体（サイズを完全に統一）
+export const gridImage = style({
+  width: '100%',
+  aspectRatio: '4 / 3', // 4枚並べるのに最適な、少し正方形寄りの比率
+  objectFit: 'cover',
+  objectPosition: 'top center',
+  borderRadius: '8px',
+  border: '1px solid #e2e8f0',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+  backgroundColor: '#f8fafc',
+  transition: 'transform 0.2s',
+  ':hover': {
+    transform: 'translateY(-2px)',
+  }
+});
+
+// ▼ サブ機能のアイコン用（Lucide）
+export const subFeatureIcon = style({
+  color: '#16a34a', // ブランドカラーの緑
+  marginBottom: '8px',
 });

@@ -1,6 +1,6 @@
 // src/components/ui/HelpMenu/HelpMenu.tsx
 import React, { useState } from 'react';
-import { MoreVertIcon as HelpIcon } from '../icons/MoreVertIcon';
+import { MoreVerticalIcon as HelpIcon } from 'lucide-react';
 import * as s from './HelpMenu.css';
 
 export const HelpMenu: React.FC = () => {
