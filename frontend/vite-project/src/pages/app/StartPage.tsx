@@ -2,11 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
+import { Eye, EyeOff } from "lucide-react"; // 🌟 lucide-reactからインポート
 import { useAppStore } from "../../store/useAppStore";
 import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
-import { Button } from "../../components/ui/Button/Button"; // 🌟 共通ボタンをインポート
-import { EyeIcon } from "../../components/ui/icons/EyeIcon";
-import { EyeOffIcon } from "../../components/ui/icons/EyeOffIcon";
+import { Button } from "../../components/ui/Button/Button";
 import * as s from "./StartPage.css";
 
 const STORAGE_KEY = "student-app-storage";
@@ -199,13 +198,26 @@ export const StartPage: React.FC = () => {
             <p style={{ textAlign: "center", margin: 0, color: "#475569" }}>
               再開するためのパスワードを入力してください。
             </p>
-            <input
-              type="password"
-              placeholder="パスワード"
-              className={s.inputField}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            
+            <div className={s.passwordWrapper}>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="パスワード"
+                className={s.passwordInputField}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {/* 🌟 再開画面にも目のアイコンを追加してパスワードを確認できるようにしました */}
+              <button
+                type="button"
+                className={s.passwordToggleBtn}
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
+            </div>
+
             <Button
               variant="dark"
               className={s.largeButton}
@@ -259,7 +271,9 @@ export const StartPage: React.FC = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1} // Tab移動の対象外にする（UX向上）
               >
-              {showPassword ? <EyeIcon width="20" height="20" /> : <EyeOffIcon width="20" height="20" />} </button>
+                {/* 🌟 Lucideアイコンに変更 */}
+                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
             </div>
 
             {/* 🌟 2つ目の確認用パスワード入力欄 */}
