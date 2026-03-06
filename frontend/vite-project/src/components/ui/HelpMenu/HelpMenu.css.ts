@@ -1,3 +1,4 @@
+// src/components/ui/SettingMenu/SettingMenu.css.ts
 import { style } from '@vanilla-extract/css';
 
 export const container = style({
@@ -9,8 +10,8 @@ export const container = style({
 });
 
 export const menuButton = style({
-  backgroundColor: 'transparent', // 背景色を透明にする
-  border: 'none',                 // 枠線を消す
+  backgroundColor: 'transparent',
+  border: 'none',
   borderRadius: '50%',
   width: '40px',
   height: '40px',
@@ -18,13 +19,12 @@ export const menuButton = style({
   alignItems: 'center',
   justifyContent: 'center',
   cursor: 'pointer',
-  color: '#cbd5e0',               // 他のナビボタン(navButton)と同じ文字色にする
+  color: '#cbd5e0',
   flexShrink: 0,
   transition: 'all 0.2s',
   ':hover': {
-    backgroundColor: '#4a5568',   // ホバー時も他のナビボタンと同じ色にする
+    backgroundColor: '#4a5568',
     color: '#fff',
-    transform: 'rotate(30deg)',   // くるっと回るアクション
   },
 });
 
@@ -50,6 +50,7 @@ export const dropdown = style({
   overflow: 'hidden',
 });
 
+// <a>タグでも<button>タグでも使えるように調整
 export const menuItem = style({
   padding: '12px 16px',
   fontSize: '14px',
@@ -63,6 +64,8 @@ export const menuItem = style({
   display: 'flex',
   alignItems: 'center',
   gap: '12px',
+  textDecoration: 'none', // ★<a>タグの下線を消す
+  boxSizing: 'border-box',
   ':hover': {
     backgroundColor: '#f1f5f9',
     color: '#0f172a',
@@ -83,4 +86,23 @@ export const backdrop = style({
   bottom: 0,
   zIndex: 999,
   cursor: 'default',
+});
+
+export const textWrapper = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2px', // タイトルと説明文の隙間
+});
+
+export const itemTitle = style({
+  fontWeight: 'bold',
+  fontSize: '14px',
+  color: '#1e293b', // 真っ黒ではなく、高級感のある濃いネイビーグレー
+  lineHeight: '1.4',
+});
+
+export const itemDescription = style({
+  fontSize: '11px',
+  color: '#64748b',
+  lineHeight: '1.4',
 });

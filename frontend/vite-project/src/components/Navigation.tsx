@@ -2,6 +2,8 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
+import { Button } from './ui/Button/Button';
+import { vars } from '../styles/vars.css';
 import * as s from './Navigation.css';
 
 // 🌟 URLから "/app" を抜き、相対パス（/step...）で定義し直す
@@ -26,7 +28,7 @@ export const Navigation: React.FC = () => {
   const relativePath = path.replace(basePath, '');
 
   const { step3Mode } = useAppStore(state => state.db);
-  const setStep3Mode = useAppStore(state => state.setStep3Mode);
+  const { setStep3Mode, resetAll, setHasEntered } = useAppStore();
 
   // 🌟 URLの相対パスを見て、今どの親タブがアクティブかを判定
   let activeStep = 'step1';
@@ -62,6 +64,16 @@ export const Navigation: React.FC = () => {
     if (stepId === 'step5') navigate(`${basePath}/step5/result`);
   };
 
+    // 🌟 ヘッダーから直接データをリセットしてStep1に飛ぶ関数
+    const handleReset = () => {
+        if (window.confirm("現在保存されているデータはすべて消去されます。新しくスケジュールを作成してよろしいですか？")) {
+            resetAll();
+            setHasEntered(true);
+            navigate(`${basePath}/step1/datetime`);
+        }
+    };
+  
+
   // 現在のステップに応じた子タブのリストを取得する
   const getActiveSubSteps = () => {
     if (activeStep === 'step3') {
@@ -91,6 +103,20 @@ export const Navigation: React.FC = () => {
             <span>{step.label}</span>
           </li>
         ))}
+        <Button 
+          variant="outline" 
+          onClick={handleReset} 
+          style={{ 
+            marginLeft: 'auto', // これで右端に飛ぶ
+            marginRight: '1rem', // 右端にピッタリくっつきすぎる場合は少し余白を
+            marginTop: '0.5rem', 
+            height: '70%', 
+            border: 'dashed', 
+            borderColor: vars.color.border
+          }}
+        >
+          リセット
+        </Button>
       </ul>
 
       {/* 子タブ (Tier 2) */}
