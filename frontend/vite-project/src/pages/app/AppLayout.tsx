@@ -14,9 +14,6 @@ import { ConfirmationModal } from '../../components/modals/ConfirmationModal';
 import { AutoAssignConfirmModal } from '../../components/modals/AutoAssignConfirmModal';
 
 import * as layout from '../../styles/layout.css';
-import { TermsOfServiceModal } from '../../components/modals/TermsOfServiceModal';
-import { ReleaseNotesModal } from '../../components/modals/ReleaseNotesModal';
-import { PrivacyPolicyModal } from '../../components/modals/PrivacyPolicyModal';
 
 // --- ロードマップ機能（元のApp.tsxからお引っ越し） ---
 // ----------------------------------------------------
@@ -235,9 +232,6 @@ export const AppLayout: React.FC = () => {
             <ImportStudentModal />
             <ConfirmationModal />
             <AutoAssignConfirmModal />
-            <TermsOfServiceModal/>
-            <ReleaseNotesModal/>
-            <PrivacyPolicyModal/>
         </div>
     );
 };
