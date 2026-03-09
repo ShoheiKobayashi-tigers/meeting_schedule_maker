@@ -1,4 +1,4 @@
-// src/features/Main/panels/ScheduleTablePanel.tsx
+// src/features/assignment-board/panels/ScheduleTablePanel.tsx
 import React, { useMemo } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useProcessedSchedule } from '../../../hooks/useProcessedSchedule';
@@ -9,6 +9,7 @@ import { ScheduleSlot } from '../parts/ScheduleSlot/ScheduleSlot';
 import { getApplicantById } from '../../../utils/applicantUtils';
 import { simulateAutoAssignment } from '../../../utils/autoAssignment';
 import { ScheduleBaseTable } from '../../../components/ui/ScheduleBaseTable/ScheduleBaseTable';
+import { SlotLegendTooltip } from '../parts/SlotLegendTooltip/SlotLegendTooltip';
 import { Button } from '../../../components/ui/Button/Button';
 
 import * as s from './ScheduleTablePanel.css'
@@ -71,10 +72,13 @@ export const ScheduleTablePanel: React.FC = () => {
   return (
     <div className={layout.basePanelCard}>
       <div className={layout.panelHeader}>
-        {/* titleクラスのマージンが邪魔をしてズレるのを防ぐため、margin: 0 を上書きしています */}
-        <h1 className={layout.panelTitle} style={{ margin: 0 }}>
-          スケジュールボード
-        </h1> 
+        <div className={s.titleWrapper}>
+          <h1 className={layout.panelTitle} style={{ margin: 0 }}>
+            スケジュールボード
+          </h1> 
+          <SlotLegendTooltip />
+        </div>
+
         <div className={s.actionButtonGroup}>
           <Button variant="danger" onClick={handleClearAll}>
                   全割り当て解除

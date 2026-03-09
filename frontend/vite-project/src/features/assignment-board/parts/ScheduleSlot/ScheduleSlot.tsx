@@ -27,7 +27,7 @@ export const ScheduleSlot: React.FC<ScheduleSlotProps> = React.memo(({
       onClick={onClick}
       onDragOver={(e) => e.preventDefault()}
       onDragEnter={onDragEnter}
-      onDrop={(status !== 'admin_block' && status !== 'unAvailable') ? onDrop : undefined}
+      onDrop={(status !== 'admin_block' && status !== 'unAvailable'&& status !== 'preferred_only') ? onDrop : undefined}
     >
       {applicantId ? (
         <div

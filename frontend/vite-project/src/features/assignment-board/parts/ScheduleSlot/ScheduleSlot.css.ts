@@ -31,7 +31,12 @@ export const slotCell = recipe({
       switchable: availableSlot,
       movableToOther: availableSlot,
       movableFromOther: availableSlot,
-      unAvailable: {
+      preferred_only: {
+        backgroundColor: '#ffedd5', // ふんわりとした淡いオレンジ
+        outline: `0.5px solid #fb923c`, // 境界をくっきりさせる少し濃いオレンジ
+        outlineOffset: '-2px',
+        cursor: 'not-allowed',
+      },      unAvailable: {
         backgroundColor: vars.color.white,
         cursor: 'not-allowed'
       },

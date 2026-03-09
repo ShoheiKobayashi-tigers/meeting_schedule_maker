@@ -38,7 +38,8 @@ export type AvailabilityStatus =
   | 'switchable' 
   | 'movableToOther' 
   | 'movableFromOther' 
-  | 'admin_block';
+  | 'admin_block'
+  | 'preferred_only';
 interface SlotContext {
   r: number;
   c: number;
@@ -148,9 +149,17 @@ export const calculateSlotAvailabilityByIndex = (selectedSlot: SlotIndex, applic
 
         // 相手がいる場合 (交換判定)
         if (targetAssignment) {
-            // 相互に希望しているか？
-            const match = isPreferred(targetApplicant, sourceSlotName) && isPreferred(sourceApplicant, targetSlotName);
-            return match ? 'switchable' : 'unAvailable';
+            // お互いの希望状況を個別に判定する
+            const sourcePrefersTarget = isPreferred(sourceApplicant, targetSlotName); // 自分が相手の枠を希望しているか
+            const targetPrefersSource = isPreferred(targetApplicant, sourceSlotName); // 相手が自分の枠を希望しているか
+
+            if (sourcePrefersTarget && targetPrefersSource) {
+                return 'switchable';     // 【交換OK】両方とも希望している
+            } else if (sourcePrefersTarget) {
+                return 'preferred_only'; // 【交換NGだが希望】自分は希望しているが、相手が自分の枠を希望していない
+            } else {
+                return 'unAvailable';    // 【交換NG】そもそも自分はこの枠を希望していない
+            }
         }
 
         // 相手が空き枠の場合 (移動判定)

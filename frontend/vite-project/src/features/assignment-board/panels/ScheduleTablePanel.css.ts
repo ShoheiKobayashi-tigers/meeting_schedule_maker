@@ -6,3 +6,10 @@ export const actionButtonGroup = style({
   gap: vars.space.small,
   alignItems: 'center', // ボタンが縦にズレないように追加
 });
+
+// --- タイトル周り ---
+export const titleWrapper = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
