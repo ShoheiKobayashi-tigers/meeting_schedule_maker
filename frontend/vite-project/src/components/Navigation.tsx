@@ -11,7 +11,7 @@ const STEPS = [
   { id: 'step1', label: '1. 面談枠の作成', sub: [{ id: '1-1', label: '1-1. 実施日時の設定', path: '/step1/datetime' }, { id: '1-2', label: '1-2. 枠の調整・ブロック', path: '/step1/slots' }] },
   { id: 'step2', label: '2. 名簿の準備', sub: [{ id: '2-1', label: '2-1. 児童リストの登録', path: '/step2/students' }, { id: '2-2', label: '2-2. 兄弟姉妹の設定', path: '/step2/siblings' }] },
   { id: 'step3', label: '3. 希望日程の回収', sub: [] }, 
-  { id: 'step4', label: '4. スケジュール割当', sub: [{ id: '4-1', label: '4-1. 自動割り当て', path: '/step4/config' }, { id: '4-2', label: '4-2. 手動微調整', path: '/step4/board' }] },
+  { id: 'step4', label: '4. スケジュール割当', sub: [{ id: '4-1', label: '4-1. 自動割り当て', path: '/step4/config' }, { id: '4-2', label: '4-2. スケジュールボード', path: '/step4/board' }] },
   { id: 'step5', label: '5. 確定と結果出力', sub: [{ id: '5-1', label: '5-1. 結果お知らせ出力', path: '/step5/result' }] },
 ] as const;
 
