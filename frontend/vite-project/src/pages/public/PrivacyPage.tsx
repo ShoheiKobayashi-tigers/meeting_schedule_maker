@@ -49,7 +49,14 @@ export const PrivacyPage: React.FC = () => {
         システムが自動生成したキーを鍵として暗号化してからクラウドへ送信します。<strong>このキーは上記のブラウザに保存され、クラウドサーバーには一切送信されません。</strong> 
         保護者は「保護者に配付するプリントのQRコード（URL）」の中に埋め込まれたキーを使って回答します。そのため、サーバーを管理する開発者であっても、クラウド上のデータを解読することは構造上不可能です。</li>
       </ul>
-
+      <div style={{ marginTop: "24px", marginBottom: "40px", padding: "24px", backgroundColor: "#f0fdf4", borderRadius: "8px", border: "1px solid #bbf7d0" }}>
+        <strong style={{ color: "#166534", display: "block", marginBottom: "8px", fontSize: "1.1rem" }}>
+          💡 情報保護の技術的な仕組み（図解）
+        </strong>
+        <p style={{ margin: 0, color: "#374151" }}>
+          本システムにおけるデータの完全分離や、ゼロ知識暗号化を用いた通信の技術的詳細については、<Link to="/security" style={{ color: "#16a34a", textDecoration: "underline", fontWeight: "bold" }}>セキュリティとプライバシー保護</Link>のページにて図解入りで詳しく解説しております。学校への導入時のセキュリティ要件の確認等にぜひご活用ください。
+        </p>
+      </div>
       <h2>3. 端末およびパスワードの管理責任</h2>
       <p>前項の通り、氏名を含む完全なデータはユーザーの端末内にのみ存在し、パスワードを忘れた場合の復旧は開発者にも行うことができません。共用パソコン等をご利用の場合は、利用終了時にデータの初期化（リセット）を行うか、端末へのログイン管理を徹底する等、ユーザー自身の責任において情報漏洩対策を行ってください。</p>
 

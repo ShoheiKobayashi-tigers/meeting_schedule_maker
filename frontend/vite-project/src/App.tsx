@@ -8,6 +8,7 @@ import { PrivacyPage } from "./pages/public/PrivacyPage";
 import { TermsPage } from "./pages/public/TermsPage";
 import { GuidePage } from "./pages/public/GuidePage";
 import { UpdateInfoPage } from "./pages/public/UpdatesPage";
+import { SecurityPage } from "./pages/public/SecurityPage";
 
 import { PortalPage } from "./pages/guardian/PortalPage";
 
@@ -42,6 +43,7 @@ export const App: React.FC = () => {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/guide" element={<GuidePage />} />
         <Route path="/updates" element={<UpdateInfoPage/>}/>
+        <Route path="/security" element={<SecurityPage />} />
 
         {/* 👪 保護者ポータル */}
         <Route path="/p/:workspaceId" element={<PortalPage />} />

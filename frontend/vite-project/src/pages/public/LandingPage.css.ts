@@ -532,3 +532,23 @@ export const subFeatureIcon = style({
   color: '#16a34a', // ブランドカラーの緑
   marginBottom: '8px',
 });
+
+// ▼ セキュリティセクション等のダーク背景用テキスト
+export const text = style({
+  color: '#d1d5db', // 読みやすい薄いグレー
+  fontSize: '1.1rem',
+  marginBottom: '16px',
+  lineHeight: '1.7',
+});
+
+// ▼ ダーク背景で映えるリンク（プライバシーポリシー等への誘導）
+export const link = style({
+  color: '#4ade80', // ダーク背景で目立つ明るめの緑
+  textDecoration: 'underline',
+  fontWeight: 'bold',
+  transition: 'color 0.2s, opacity 0.2s',
+  ':hover': {
+    color: '#22c55e', 
+    opacity: 0.8,
+  }
+});

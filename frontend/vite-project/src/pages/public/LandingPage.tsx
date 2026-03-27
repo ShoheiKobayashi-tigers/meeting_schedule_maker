@@ -265,9 +265,28 @@ export const LandingPage: React.FC = () => {
               </p>
               <p style={{ color: '#d1d5db', fontSize: '1.1rem' }}>
                 また、保護者から希望日程をオンライン回収する通信には<strong>「ゼロ知識暗号化」</strong>を採用しています。クラウドには暗号化されたデータのみが置かれ、復号する「鍵」は配付用プリントのQRコード内にしか存在しません。開発者すらデータを解読できない構造により、情報漏洩リスクを極限まで抑えています。
-              <br/>※詳細は<Link to="/privacy" className={s.footerLink}>プライバシーポリシー</Link>をご参照ください。
               </p>
-            </div>
+              <p style={{ color: '#d1d5db', fontSize: '1.1rem' }}>
+                ※詳細は<Link to="/privacy" className={s.link}>プライバシーポリシー</Link>をご参照ください。
+              </p>
+              <div style={{ marginTop: "24px", textAlign: "center" }}>
+                <Link 
+                  to="/security" 
+                  style={{ 
+                    display: "inline-block", 
+                    padding: "12px 24px", 
+                    backgroundColor: "#16a34a", 
+                    color: "white", 
+                    borderRadius: "8px", 
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                  }}
+                >
+                  なぜ安全？セキュリティの仕組みを図解で見る
+                </Link>
+              </div>              
+            </div>            
           </div>
         </section>
 
@@ -315,6 +334,7 @@ export const LandingPage: React.FC = () => {
           </div>
           <div className={s.footerLinks}>
             <Link to="/guide" className={s.footerLink}>ご利用ガイド</Link>
+            <Link to="/security" className={s.footerLink}>セキュリティについて</Link>
             <Link to="/terms" className={s.footerLink}>利用規約</Link>
             <Link to="/privacy" className={s.footerLink}>プライバシーポリシー</Link>
             <a href="https://forms.gle/GMqBkzefmF3EAASx7" target="_blank" rel="noopener noreferrer" style={{ color: '#9ca3af' }}>
