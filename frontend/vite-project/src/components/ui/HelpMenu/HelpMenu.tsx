@@ -53,7 +53,28 @@ export const HelpMenu: React.FC = () => {
 
             <div className={s.menuDivider} />
 
-            {/* 🟨 第3グループ：法的ドキュメント（一番下に配置） */}
+            {/* 🟧 第3グループ：開発者情報 */}
+            <a href="https://koba-maishin.com" target="_blank" rel="noopener noreferrer" className={s.menuItem} onClick={closeMenu}>
+              <div className={s.textWrapper}>
+                <div className={s.itemTitle}>開発者ブログ</div>
+                <div className={s.itemDescription}>教育×ITのノウハウを発信中</div>
+              </div>
+            </a>
+            <a href="https://x.com/koba_EdTech" target="_blank" rel="noopener noreferrer" className={s.menuItem} onClick={closeMenu}>
+              <div className={s.textWrapper}>
+                <div className={s.itemTitle}>開発者 X (Twitter)</div>
+                <div className={s.itemDescription}>最新情報や開発の裏側をお届け</div>
+              </div>
+            </a>
+
+            <div className={s.menuDivider} />
+
+            {/* 🟨 第4グループ：法的ドキュメント（一番下に配置） */}
+            <a href="/security" target="_blank" rel="noopener noreferrer" className={s.menuItem} onClick={closeMenu}>
+              <div className={s.textWrapper}>
+                <div className={s.itemTitle}>セキュリティについて</div>
+              </div>
+            </a>
             <a href="/terms" target="_blank" rel="noopener noreferrer" className={s.menuItem} onClick={closeMenu}>
               <div className={s.textWrapper}>
                 <div className={s.itemTitle}>利用規約</div>

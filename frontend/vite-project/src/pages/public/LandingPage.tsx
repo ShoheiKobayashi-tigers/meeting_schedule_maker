@@ -337,6 +337,8 @@ export const LandingPage: React.FC = () => {
             <Link to="/security" className={s.footerLink}>セキュリティについて</Link>
             <Link to="/terms" className={s.footerLink}>利用規約</Link>
             <Link to="/privacy" className={s.footerLink}>プライバシーポリシー</Link>
+            <a href="https://koba-maishin.com" target="_blank" rel="noopener noreferrer" className={s.footerLink}>開発者ブログ</a>
+            <a href="https://x.com/koba_EdTech" target="_blank" rel="noopener noreferrer" className={s.footerLink}>開発者 X (Twitter)</a>
             <a href="https://forms.gle/GMqBkzefmF3EAASx7" target="_blank" rel="noopener noreferrer" style={{ color: '#9ca3af' }}>
               お問い合わせ
             </a>
