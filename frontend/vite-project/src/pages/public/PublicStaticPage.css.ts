@@ -45,6 +45,15 @@ globalStyle(`${container} h3`, {
   fontWeight: 'bold',
 });
 
+// サブサブセクション見出し (h4)
+globalStyle(`${container} h4`, {
+  marginTop: vars.space.medium,
+  marginBottom: vars.space.small,
+  color: lpGreenDark, // h1と同じ濃い緑
+  fontSize: '1.1rem',
+  fontWeight: 'bold',
+});
+
 // 段落 (p)
 globalStyle(`${container} p`, {
   marginBottom: vars.space.medium,
