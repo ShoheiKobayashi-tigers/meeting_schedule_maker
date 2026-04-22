@@ -1,2 +1,4 @@
 User-agent: *
 Disallow: /app/
+
+Sitemap: https://mendan-schedule-maker.jp/sitemap.xml
