@@ -29,15 +29,17 @@ export const getNextTimeSlot = (currentTime: string, duration: number): string =
 };
 
 export const generateTimeSlots = (
-  interviewDuration: number, 
+  interviewDuration: number, // 互換性のため引数は残しておきますが、ループでは使いません
   startHour = 8, 
-  endHour = 17
+  endHour = 20,
+  stepMinutes = 5
 ): string[] => {
   const slots: string[] = [];
   const startInMinutes = startHour * 60;
   const endInMinutes = endHour * 60;
 
-  for (let minutes = startInMinutes; minutes <= endInMinutes; minutes += interviewDuration) {
+  // 面談時間に関わらず、5分刻みですべての時刻を選択肢として生成する
+  for (let minutes = startInMinutes; minutes <= endInMinutes; minutes += stepMinutes) {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     slots.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
