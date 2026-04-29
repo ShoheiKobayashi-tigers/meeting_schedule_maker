@@ -7,7 +7,7 @@ import { sortDateCols, sortTimeRows } from '../utils/sortUtils';
 export const formatDisplayDate = (dateStr: string): string => {
   if (!dateStr || !dateStr.includes('-')) return dateStr;
   const date = new Date(dateStr);
-  const yy = String(date.getFullYear()).padStart(2, '0');
+  // const yy = String(date.getFullYear()).padStart(2, '0');
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   const day = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
