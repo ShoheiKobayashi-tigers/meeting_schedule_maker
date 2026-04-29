@@ -11,7 +11,7 @@ export const formatDisplayDate = (dateStr: string): string => {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   const day = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
-  return `${yy}/${mm}/${dd} (${day})`;
+  return `${mm}/${dd} (${day})`;
 };
 
 export const formatSlotText = (slot: string | undefined) => {
