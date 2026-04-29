@@ -7,11 +7,11 @@ import { sortDateCols, sortTimeRows } from '../utils/sortUtils';
 export const formatDisplayDate = (dateStr: string): string => {
   if (!dateStr || !dateStr.includes('-')) return dateStr;
   const date = new Date(dateStr);
-  // const yy = String(date.getFullYear()).padStart(2, '0');
+  const yy = String(date.getFullYear()).padStart(2, '0');
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   const day = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
-  return `${mm}/${dd} (${day})`;
+  return `${yy}/${mm}/${dd} (${day})`;
 };
 
 export const formatSlotText = (slot: string | undefined) => {
@@ -38,12 +38,14 @@ export const useProcessedSchedule = () => {
         rowLabel,
         cells: sortedCols.map((colLabel) => {
           const colIndex = scheduleData.cols.indexOf(colLabel);
+          const formatedDateValues = formatDisplayDate(colLabel).split("/");
+          const displayColLabel = formatedDateValues[1] + "/" + formatedDateValues[2];
           return {
             rowIndex,
             colIndex,
             rowLabel,
             colLabel, // DBの値 (YYYY-MM-DD)
-            displayColLabel: formatDisplayDate(colLabel), // 表示用のラベル
+            displayColLabel, // 表示用のラベル
             assignment: scheduleData.assignments[rowIndex][colIndex],
             status: scheduleData.availability[rowIndex][colIndex],
           };
