@@ -29,7 +29,7 @@ export const getNextTimeSlot = (currentTime: string, duration: number): string =
 };
 
 export const generateTimeSlots = (
-  interviewDuration: number, // 互換性のため引数は残しておきますが、ループでは使いません
+  __interviewDuration: number, // 互換性のため引数は残しておきますが、ループでは使いません
   startHour = 8, 
   endHour = 20,
   stepMinutes = 5
