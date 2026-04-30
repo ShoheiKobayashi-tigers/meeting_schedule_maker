@@ -48,7 +48,7 @@ export const timeCell = style({
 
 export const cornerCell = style([
   timeCell,
-  { left: 0, zIndex: 30 },
+  { top: 0, left: 0, zIndex: 30 },
 ]);
 
 export const cell = recipe({
