@@ -104,12 +104,6 @@ const RoadmapFeature: React.FC = () => {
                             </h3>
                             <ul style={roadmapStyles.list}>
                                 <li>
-                                    <strong>ユーザー操作ガイドの充実（2026年3月末まで）</strong><br/>
-                                    <span style={roadmapStyles.itemDesc}>
-                                        初めてツールに触れる先生でも、迷わず簡単にスケジュールが組めるようなチュートリアル画面や操作ガイドをご用意します。
-                                    </span>
-                                </li>
-                                <li>
                                     <strong>安全なデータ同期（手入力の保護）（2026年5月末まで）</strong><br/>
                                     <span style={roadmapStyles.itemDesc}>
                                         担任の先生が手入力で聞いた予定が、後から送信された保護者フォームのデータで誤って上書きされないよう、データ競合時の保護機能を追加します。

@@ -38,12 +38,14 @@ export const useProcessedSchedule = () => {
         rowLabel,
         cells: sortedCols.map((colLabel) => {
           const colIndex = scheduleData.cols.indexOf(colLabel);
+          const formatedDateValues = formatDisplayDate(colLabel).split("/");
+          const displayColLabel = formatedDateValues[1] + "/" + formatedDateValues[2];
           return {
             rowIndex,
             colIndex,
             rowLabel,
             colLabel, // DBの値 (YYYY-MM-DD)
-            displayColLabel: formatDisplayDate(colLabel), // 表示用のラベル
+            displayColLabel, // 表示用のラベル
             assignment: scheduleData.assignments[rowIndex][colIndex],
             status: scheduleData.availability[rowIndex][colIndex],
           };

@@ -3,7 +3,7 @@ import React from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useProcessedSchedule, formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import { useScheduleSettings } from '../hooks/useScheduleSettings';
-import { generateTimeSlots } from '../../../utils/timeUtils';
+import { generateTimeSlots, getNextTimeSlot } from '../../../utils/timeUtils';
 import { Button } from '../../../components/ui/Button/Button';
 
 // 固有スタイル（s）と共通レイアウト（layout）を両方インポート
@@ -30,8 +30,10 @@ export const ScheduleSettingPanel: React.FC = () => {
   const onAddRowClick = () => {
     const isAdded = handleAddRow(selectedStartTime);
     if (isAdded) {
-      const nextIdx = TIME_OPTIONS.indexOf(selectedStartTime) + 1;
-      if (nextIdx < TIME_OPTIONS.length) setSelectedStartTime(TIME_OPTIONS[nextIdx]);
+      const nextTime = getNextTimeSlot(selectedStartTime, interviewDuration);
+      if (TIME_OPTIONS.includes(nextTime)) {
+        setSelectedStartTime(nextTime);
+      }
     }
   };
 

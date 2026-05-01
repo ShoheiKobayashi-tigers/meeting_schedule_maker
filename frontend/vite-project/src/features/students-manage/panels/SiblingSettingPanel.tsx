@@ -60,12 +60,14 @@ export const SiblingSettingPanel: React.FC = () => {
         <div className={layout.panelHeader}>
           <h3 className={layout.panelTitle}>{mode === 'add' ? '兄弟の追加' : '兄弟の編集'}</h3>
         </div>
-        <SiblingForm 
-          initialData={selectedSibling}
-          onSubmit={onFormSubmit}
-          onCancel={handleBack}
-          submitLabel={mode === 'add' ? '登録する' : '更新する'}
-        />
+        <div className={layout.panelScrollArea}>
+          <SiblingForm 
+            initialData={selectedSibling}
+            onSubmit={onFormSubmit}
+            onCancel={handleBack}
+            submitLabel={mode === 'add' ? '登録する' : '更新する'}
+          />
+        </div>
       </div>
     );
   }

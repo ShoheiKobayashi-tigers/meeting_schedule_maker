@@ -132,6 +132,7 @@ export const StartPage: React.FC = () => {
         <div className={s.header}>
           <h1 className={s.title}>個人面談・三者面談 スケジュールメーカー</h1>
           <p className={s.subtitle}>お使いのPC内のみにデータが保存されます</p>
+          <p className={s.subtitle}>※教員側はPCでのご利用を推奨しております</p>
         </div>
 
         {errorMsg && <div className={s.errorMessage}>{errorMsg}</div>}
