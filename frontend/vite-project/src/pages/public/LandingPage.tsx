@@ -247,6 +247,7 @@ export const LandingPage: React.FC = () => {
                 <p>完成した日程表を、保護者配付用のおたより（Word）や、先生の手元用Excelデータとしてエクスポートして完了です。</p>
               </article>
             </div>
+              <div className={s.guideLinkContainer}>詳しく操作手順は、<Link to='/guide' className={s.link}>こちら！</Link></div>
           </div>
         </section>
 

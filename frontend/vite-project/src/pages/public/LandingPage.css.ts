@@ -552,3 +552,11 @@ export const link = style({
     opacity: 0.8,
   }
 });
+
+export const guideLinkContainer = style({
+  display: 'flex',
+  justifyContent: 'center', // 中央寄せ
+  alignItems: 'center',
+  marginTop: '32px', // 上のコンテンツとの余白 (必要に応じて調整)
+  fontSize: '1.1rem', // 少し大きめの文字サイズにする場合
+});
