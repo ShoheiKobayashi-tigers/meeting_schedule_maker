@@ -5,6 +5,9 @@ import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'; // ← こ�
 export default defineConfig({
   plugins: [
     react(),
-    vanillaExtractPlugin() // ← これも必要
-  ]
+    vanillaExtractPlugin()
+  ],
+  build: {
+    target: 'es2015'
+  }
 });

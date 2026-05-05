@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "postbuild": "react-snap",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "preview": "vite preview"
@@ -47,7 +48,24 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
+    "react-snap": "^1.23.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.7"
+  },
+  "reactSnap": {
+    "source": "dist",
+    "include": [
+      "/",
+      "/guide",
+      "/security",
+      "/updates",
+      "/terms",
+      "/privacy"
+    ],
+    "exclude": ["/app", "/demo"],
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ]
   }
 }
