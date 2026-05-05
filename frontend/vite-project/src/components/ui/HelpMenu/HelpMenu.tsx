@@ -40,8 +40,14 @@ export const HelpMenu: React.FC = () => {
             {/* 🟩 第2グループ：困った時のサポート（アクション） */}
             <a href="/guide" target="_blank" rel="noopener noreferrer" className={s.menuItem} onClick={closeMenu}>
               <div className={s.textWrapper}>
-                <div className={s.itemTitle}>ご利用ガイド</div>
-                <div className={s.itemDescription}>使い方マニュアル・よくある質問</div>
+                <div className={s.itemTitle}>ご利用ガイド（概要）</div>
+                <div className={s.itemDescription}>使い方マニュアル</div>
+              </div>
+            </a>
+            <a href="https://koba-maishin.com/%e3%80%90%e5%ae%8c%e5%85%a8%e3%82%ac%e3%82%a4%e3%83%89%e3%80%91%e3%82%b9%e3%82%b1%e3%82%b8%e3%83%a5%e3%83%bc%e3%83%ab%e3%83%a1%e3%83%bc%e3%82%ab%e3%83%bc%e3%81%ae%e4%bd%bf%e3%81%84%e6%96%b9/" target="_blank" rel="noopener noreferrer" className={s.menuItem} onClick={closeMenu}>
+              <div className={s.textWrapper}>
+                <div className={s.itemTitle}>ご利用ガイド（詳細＞開発者ブログへ）</div>
+                <div className={s.itemDescription}>写真付きの使い方完全ガイド</div>
               </div>
             </a>
             <a href="https://forms.gle/GMqBkzefmF3EAASx7" target="_blank" rel="noopener noreferrer" className={s.menuItem} onClick={closeMenu}>
