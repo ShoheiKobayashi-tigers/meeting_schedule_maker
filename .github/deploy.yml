@@ -1,0 +1,39 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - master # 先ほどのCF画面でmasterになっていたため合わせています
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    # package.json があるディレクトリを指定します
+    defaults:
+      run:
+        working-directory: ./frontend/vite-project
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and Prerender (react-snap)
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'meeting-schedule-maker' # CFのプロジェクト名
+          directory: 'frontend/vite-project/dist' # 完成品の出力先フォルダ
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
