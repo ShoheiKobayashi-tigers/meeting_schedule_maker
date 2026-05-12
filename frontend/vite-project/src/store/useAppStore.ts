@@ -156,7 +156,7 @@ interface AppState {
   setSchoolSettings: (settings: SchoolSettings) => void;
   setWorkspaceId: (id: string) => void;
   setSecretKey: (key: string) => void; // ★追加
-  restorePreviousData: () => void;
+  // restorePreviousData: () => void;
 
   //リリース前に削除
   clearAllAssignments: () => void;
@@ -370,26 +370,26 @@ export const useAppStore = create<AppState>()(
             };
           }),
 
-        restorePreviousData: () => {
-          const saved = localStorage.getItem("student-app-storage");
-          if (saved) {
-            try {
-              const parsed = JSON.parse(saved);
-              if (parsed.state && parsed.state.db) {
-                // stateを受け取って db だけを更新するように修正
-                set((state) => ({
-                  ...state,
-                  db: parsed.state.db,
-                }));
-                alert("前回のデータを復元しました。");
-              }
-            } catch (e) {
-              console.error("復元に失敗しました", e);
-            }
-          } else {
-            alert("保存されたデータが見つかりません。");
-          }
-        },
+        // restorePreviousData: () => {
+        //   const saved = localStorage.getItem("student-app-storage");
+        //   if (saved) {
+        //     try {
+        //       const parsed = JSON.parse(saved);
+        //       if (parsed.state && parsed.state.db) {
+        //         // stateを受け取って db だけを更新するように修正
+        //         set((state) => ({
+        //           ...state,
+        //           db: parsed.state.db,
+        //         }));
+        //         alert("前回のデータを復元しました。");
+        //       }
+        //     } catch (e) {
+        //       console.error("復元に失敗しました", e);
+        //     }
+        //   } else {
+        //     alert("保存されたデータが見つかりません。");
+        //   }
+        // },
 
         // UI Setters (ネストした ui オブジェクトを更新)
         setSelectedSlot: (slot) =>
@@ -797,6 +797,40 @@ export const useAppStore = create<AppState>()(
         // 重要: dbオブジェクトのみを永続化し、uiオブジェクトは保存しない
         partialize: (state) => ({ db: state.db }),
         skipHydration: true,
+        merge: (persistedState: unknown, currentState: AppState): AppState => {
+          // 型の安全なチェック
+          const ps = persistedState as { db?: Partial<typeof currentState.db> } | undefined;
+          
+          // 保存データがない場合は、現在の状態（初期値）をそのまま返す
+          if (!ps || !ps.db) return currentState;
+
+          // 保存データとデフォルト値をディープマージ（合体）する
+          return {
+            ...currentState,
+            db: {
+              ...currentState.db,
+              ...ps.db,
+              
+              // 1. スケジュールデータ（availabilityが消えるのを防ぐ）
+              scheduleData: {
+                ...currentState.db.scheduleData,
+                ...(ps.db.scheduleData || {}),
+              },
+              
+              // 2. 学校設定（お便りが白紙になるのを防ぐ）
+              schoolSettings: {
+                ...currentState.db.schoolSettings,
+                ...(ps.db.schoolSettings || {}),
+              },
+              
+              // 3. 自動割当設定（エラー防止）
+              autoAssignmentConfig: {
+                ...currentState.db.autoAssignmentConfig,
+                ...(ps.db.autoAssignmentConfig || {}),
+              }
+            },
+          };
+        },
       },
     ),
     { enabled: process.env.NODE_ENV !== 'production' }
