@@ -34,15 +34,14 @@ jobs:
         env:
           VITE_API_BASE_URL: /api
         run: npm run build
-        
-      - name: Copy functions to dist
-        run: cp -r functions dist/
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: 'meeting-schedule-maker' # CFのプロジェクト名
-          directory: 'frontend/vite-project/dist' # 完成品の出力先フォルダ
+          projectName: 'meeting-schedule-maker'
+          # ★ 修正ポイント：作業ディレクトリを指定し、directoryを 'dist' だけにする ★
+          directory: 'dist'
+          workingDirectory: 'frontend/vite-project'
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
