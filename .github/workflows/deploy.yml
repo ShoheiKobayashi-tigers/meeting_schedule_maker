@@ -31,6 +31,8 @@ jobs:
         run: npm ci
 
       - name: Build and Prerender (react-snap)
+        env:
+          VITE_API_BASE_URL: /api
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
