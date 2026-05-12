@@ -35,7 +35,18 @@ app.post('/workspaces/sync', async (c) => {
          rows = EXCLUDED.rows, cols = EXCLUDED.cols, availability = EXCLUDED.availability, tokens = EXCLUDED.tokens, class_name = EXCLUDED.class_name,
          limit_date = EXCLUDED.limit_date, message = EXCLUDED.message, is_opened = EXCLUDED.is_opened,
          event_name = EXCLUDED.event_name, updated_at = NOW()`,
-      [workspaceId, JSON.stringify(rows), JSON.stringify(cols), JSON.stringify(availability), JSON.stringify(tokens), className, safeLimitDate, message, isOpened ?? true, eventName]
+      [
+        workspaceId,
+        JSON.stringify(rows || []),
+        JSON.stringify(cols || []),
+        JSON.stringify(availability || []),
+        JSON.stringify(tokens || []),
+        className || null, // ★ undefinedの場合は null に変換
+        safeLimitDate,
+        message || null,   // ★ undefinedの場合は null に変換
+        isOpened ?? true,
+        eventName || null  // ★ undefinedの場合は null に変換
+      ]
     );
 
     for (const app of applicants) {
