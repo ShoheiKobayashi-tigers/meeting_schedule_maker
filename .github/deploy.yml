@@ -3,7 +3,8 @@ name: Deploy to Cloudflare Pages
 on:
   push:
     branches:
-      - master # 先ほどのCF画面でmasterになっていたため合わせています
+      - master
+      - develop
 
 jobs:
   build-and-deploy:
