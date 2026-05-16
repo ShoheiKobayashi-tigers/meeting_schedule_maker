@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { useProcessedApplicants } from '../../../hooks/useProcessedApplicants';
+import { useExportApplicants } from '../../../hooks/useExportApplicants';
 import { ApplicantForm } from '../components/parts/ApplicantForm';
 import { ApplicantDetail } from '../components/parts/ApplicantDetail';
 import { ImportStudentModal } from '../components/modals/ImportStudentModal';
@@ -15,6 +16,7 @@ export const ApplicantSettingPanel: React.FC = () => {
   const [ selectedId, setSelectedId ] = useState<string | null>(null);
   // useProcessedApplicants を使用して加工済みデータを取得
   const processedApplicants = useProcessedApplicants();
+  const { exportApplicants } = useExportApplicants();
   const { setImportStudentModalOpen, openConfirmationModal, deleteApplicant } = useAppStore();
 
   const [mode, setMode] = useState<PanelMode>('list');
@@ -82,6 +84,7 @@ export const ApplicantSettingPanel: React.FC = () => {
       <div className={layout.panelHeader}>
         <h3 className={layout.panelTitle}>生徒一覧</h3>
         <div className={s.actionButtonGroup}>
+          <Button variant="secondary" onClick={exportApplicants} style={{border:'0.5px solid #e2e2e2'}}>一覧データ出力</Button>
           <Button variant="outline" onClick={() => { setImportStudentModalOpen(true); }}>児童一括登録</Button>
           <Button variant="primary" onClick={() => { setSelectedId(null); setMode('add'); }}>新規追加</Button>
         </div>

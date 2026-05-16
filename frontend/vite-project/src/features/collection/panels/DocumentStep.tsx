@@ -1,6 +1,7 @@
 // src/features/collection/panels/DocumentStep.tsx
 import React from 'react';
 import { useAppStore } from '../../../store/useAppStore';
+import { useExportApplicants } from '../../../hooks/useExportApplicants'
 import { generateHandoutDocx } from '../../../utils/docxUtils';
 import { Button } from '../../../components/ui/Button/Button'; 
 
@@ -18,6 +19,8 @@ export const DocumentStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
   const handleDownload = async () => {
     await generateHandoutDocx(applicants, schoolSettings, workspaceId || '', secretKey || '');
   };
+
+  const {exportApplicants} = useExportApplicants();
 
   return (
     <div className={layout.basePanelCard}>
@@ -136,6 +139,9 @@ export const DocumentStep: React.FC<{ onNext: () => void }> = ({ onNext }) => {
           
           <Button variant="primary" onClick={handleDownload} style={{ maxWidth: '400px', width: '100%' }}>
             案内を一括生成してダウンロード (.docx)
+          </Button>
+          <Button variant="secondary" onClick={exportApplicants} style={{ maxWidth: '400px', width: '100%', border:'0.5px solid #e2e2e2'}}>
+            児童一覧をダウンロード (.xlsx)
           </Button>
           
           <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>
