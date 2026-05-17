@@ -3,7 +3,7 @@
  * * スケジュールデータの割り当て (assignments) を不変的に更新するためのユーティリティ
  */
 
-import { SlotIndex } from "../types/ScheduleManager";
+import { SlotIndex, ScheduleData } from "../types/ScheduleManager";
 
 // 1. 指定されたスロットに児童（生徒）を割り当てる関数
 export const assignApplicantToSlot = (
@@ -34,4 +34,19 @@ export const deleteAssignmentFromSlot = (
 
     // 更新された assignments 配列のみを返す
     return newAssignments;
+};
+
+export const createApplicantAssignmentMap = (scheduleData: ScheduleData) => {
+  const map = new Map<string, { date: string; time: string }>();
+  const { rows, cols, assignments } = scheduleData;
+
+  for (let r = 0; r < rows.length; r++) {
+    for (let c = 0; c < cols.length; c++) {
+      const applicantId = assignments[r][c];
+      if (applicantId) {
+        map.set(applicantId, { date: cols[c], time: rows[r] });
+      }
+    }
+  }
+  return map;
 };

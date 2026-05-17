@@ -1,24 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAppStore } from "../../../store/useAppStore";
-import { generateScheduleTableDocx } from "../../../utils/docxUtils";
-import { Button } from "../../../components/ui/Button/Button"; // ★共通ボタンを追加
+import { generateScheduleTableDocx, generateIndividualResultDocx } from "../../../utils/docxUtils"; 
+import { Button } from "../../../components/ui/Button/Button"; 
 
 import * as s from "./ResultStep.css";
-import * as layout from '../../../styles/layout.css'; // ★お道具箱を追加
+import * as layout from '../../../styles/layout.css'; 
 
 export const ResultStep: React.FC = () => {
-  // === ロジック部分は一切変更なし ===
-  const { schoolSettings, applicants, scheduleData } = useAppStore(
-    (state) => state.db,
-  );
+  const { schoolSettings, applicants, scheduleData } = useAppStore((state) => state.db);
   const setSchoolSettings = useAppStore((state) => state.setSchoolSettings);
+
+  // 出力中かどうかを判定するState（連打防止用）
+  const [isExportingTable, setIsExportingTable] = useState(false);
+  const [isExportingIndividual, setIsExportingIndividual] = useState(false);
 
   const handleChange = (field: keyof typeof schoolSettings, value: string) => {
     setSchoolSettings({ ...schoolSettings, [field]: value });
   };
 
-  const handleDownload = async () => {
-    await generateScheduleTableDocx(applicants, scheduleData, schoolSettings);
+  const handleDownloadTable = async () => {
+    try {
+      setIsExportingTable(true);
+      await generateScheduleTableDocx(applicants, scheduleData, schoolSettings);
+    } catch (error) {
+      console.error("一覧表の出力エラー:", error);
+      alert("ファイルの生成中にエラーが発生しました。");
+    } finally {
+      setIsExportingTable(false); // 成功しても失敗しても必ず解除する
+    }
+  };
+
+  const handleDownloadIndividual = async () => {
+    try {
+      setIsExportingIndividual(true);
+      await generateIndividualResultDocx(applicants, scheduleData, schoolSettings);
+    } catch (error) {
+      console.error("個別案内出力エラー:", error);
+      alert("ファイルの生成中にエラーが発生しました。");
+    } finally {
+      setIsExportingIndividual(false);
+    }
   };
 
   return (
@@ -68,11 +89,22 @@ export const ResultStep: React.FC = () => {
         <div className={s.downloadArea}>
           <div className={s.statusBadge}>準備完了</div>
           <div className={s.downloadIcon}>📄</div>
-
-          <Button variant="primary" onClick={handleDownload} style={{ maxWidth: '400px', width: '100%' }}>
-            案内を一括生成してダウンロード (.docx)
-          </Button>
-
+            <Button 
+              variant="primary" 
+              onClick={handleDownloadTable}
+              disabled={isExportingTable || isExportingIndividual}
+              style={{ maxWidth: '400px', width: '100%' }}
+            >
+              {isExportingTable ? '出力中...' : 'クラス一覧表をダウンロード (.docx)'}
+            </Button>
+            <Button 
+              variant="secondary" 
+              onClick={handleDownloadIndividual}
+              disabled={isExportingTable || isExportingIndividual}
+              style={{ maxWidth: '400px', width: '100%', border:'0.5px solid #e2e2e2' }}
+            >
+              {isExportingIndividual ? '出力中...' : '個別のお便りをダウンロード (.docx)'}
+            </Button>
           <p style={{ margin: 0, fontSize: "12px", color: "#666" }}>
             ※ 生成には数秒〜数十秒かかる場合があります
           </p>
