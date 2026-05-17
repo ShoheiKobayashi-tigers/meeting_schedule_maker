@@ -51,7 +51,7 @@ export const exportApplicantsTokensToExcel = (applicants: Applicant[], siblings:
   const exportData = applicants.map((app) => ({
     '出席番号': app.student_id,
     '氏名': `${app.family_name} ${app.first_name}`,
-    'ログインID (トークン)': app.token || '未生成', 
+    '認証トークン': app.token || '未生成', 
     '兄弟姉妹': siblings
       .filter(s => s.family_id === app.family_id)
         .map(sibling => `${sibling.family_name} ${sibling.first_name}`)
@@ -61,8 +61,8 @@ export const exportApplicantsTokensToExcel = (applicants: Applicant[], siblings:
   // 2. ワークシートを作成
   const worksheet = XLSX.utils.json_to_sheet(exportData);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, '児童ログインID一覧');
+  XLSX.utils.book_append_sheet(workbook, worksheet, '児童情報一覧');
 
   // 3. ダウンロード実行
-  XLSX.writeFile(workbook, '児童ログインID一覧.xlsx');
+  XLSX.writeFile(workbook, '児童情報一覧.xlsx');
 };
