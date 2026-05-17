@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import { Eye, EyeOff } from "lucide-react"; // 🌟 lucide-reactからインポート
 import { useAppStore } from "../../store/useAppStore";
+import { AnnouncementModalManager } from "../../features/announcements/components/AnnouncementModalManager";
 import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
 import { Button } from "../../components/ui/Button/Button";
 import * as s from "./StartPage.css";
@@ -128,6 +129,7 @@ export const StartPage: React.FC = () => {
 
   return (
     <div className={s.container}>
+      <AnnouncementModalManager />
       <div className={s.card}>
         <div className={s.header}>
           <h1 className={s.title}>個人面談・三者面談 スケジュールメーカー</h1>
