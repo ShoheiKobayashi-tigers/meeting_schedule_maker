@@ -6,6 +6,7 @@ import { formatDisplayDate } from '../../../hooks/useProcessedSchedule';
 import { sortTimeRows, sortDateCols } from '../../../utils/sortUtils';
 import { GuardianLoginView } from '../components/GuardianLoginView';
 import { Button } from '../../../components/ui/Button/Button';
+import { NinjaAd } from '../../../components/NinjaAd';
 import { encryptForCloud, decryptFromCloud } from '../../../utils/secureStorage';
 
 import * as s from './GuardianPortal.css';
@@ -320,6 +321,9 @@ const renderSelectCell = (cell: GridCell) => {
   return (
     <div className={s.pageContainer}>
       <div className={s.mainContent}>
+        <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
+          <NinjaAd />
+        </div>
 
         {currentStep === 'LOGIN' && (
           <GuardianLoginView
