@@ -6,6 +6,7 @@ import * as s from './LandingPage.css'
 
 import { useAppStore } from '../../store/useAppStore';
 import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
+import { NinjaAd } from '../../components/NinjaAd';
 import { ArrowRight, SquareDashed, Users, PenTool, FileSpreadsheet, Printer } from 'lucide-react';
 
 // FAQ用のアコーディオンコンポーネント
@@ -347,6 +348,7 @@ export const LandingPage: React.FC = () => {
           <p className={s.footerCopy}>&copy; 2026 面談スケジュールメーカー All Rights Reserved.</p>
         </div>
       </footer>
+      <NinjaAd />
     </div>
     </>
   );

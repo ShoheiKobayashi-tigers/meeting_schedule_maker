@@ -1,33 +1,35 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
 export const NinjaAd: React.FC = () => {
-  const adRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    // 忍者AdMaxの仕様上、画面遷移（ルーティング）のたびに
-    // スクリプトを再度実行して広告を再描画させるための処理です。
-    const script = document.createElement('script');
+    // 1. 広告を動かすためのグローバル変数を準備（TypeScriptエラー回避のためanyを使用）
+    const win = window as any;
+    win.admaxads = win.admaxads || [];
     
-    // ⚠️ ここに忍者AdMaxで取得したスクリプトのURLを入れます
-    script.src = 'https://adm.shinobi.jp/s/0186706e61ce41b1d06185a3463844c1.js'; 
-    script.async = true;
+    // 2. この画面が開かれるたびに、広告の表示リクエストをpushする
+    win.admaxads.push({
+      admax_id: "0186706e61ce41b1d06185a3463844c1",
+      type: "banner"
+    });
 
-    if (adRef.current) {
-      adRef.current.appendChild(script);
+    // 3. 忍者AdMaxのコアスクリプトを読み込む（すでに読み込み済みの場合はスキップ）
+    const scriptId = 'ninja-admax-script';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://adm.shinobi.jp/st/t.js';
+      script.async = true;
+      script.charset = 'utf-8';
+      document.body.appendChild(script);
     }
-
-    // コンポーネントが破棄される時（別のページに移動した時）にスクリプトをお掃除します
-    return () => {
-      if (adRef.current && script.parentNode) {
-        adRef.current.removeChild(script);
-      }
-    };
   }, []);
 
   return (
-    <div style={{ textAlign: 'center', margin: '24px 0' }}>
-      {/* ⚠️ idの部分に、取得したタグに書かれているidを入れます */}
-      <div ref={adRef} id="admax_1225870"></div>
-    </div>
+    <div 
+      className="admax-ads" 
+      data-admax-id="0186706e61ce41b1d06185a3463844c1" 
+      // 💡スマホ画面ではみ出さないよう「maxWidth: '100%'」をこっそり追加しています
+      style={{ display: 'inline-block', width: '728px', height: '90px', maxWidth: '100%' }}
+    />
   );
 };
