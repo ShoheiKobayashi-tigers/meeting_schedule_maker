@@ -22,6 +22,7 @@ import { SchoolSettings } from '../types/BulkConfig';
 import { ScheduleData } from '../types/ScheduleManager';
 import { getNengo, parseWareki } from './timeUtils';
 import { sortDateCols, sortTimeRows } from './sortUtils';
+import { createApplicantAssignmentMap } from './assignmentUtils';
 import { formatDisplayDate } from '../hooks/useProcessedSchedule'
 
 /**
@@ -363,4 +364,174 @@ export const generateScheduleTableDocx = async (
 
   const blob = await Packer.toBlob(doc);
   saveAs(blob, `${settings.eventName}日程表_${new Date().toISOString().split('T')[0]}.docx`);
+};
+
+// =========================================================================
+// 部品関数 1: お便り上部のヘッダー情報（日付、宛名、差出人）
+// =========================================================================
+const createHeaderParagraphs = (settings: SchoolSettings, student: Applicant) => [
+  new Paragraph({
+    alignment: AlignmentType.RIGHT,
+    spacing: { after: 200 },
+    children: [
+      new TextRun({ 
+        text: settings.resultDistributionDate ? formatDisplayDate(settings.resultDistributionDate) : "令和〇年〇月〇日", 
+        size: 22 
+      }),
+    ],
+  }),
+  new Paragraph({
+    alignment: AlignmentType.LEFT,
+    spacing: { after: 200 },
+    children: [
+      new TextRun({ text: `${student.student_id || "〇"} 番  ${student.family_name} ${student.first_name} さん`, size: 22, underline: {} }),
+      new TextRun({ text: '  保護者様', size: 22 })
+    ],
+  }),
+  new Paragraph({
+    alignment: AlignmentType.RIGHT,
+    spacing: { after: 400 },
+    children: [
+      new TextRun({ text: settings.schoolName || "〇〇小学校", size: 22 }),
+      new TextRun({ text: settings.principalName ? `\n校長  ${settings.principalName}` : "\n校長氏名", size: 22, break: 1 }),
+      new TextRun({ text: settings.senderName ? `\n${settings.className || "第〇学年"}担任  ${settings.senderName}` : "\n学級名  担任氏名", size: 22, break: 1 }),
+    ],
+  })
+];
+
+// =========================================================================
+// 部品関数 2: 「記 〜 以上」のメイン案内セクション（インデントによる美化）
+// =========================================================================
+const createDetailsSection = (dateText: string, timeText: string) => [
+  new Paragraph({
+    alignment: AlignmentType.CENTER,
+    spacing: { before: 1000, after: 600 }, // 上下にしっかり余白をとる
+    children: [new TextRun({ text: "記", size: 24, bold: true })],
+  }),
+  new Paragraph({
+    indent: { left: convertMillimetersToTwip(25) }, // 左から4.5cm綺麗に字下げして縦ラインを揃える
+    spacing: { after: 300 },
+    children: [
+      new TextRun({ text: "１．日  時：  ", size: 24 }),
+      // 日時だけフォントを少し大きく、太字にして最重要項目として目立たせる
+      new TextRun({ text: `${dateText}   ${timeText}`, size: 28, bold: true }),
+    ],
+  }),
+  new Paragraph({
+    indent: { left: convertMillimetersToTwip(25) },
+    spacing: { after: 300 },
+    children: [
+      new TextRun({ text: "２．場  所：  ", size: 24 }),
+      new TextRun({ text: "各教室", size: 24 }), 
+    ],
+  }),
+  new Paragraph({
+    indent: { left: convertMillimetersToTwip(25) },
+    spacing: { after: 600 }, // 「以上」の前に広めの余白
+    children: [
+      new TextRun({ text: "３．お 願い：  ", size: 24 }),
+      new TextRun({ text: "スリッパ等の上履きおよび下足袋をご持参ください。", size: 24 }),
+    ],
+  }),
+  new Paragraph({
+    alignment: AlignmentType.RIGHT,
+    spacing: { after: 800 }, // 下のフッターとの間を広くあける
+    children: [new TextRun({ text: "以上", size: 24, bold: true })],
+  }),
+];
+
+// =========================================================================
+// メイン関数: 児童ごとの決定通知書（個別のお便り）を一括生成
+// =========================================================================
+export const generateIndividualResultDocx = async (
+  applicants: Applicant[],
+  scheduleData: ScheduleData,
+  settings: SchoolSettings
+) => {
+  const children: Paragraph[] = [];
+  
+  // 割り当てデータのインデックスMapを事前に生成（1回のみ実行で効率的）
+  const assignmentMap = createApplicantAssignmentMap(scheduleData);
+
+  for (let i = 0; i < applicants.length; i++) {
+    const student = applicants[i];
+    
+    // 型安全のためのガード処理: student.id がある場合のみMapから取得
+    const assignment = student.id ? assignmentMap.get(student.id) : undefined;
+
+    const assignedDateText = assignment ? formatDisplayDate(assignment.date) : "未定";
+    const assignedTimeText = assignment ? assignment.time : "未定";
+
+    // 1ページ分の段落（Paragraph）を配列にプッシュ
+    children.push(
+      ...createHeaderParagraphs(settings, student),
+      
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 300, after: 400 },
+        children: [
+          new TextRun({ text: `${settings.eventName || "個別面談"} 日程決定のお知らせ`, bold: true, size: 32 }),
+        ],
+      }),
+      
+      new Paragraph({
+        alignment: AlignmentType.LEFT,
+        spacing: { after: 400 },
+        // 改行コード（\n）が含まれる挨拶文章を適切にTextRunへ分割する共通ユーティリティ関数
+        children: createTextRunsFromMultiline(settings.resultLetterMessage || "", 22)
+      }),
+      
+      // 今回新設した 「記 〜 以上」 のスタイリッシュな中央配置ブロック
+      ...createDetailsSection(assignedDateText, assignedTimeText),
+      
+      // 用紙下部のお問い合わせ・備考フッター（これでスカスカ感をさらに払拭）
+      new Paragraph({
+        alignment: AlignmentType.LEFT,
+        spacing: { before: 400 },
+        children: [
+          new TextRun({ text: "※指定された日時のご都合が悪くなった場合は、お早めに担任までご連絡ください。", size: 20 }),
+          new TextRun({ text: "※お時間になりましたら、直接各教室の前の廊下でお待ちください。", size: 20, break: 1 }),
+        ],
+      })
+    );
+
+    // 最後の児童でなければ、次の児童のために改ページを挿入する
+    if (i < applicants.length - 1) {
+      children.push(new Paragraph({ children: [new PageBreak()] }));
+    }
+  }
+
+  // Wordドキュメント全体の構成
+  const doc = new Document({
+    styles: {
+      default: {
+        document: {
+          run: {
+            font: {
+              name: "UD デジタル 教科書体 NK",     
+              eastAsia: "UD デジタル 教科書体 NK", 
+            },
+          },
+        },
+      },
+    },
+    sections: [{
+      properties: {
+        page: {
+          margin: {
+            top: convertMillimetersToTwip(25.4),    
+            bottom: convertMillimetersToTwip(25.4), 
+            left: convertMillimetersToTwip(19.05),  
+            right: convertMillimetersToTwip(19.05), 
+          },
+        },        
+      },
+      children: children,
+    }],
+  });
+
+  // ファイルとしてダウンロード実行
+  const blob = await Packer.toBlob(doc);
+  const fileName = `${settings.eventName || "面談"}日程決定_個別通知_${new Date().toISOString().split('T')[0]}.docx`;
+  saveAs(blob, fileName);
 };
