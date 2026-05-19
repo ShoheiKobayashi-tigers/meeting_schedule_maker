@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAppStore } from '../../../store/useAppStore';
 import { nanoid } from 'nanoid';
 import { encryptForCloud, decryptFromCloud } from '../../../utils/secureStorage'; 
+import { getErrorMessage } from '../../../constants/errorMessages'; // 🌟 インポート
 
 export const useCloudSync = () => {
   const [loading, setLoading] = useState(false);
@@ -55,8 +56,9 @@ export const useCloudSync = () => {
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`Server Error: ${errText}`);
+        // 🌟 jsonとしてパースし、中に埋め込まれているエラーコードを取り出す
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.code || 'SYNC_FAILED');
       }
 
       console.log("✅ Sync success!");
@@ -69,8 +71,14 @@ export const useCloudSync = () => {
 
     } catch (err: any) {
       console.error("Sync failed:", err);
-      setError(err.message);
-      return { success: false, error: err.message };
+      
+      // 🌟 ネットワーク切断やタイムアウト時は 'Failed to fetch' になるため判定
+      const isNetwork = err.message?.includes('fetch') || !navigator.onLine;
+      const code = isNetwork ? 'NETWORK_ERROR' : err.message;
+      
+      const friendlyMessage = getErrorMessage(code);
+      setError(friendlyMessage);
+      return { success: false, error: friendlyMessage };
     } finally {
       setLoading(false);
     }
@@ -88,7 +96,10 @@ export const useCloudSync = () => {
       console.log("📥 Fetching responses...");
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/workspaces/${wsId}/responses`);
       
-      if (!response.ok) throw new Error('回答データの取得に失敗しました');
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.code || 'FETCH_RESPONSES_FAILED');
+      }
 
       const responses: { token: string, preferred_dates: string[] }[] = await response.json();
 
@@ -117,8 +128,13 @@ export const useCloudSync = () => {
 
     } catch (err: any) {
       console.error(err);
-      setError(err.message);
-      return { success: false, error: err.message };
+      
+      const isNetwork = err.message?.includes('fetch') || !navigator.onLine;
+      const code = isNetwork ? 'NETWORK_ERROR' : err.message;
+      
+      const friendlyMessage = getErrorMessage(code);
+      setError(friendlyMessage);
+      return { success: false, error: friendlyMessage };
     } finally {
       setLoading(false);
     }

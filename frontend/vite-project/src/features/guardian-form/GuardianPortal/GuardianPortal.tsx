@@ -8,6 +8,7 @@ import { GuardianLoginView } from '../components/GuardianLoginView';
 import { Button } from '../../../components/ui/Button/Button';
 import { NinjaAd } from '../../../components/NinjaAd';
 import { encryptForCloud, decryptFromCloud } from '../../../utils/secureStorage';
+import { getErrorMessage } from '../../../constants/errorMessages'; // 🌟 一元管理エラーメッセージのインポート
 
 import * as s from './GuardianPortal.css';
 
@@ -69,9 +70,17 @@ export const GuardianPortal: React.FC = () => {
           if (!info.is_opened) {
             setError("現在、回答の受付を停止しています。\n希望される方は、担任までご連絡ください。");
           }
+        } else {
+          // 🌟 サーバー側がエラーコードを返してきた場合
+          const json = await res.json().catch(() => ({}));
+          throw new Error(json.code || 'UNKNOWN_ERROR');
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("表紙情報の取得に失敗", e);
+        // 🌟 ネットワーク切断・コールドスタート等の一時的エラーを優しい表現に変換
+        const isNetwork = e.message?.includes('fetch') || !navigator.onLine;
+        const code = isNetwork ? 'NETWORK_ERROR' : e.message;
+        setError(getErrorMessage(code));
       }
     };
     fetchPublicInfo();
@@ -103,9 +112,11 @@ export const GuardianPortal: React.FC = () => {
           body: JSON.stringify({ token: tokenFromUrl }),
         });
         
-        if (res.status === 401) throw new Error('認証コードが正しくありません');
-        if (res.status === 403) throw new Error("現在、回答の受付を停止しています。");
-        if (!res.ok) throw new Error('通信エラーが発生しました');
+        if (!res.ok) {
+          // 🌟 生のエラーテキストではなく、JSONからcodeを取り出す
+          const json = await res.json().catch(() => ({}));
+          throw new Error(json.code || 'UNKNOWN_ERROR');
+        }
         
         const json: VerifyResponse = await res.json();
 
@@ -141,7 +152,11 @@ export const GuardianPortal: React.FC = () => {
         }
       } catch (err: any) {
         if (isMounted) {
-          setError(err.message);
+          // 🌟 ネットワーク通信そのものの失敗（fetch失敗）か、サーバーからの特定エラーコードかを判定
+          const isNetwork = err.message?.includes('fetch') || !navigator.onLine;
+          const code = isNetwork ? 'NETWORK_ERROR' : err.message;
+          
+          setError(getErrorMessage(code));
           // エラー時は無効なトークンをURLから消し、履歴を残さずにログインへ弾き返す
           navigate(`${location.pathname}${location.hash}`, { replace: true });
         }
@@ -196,12 +211,19 @@ export const GuardianPortal: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: tokenFromUrl, preferred_dates: encryptedDates }),
       });
-      if (!res.ok) throw new Error('送信に失敗しました。もう一度お試しください。');
+      if (!res.ok) {
+        // 🌟 サーバーからのレスポンスオブジェクトをパースしてエラーコードを投げる
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.code || 'UNKNOWN_ERROR');
+      }
       
       // ★ 完了画面へは REPLACE 遷移。これにより、戻るボタンで確認画面に戻れなくなる。
       navigate(`${location.pathname}?token=${tokenFromUrl}&step=complete${location.hash}`, { replace: true });
     } catch (err: any) {
-      alert(err.message);
+      // 🌟 送信時のネットワークタイムアウト等も考慮してアラート表示
+      const isNetwork = err.message?.includes('fetch') || !navigator.onLine;
+      const code = isNetwork ? 'NETWORK_ERROR' : err.message;
+      alert(getErrorMessage(code));
     } finally {
       setLoading(false);
     }
@@ -253,7 +275,7 @@ export const GuardianPortal: React.FC = () => {
     }));
   }, [sortedSchedule]);
 
-const renderSelectCell = (cell: GridCell) => {
+  const renderSelectCell = (cell: GridCell) => {
     // 1. ブロックされているかどうかの判定
     const isBlocked = cell.status === 'admin_block' || cell.status === 'BLOCKED';
 
@@ -311,7 +333,6 @@ const renderSelectCell = (cell: GridCell) => {
     }
 
     // ★ パターンC：選択されていない空き枠（白背景で何も表示しない）
-    // （親の ScheduleBaseTable 側で isBlocked=false になるため背景は白になります）
     return <div className={s.cellBase} />; 
   };
 
