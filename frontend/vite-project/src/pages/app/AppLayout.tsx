@@ -12,7 +12,7 @@ import { HelpMenu } from '../../components/ui/HelpMenu/HelpMenu';
 import { ImportStudentModal } from '../../features/students-manage/components/modals/ImportStudentModal';
 import { ConfirmationModal } from '../../components/modals/ConfirmationModal';
 import { AutoAssignConfirmModal } from '../../components/modals/AutoAssignConfirmModal';
-import { NinjaAd } from '../../components/NinjaAd';
+import { StartupAdModal } from '../../components/modals/StartupAdModal';
 
 import * as layout from '../../styles/layout.css';
 
@@ -221,15 +221,13 @@ export const AppLayout: React.FC = () => {
 
             <main className={layout.appMainArea} style={isStartPage ? { padding: 0 } : {}}>
                 <Outlet />
-                <div style={{ marginTop: '40px', paddingBottom: '20px' }}>
-                    <NinjaAd />
-                </div>
             </main>
 
             {/* 見えないところで待機するモーダル群 */}
             <ImportStudentModal />
             <ConfirmationModal />
             <AutoAssignConfirmModal />
+            <StartupAdModal />
         </div>
     );
 };

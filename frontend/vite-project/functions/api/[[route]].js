@@ -63,7 +63,8 @@ app.post('/workspaces/sync', async (c) => {
     return c.json({ success: true });
   } catch (err) {
     await client.query('ROLLBACK');
-    return c.json({ error: err.message }, 500);
+    // 🌟 エラーコードを追加 (同期失敗)
+    return c.json({ code: 'SYNC_FAILED', error: err.message }, 500);
   } finally {
     client.release();
   }
@@ -81,13 +82,13 @@ app.post('/workspaces/:id/verify', async (c) => {
     const settingsRes = await pool.query('SELECT * FROM form_settings WHERE workspace_id = $1', [workspaceId]);
     const responseRes = await pool.query('SELECT * FROM guardian_responses WHERE workspace_id = $1 AND token = $2', [workspaceId, token]);
 
-    if (settingsRes.rows.length === 0) return c.json({ error: 'フォームが見つかりません' }, 404);
-    if (responseRes.rows.length === 0) return c.json({ error: '無効な認証コードです' }, 401);
+    if (settingsRes.rows.length === 0) return c.json({ code: 'WORKSPACE_NOT_FOUND', error: 'フォームが見つかりません' }, 404);
+    if (responseRes.rows.length === 0) return c.json({ code: 'AUTH_CODE_INVALID', error: '無効な認証コードです' }, 401);
 
     const setting = settingsRes.rows[0];
     const response = responseRes.rows[0];
 
-    if (setting.is_opened === false) return c.json({ error: '現在、回答の受付を停止しています' }, 403);
+    if (setting.is_opened === false) return c.json({ code: 'FORM_CLOSED', error: '現在、回答の受付を停止しています' }, 403);
 
     return c.json({
       token: response.token,
@@ -97,7 +98,7 @@ app.post('/workspaces/:id/verify', async (c) => {
       settings: { className: setting.class_name, limitDate: setting.limit_date, message: setting.message, isOpened: setting.is_opened }
     });
   } catch (err) {
-    return c.json({ error: err.message }, 500);
+    return c.json({ code: 'UNKNOWN_ERROR', error: err.message }, 500);
   }
 });
 
@@ -114,10 +115,10 @@ app.post('/workspaces/:id/submissions', async (c) => {
       `UPDATE guardian_responses SET preferred_dates = $1, updated_at = NOW() WHERE workspace_id = $2 AND token = $3`,
       [JSON.stringify(preferred_dates), workspaceId, token]
     );
-    if (result.rowCount === 0) return c.json({ error: '更新対象が見つかりません' }, 400);
+    if (result.rowCount === 0) return c.json({ code: 'SUBMISSION_TARGET_NOT_FOUND', error: '更新対象が見つかりません' }, 400);
     return c.json({ success: true });
   } catch (err) {
-    return c.json({ error: err.message }, 500);
+    return c.json({ code: 'UNKNOWN_ERROR', error: err.message }, 500);
   }
 });
 
@@ -132,7 +133,7 @@ app.get('/workspaces/:id/responses', async (c) => {
     const result = await pool.query('SELECT token, preferred_dates FROM guardian_responses WHERE workspace_id = $1', [workspaceId]);
     return c.json(result.rows);
   } catch (err) {
-    return c.json({ error: err.message }, 500);
+    return c.json({code: 'FETCH_RESPONSES_FAILED', error: err.message }, 500);
   }
 });
 
@@ -145,10 +146,10 @@ app.get('/workspaces/:id/public', async (c) => {
 
   try {
     const result = await pool.query('SELECT class_name, message, is_opened, limit_date, event_name FROM form_settings WHERE workspace_id = $1', [workspaceId]);
-    if (result.rows.length === 0) return c.json({ error: 'フォームが見つかりません' }, 404);
+    if (result.rows.length === 0) return c.json({ code: 'WORKSPACE_NOT_FOUND', error: 'フォームが見つかりません' }, 404);
     return c.json(result.rows[0]);
   } catch (err) {
-    return c.json({ error: err.message }, 500);
+    return c.json({code: 'UNKNOWN_ERROR', error: err.message }, 500);
   }
 });
 

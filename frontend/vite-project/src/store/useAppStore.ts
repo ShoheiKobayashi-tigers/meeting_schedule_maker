@@ -80,6 +80,7 @@ interface UiState {
   isTermsModalOpen: boolean;
   isPrivacyModalOpen: boolean;
   isReleaseNotesModalOpen: boolean;
+  isStartupAdModalOpen: boolean;
 }
 
 interface AppState {
@@ -143,6 +144,7 @@ interface AppState {
   setTermsModalOpen: (isOpen: boolean) => void;
   setPrivacyModalOpen: (isOpen: boolean) => void;
   setReleaseNotesModalOpen: (isOpen: boolean) => void;
+  setStartupAdModalOpen: (isOpen: boolean) => void;
 
   //応用設定画面
   setBulkSetupOpen: (isOpen: boolean) => void;
@@ -218,6 +220,7 @@ export const useAppStore = create<AppState>()(
           isTermsModalOpen: false,
           isPrivacyModalOpen: false,
           isReleaseNotesModalOpen: false,
+          isStartupAdModalOpen: false
         },
         
         setHasEntered: (val: boolean) => set((state) => ({
@@ -255,6 +258,7 @@ export const useAppStore = create<AppState>()(
               isTermsModalOpen: false,
               isPrivacyModalOpen: false,
               isReleaseNotesModalOpen: false,
+              isStartupAdModalOpen: false,
             },
           }),
 
@@ -675,6 +679,8 @@ export const useAppStore = create<AppState>()(
           set((state) => ({ ui: { ...state.ui, isPrivacyModalOpen: isOpen } })),
         setReleaseNotesModalOpen: (isOpen) =>
           set((state) => ({ ui: { ...state.ui, isReleaseNotesModalOpen: isOpen } })),
+        setStartupAdModalOpen: (isOpen) =>
+          set((state) => ({ ui: { ...state.ui, isStartupAdModalOpen: isOpen } })),
 
         applyAutoAssignmentResult: (result) =>
           set((state) => ({
@@ -722,6 +728,7 @@ export const useAppStore = create<AppState>()(
               isTermsModalOpen: false,
               isPrivacyModalOpen: false,
               isReleaseNotesModalOpen: false,
+              isStartupAdModalOpen: false,
             },
           }),
 
