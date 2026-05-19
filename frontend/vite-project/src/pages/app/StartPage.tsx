@@ -14,7 +14,7 @@ type PageMode = "menu" | "resume" | "new";
 
 export const StartPage: React.FC = () => {
   const navigate = useNavigate();
-  const { resetAll, loadDemoData, setHasEntered } = useAppStore();
+  const { resetAll, loadDemoData, setHasEntered, setStartupAdModalOpen } = useAppStore();
 
   const [mode, setMode] = useState<PageMode>("menu");
   const [hasData, setHasData] = useState(false);
@@ -44,6 +44,7 @@ export const StartPage: React.FC = () => {
       await useAppStore.persist.rehydrate();
 
       setHasEntered(true);
+      setStartupAdModalOpen(true);
       
       // 🌟 記憶していた最後の場所（なければStep1）へ復帰
       const lastRoute = localStorage.getItem("student-app-last-route");
@@ -99,6 +100,7 @@ export const StartPage: React.FC = () => {
     loadDemoData();
     await useAppStore.persist.rehydrate();
     setHasEntered(true);
+    setStartupAdModalOpen(true);
     navigate("/demo/step1/datetime");
     setTimeout(() => {
         setForceDemoMode(false);
