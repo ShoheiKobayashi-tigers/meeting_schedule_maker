@@ -81,6 +81,7 @@ interface UiState {
   isPrivacyModalOpen: boolean;
   isReleaseNotesModalOpen: boolean;
   isStartupAdModalOpen: boolean;
+  isRestoreModalOpen: boolean;
 }
 
 interface AppState {
@@ -145,7 +146,8 @@ interface AppState {
   setPrivacyModalOpen: (isOpen: boolean) => void;
   setReleaseNotesModalOpen: (isOpen: boolean) => void;
   setStartupAdModalOpen: (isOpen: boolean) => void;
-
+  setRestoreModalOpen: (isOpen: boolean) => void; //復元用
+  
   //応用設定画面
   setBulkSetupOpen: (isOpen: boolean) => void;
   setAllocationConfigOpen: (isOpen: boolean) => void;
@@ -220,7 +222,8 @@ export const useAppStore = create<AppState>()(
           isTermsModalOpen: false,
           isPrivacyModalOpen: false,
           isReleaseNotesModalOpen: false,
-          isStartupAdModalOpen: false
+          isStartupAdModalOpen: false,
+          isRestoreModalOpen: false
         },
         
         setHasEntered: (val: boolean) => set((state) => ({
@@ -258,7 +261,8 @@ export const useAppStore = create<AppState>()(
               isTermsModalOpen: false,
               isPrivacyModalOpen: false,
               isReleaseNotesModalOpen: false,
-              isStartupAdModalOpen: false,
+              isStartupAdModalOpen: false,              
+              isRestoreModalOpen: false
             },
           }),
 
@@ -681,6 +685,8 @@ export const useAppStore = create<AppState>()(
           set((state) => ({ ui: { ...state.ui, isReleaseNotesModalOpen: isOpen } })),
         setStartupAdModalOpen: (isOpen) =>
           set((state) => ({ ui: { ...state.ui, isStartupAdModalOpen: isOpen } })),
+        setRestoreModalOpen: (isOpen) =>
+          set((state) => ({ ui: { ...state.ui, isRestoreModalOpen: isOpen } })),
 
         applyAutoAssignmentResult: (result) =>
           set((state) => ({
@@ -729,6 +735,7 @@ export const useAppStore = create<AppState>()(
               isPrivacyModalOpen: false,
               isReleaseNotesModalOpen: false,
               isStartupAdModalOpen: false,
+              isRestoreModalOpen: false
             },
           }),
 

@@ -66,3 +66,20 @@ export const exportApplicantsTokensToExcel = (applicants: Applicant[], siblings:
   // 3. ダウンロード実行
   XLSX.writeFile(workbook, '児童情報一覧.xlsx');
 };
+
+/**
+ * 復元専用テンプレートExcelのダウンロード
+ */
+export const downloadRestoreTemplate = () => {
+  // ユーザー様ご指定の「出席番号 | 苗字 | 名前 | 認証トークン」の並び
+  const data = [
+    ["出席番号", "苗字", "名前", "認証トークン"],
+    ["1", "山田", "太郎", "A1B2C3"], // 先生が迷わないためのサンプル行
+  ];
+
+  const worksheet = XLSX.utils.aoa_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "復元用名簿");
+  
+  XLSX.writeFile(workbook, "データ復元用_児童一覧_ひな形.xlsx");
+};
