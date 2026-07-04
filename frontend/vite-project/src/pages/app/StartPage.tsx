@@ -8,7 +8,6 @@ import { AnnouncementModalManager } from "../../features/announcements/component
 import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
 import { Button } from "../../components/ui/Button/Button";
 import * as s from "./StartPage.css";
-import { RestoreModal } from "../../features/restore-data/RestoreModal";
 
 const STORAGE_KEY = "student-app-storage";
 type PageMode = "menu" | "resume" | "new";
