@@ -38,3 +38,4 @@ jobs:
           projectName: 'meeting-schedule-maker' # CFのプロジェクト名
           directory: 'frontend/vite-project/dist' # 完成品の出力先フォルダ
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref_name }}
