@@ -1,5 +1,5 @@
 // src/pages/app/StartPage.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import { Eye, EyeOff } from "lucide-react"; // 🌟 lucide-reactからインポート
@@ -8,13 +8,14 @@ import { AnnouncementModalManager } from "../../features/announcements/component
 import { setSessionPassword, setForceDemoMode } from "../../utils/secureStorage"; 
 import { Button } from "../../components/ui/Button/Button";
 import * as s from "./StartPage.css";
+import { RestoreModal } from "../../features/restore-data/RestoreModal";
 
 const STORAGE_KEY = "student-app-storage";
 type PageMode = "menu" | "resume" | "new";
 
 export const StartPage: React.FC = () => {
   const navigate = useNavigate();
-  const { resetAll, loadDemoData, setHasEntered, setStartupAdModalOpen } = useAppStore();
+  const { resetAll, loadDemoData, setHasEntered, setStartupAdModalOpen, setRestoreModalOpen } = useAppStore();
 
   const [mode, setMode] = useState<PageMode>("menu");
   const [hasData, setHasData] = useState(false);
@@ -23,6 +24,9 @@ export const StartPage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [isAgreed, setIsAgreed] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  //隠しコマンド数える用
+  const clickCount = useRef<number>(0);
 
   useEffect(() => {
     const encryptedValue = localStorage.getItem(STORAGE_KEY);
@@ -129,12 +133,22 @@ export const StartPage: React.FC = () => {
     setErrorMsg("");
   };
 
+  //隠しコマンドで復元モーダルを表示させる
+  const handleTitleClick = () => {
+    clickCount.current += 1;
+    
+    if (clickCount.current >= 10) {
+      if (setRestoreModalOpen) setRestoreModalOpen(true);
+      clickCount.current = 0; // カウントをリセット
+    }
+  };
+
   return (
     <div className={s.container}>
       <AnnouncementModalManager />
       <div className={s.card}>
         <div className={s.header}>
-          <h1 className={s.title}>個人面談・三者面談 スケジュールメーカー</h1>
+          <h1 className={s.title} onClick={handleTitleClick}>個人面談・三者面談 スケジュールメーカー</h1>
           <p className={s.subtitle}>お使いのPC内のみにデータが保存されます</p>
           <p className={s.subtitle}>※教員側はPCでのご利用を推奨しております</p>
         </div>

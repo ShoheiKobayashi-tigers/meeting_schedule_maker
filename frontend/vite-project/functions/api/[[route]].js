@@ -153,5 +153,138 @@ app.get('/workspaces/:id/public', async (c) => {
   }
 });
 
+// =========================================================================
+// 🔒 API ①: ワンタイムパスワードの仮チェック (Step 1 用)
+// =========================================================================
+app.post('/workspaces/restore/verify-otp', async (c) => {
+  const { otp } = await c.req.json();
+
+  if (!otp) {
+    return c.json({ error: 'ワンタイムパスワードを入力してください' }, 400);
+  }
+
+  // 既存のAPIと同様にPoolから接続を作成
+  const pool = new Pool({ connectionString: c.env.DATABASE_URL });
+
+  try {
+    // $1 プレースホルダーを使用したクエリに修正
+    const result = await pool.query(
+      `SELECT workspace_id 
+       FROM public.form_settings 
+       WHERE otp = $1 
+         AND otp_generated_at >= NOW() - INTERVAL '7 days'
+       LIMIT 1`,
+      [otp]
+    );
+
+    if (result.rows.length === 0) {
+      return c.json({ code: 'RESTORE_OTP_INVALID', error: '無効なワンタイムパスワードか、有効期限が切れています。' }, 400);
+    }
+
+    return c.json({ success: true, message: 'OTP verification successful' });
+  } catch (error) {
+    console.error('Verify OTP Error:', error);
+    return c.json({ code: 'UNKNOWN_ERROR', error: 'サーバー内部でエラーが発生しました' }, 500);
+  }
+});
+
+// =========================================================================
+// 🔒 API ②: トークン完全一致検証 ＆ データ返却 ＆ OTP即時失効 (Step 2 用)
+// =========================================================================
+app.post('/workspaces/restore/execute', async (c) => {
+  const { workspace_id, otp, excelTokens } = await c.req.json();
+
+  if (!workspace_id || !otp || !excelTokens || !Array.isArray(excelTokens)) {
+    return c.json({ error: '不完全なリクエストパラメータです' }, 400);
+  }
+
+  const pool = new Pool({ connectionString: c.env.DATABASE_URL });
+  const client = await pool.connect();
+
+  try {
+    // 既存の /workspaces/sync と同じスタイルで明示的にトランザクションを開始
+    await client.query('BEGIN');
+
+    // 1. 該当するワークスペースから、OTPが有効（1週間以内）な設定データを取得
+    const settingsResult = await client.query(
+      `SELECT * 
+       FROM public.form_settings 
+       WHERE workspace_id = $1 
+         AND otp = $2
+         AND otp_generated_at >= NOW() - INTERVAL '7 days'`,
+      [workspace_id, otp]
+    );
+
+    if (settingsResult.rows.length === 0) {
+      throw new Error('RESTORE_OTP_INVALID');
+    }
+
+    const formSettings = settingsResult.rows[0];
+
+    // 2. 【核心】エクセルからパースしたトークンと、DBのtokensの完全一致検証
+    const dbTokens = typeof formSettings.tokens === 'string' 
+      ? JSON.parse(formSettings.tokens) 
+      : formSettings.tokens;
+
+    if (!Array.isArray(dbTokens) || dbTokens.length !== excelTokens.length) {
+      throw new Error('RESTORE_TOKENS_MISMATCH');
+    }
+
+    // 配列の要素がすべて一致しているか検証（順不同）
+    const isMatch = excelTokens.every(t => dbTokens.includes(t)) && dbTokens.every(t => excelTokens.includes(t));
+    if (!isMatch) {
+      throw new Error('RESTORE_TOKENS_MISMATCH');
+    }
+
+    // 3. 検証をすべてクリアしたため、同一トランザクション内でOTPを即座にNULL（失効）にする！
+    await client.query(
+      `UPDATE public.form_settings 
+       SET otp = NULL, otp_generated_at = NULL 
+       WHERE workspace_id = $1`,
+      [workspace_id]
+    );
+
+    // 4. 同期されていた保護者の回答データをすべて抽出
+    const guardianResponses = await client.query(
+      `SELECT token, preferred_dates 
+       FROM public.guardian_responses 
+       WHERE workspace_id = $1`,
+      [workspace_id]
+    );
+
+    // トランザクションを確定（コミット）
+    await client.query('COMMIT');
+
+    // 復元モーダルに返すペイロードを返却
+    return c.json({
+      formSettings: {
+        rows: formSettings.rows,
+        cols: formSettings.cols,
+        availability: formSettings.availability,
+        event_name: formSettings.event_name,
+        class_name: formSettings.class_name,
+        message: formSettings.message,
+        limit_date: formSettings.limit_date,
+        is_opened: formSettings.is_opened
+      },
+      guardianResponses: guardianResponses.rows
+    });
+
+  } catch (error) {
+    // 例外発生時は確実にロールアップ（OTPもNULLに戻らず無傷のまま残る）
+    await client.query('ROLLBACK');
+    console.error('Restore Execute Error:', error);
+    
+    if (error.message === 'RESTORE_OTP_INVALID' || error.message === 'RESTORE_TOKENS_MISMATCH') {
+      return c.json({ code: error.message }, 400);
+    }
+    
+    return c.json({ code: 'UNKNOWN_ERROR', error: 'サーバー内部でエラーが発生しました' }, 500);
+  } finally {
+    // 接続をプールに返却
+    client.release();
+  }
+});
+
 // Cloudflare Pages 用にラップしてエクスポート
 export const onRequest = handle(app);

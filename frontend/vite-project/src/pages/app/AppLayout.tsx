@@ -15,6 +15,7 @@ import { AutoAssignConfirmModal } from '../../components/modals/AutoAssignConfir
 import { StartupAdModal } from '../../components/modals/StartupAdModal';
 
 import * as layout from '../../styles/layout.css';
+import { RestoreModal } from '../../features/restore-data/RestoreModal';
 
 // --- ロードマップ機能（元のApp.tsxからお引っ越し） ---
 // ----------------------------------------------------
@@ -228,6 +229,7 @@ export const AppLayout: React.FC = () => {
             <ConfirmationModal />
             <AutoAssignConfirmModal />
             <StartupAdModal />
+            <RestoreModal/>
         </div>
     );
 };

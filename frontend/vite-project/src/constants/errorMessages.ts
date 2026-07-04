@@ -9,6 +9,8 @@ export const ERROR_CODES = {
   FORM_CLOSED: 'FORM_CLOSED',
   SUBMISSION_TARGET_NOT_FOUND: 'SUBMISSION_TARGET_NOT_FOUND',
   FETCH_RESPONSES_FAILED: 'FETCH_RESPONSES_FAILED',
+  RESTORE_OTP_INVALID: 'ワンタイムパスワードが正しくないか、または有効期限（24時間）が切れています。発行されたメールを再度ご確認ください。',
+  RESTORE_TOKENS_MISMATCH: 'アップロードされた児童一覧ファイル（トークン情報）またはURLが、サーバーに保管されている登録内容と一致しません。対象のクラスのファイルか再度ご確認ください。',
 } as const;
 
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
@@ -23,6 +25,10 @@ export const USER_ERROR_MESSAGES: Record<string, string> = {
   FORM_CLOSED: '現在、この面談フォームは回答の受付を停止しています。',
   SUBMISSION_TARGET_NOT_FOUND: '回答の送信先が見つかりませんでした。フォームが新しく作り直された可能性があります。',
   FETCH_RESPONSES_FAILED: '回答データの取得に失敗しました。少し時間をおいてからもう一度お試しください。',
+
+  // 復元用
+  RESTORE_OTP_INVALID: 'ワンタイムパスワードが正しくないか、または有効期限（24時間）が切れています。発行されたメールを再度ご確認ください。',
+  RESTORE_TOKENS_MISMATCH: 'アップロードされた児童一覧ファイル（トークン情報）またはURLが、サーバーに保管されている登録内容と一致しません。対象のクラスのファイルか再度ご確認ください。',
 };
 
 /**
