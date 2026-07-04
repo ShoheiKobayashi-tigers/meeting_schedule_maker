@@ -10,6 +10,30 @@ const app = new Hono().basePath('/api');
 // CORS設定（Cloudflare Pages上では同じドメインになるため基本的に全許可でOK）
 app.use('/*', cors());
 
+// =========================================================================
+// ⏰ Neonコールドスタート対策：全APIの実行前にDBを1回叩き起こすミドルウェア
+// =========================================================================
+app.use('/*', async (c, next) => {
+  // 環境変数がない場合や、特定の静的ファイル・GETリクエスト等を除外したい場合はここで制御可能
+  if (c.env && c.env.DATABASE_URL) {
+    const start = Date.now();
+    try {
+      // 既存のPoolインスタンスを利用して、超軽量なクエリでコネクションを確立
+      const wakeupPool = new Pool({ connectionString: c.env.DATABASE_URL });
+      await wakeupPool.query('SELECT 1');
+      
+      // ログに起床にかかった時間を記録（デバッグ用）
+      console.log(`[Neon Wakeup] Database is awake. (Time: ${Date.now() - start}ms)`);
+    } catch (err) {
+      // 万が一ここでエラーが起きても、本番のAPI処理側でリトライできるようにログ出力のみに留める
+      console.error('[Neon Wakeup Error] Failed to nudge database:', err.message);
+    }
+  }
+  
+  // 次の実際のAPI（/sync や /verify など）へ処理をパスする
+  await next();
+});
+
 /**
  * 1. 同期 (Sync) API
  */
