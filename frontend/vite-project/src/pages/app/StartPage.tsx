@@ -109,21 +109,6 @@ export const StartPage: React.FC = () => {
         setForceDemoMode(false);
     }, 500);
   };
-  // 🗑️ 強制リセット
-  const handleForceReset = () => {
-    if (
-      window.confirm(
-        "【警告】現在のデータを全て破棄しますか？（復元はできません）",
-      )
-    ) {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem("student-app-last-route");
-      setHasData(false);
-      setMode("menu");
-      setPassword("");
-      setErrorMsg("");
-    }
-  };
 
   const goBack = () => {
     setMode("menu");
@@ -250,7 +235,7 @@ export const StartPage: React.FC = () => {
               </Button>
               <Button
                 variant="ghost"
-                onClick={handleForceReset}
+                onClick={() => window.open("https://forms.gle/DEvyS1WjPBPcixrx6", "_blank", "noopener,noreferrer")}
                 style={{ color: "#ef4444" }}
               >
                 パスワードを忘れた場合
